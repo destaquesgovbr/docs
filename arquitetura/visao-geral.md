@@ -28,11 +28,11 @@ flowchart TB
         F --> G
     end
 
-    subgraph ARMAZENAMENTO["3. Armazenamento (~300k docs)"]
+    subgraph ARMAZENAMENTO["3. Armazenamento ~300k docs"]
         G -->|Push| H[(HuggingFace Dataset)]
     end
 
-    subgraph INDEXACAO["4. Indexação (Busca full-text)"]
+    subgraph INDEXACAO["4. Indexação - Busca full-text"]
         H -->|Sync diário| I[(Typesense)]
     end
 
