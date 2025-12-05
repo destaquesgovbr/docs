@@ -6,9 +6,9 @@
 
 O **DestaquesGovbr** é uma plataforma integrada de notícias e informações do Governo Federal Brasileiro que:
 
-- **Centraliza** ~100+ portais governamentais em uma plataforma única
+- **Centraliza** ~160+ portais governamentais em uma plataforma única
 - **Classifica** automaticamente notícias usando AI/LLM em 25 temas e 3 níveis hierárquicos
-- **Disponibiliza** dados abertos no HuggingFace (~295k+ notícias)
+- **Disponibiliza** dados abertos no HuggingFace (~300k+ notícias)
 - **Oferece** portal web moderno com busca semântica
 
 ## Quick Start
@@ -26,7 +26,7 @@ O **DestaquesGovbr** é uma plataforma integrada de notícias e informações do
 
 ```mermaid
 flowchart LR
-    A[100+ Sites gov.br] -->|Raspagem| B[Scraper]
+    A[160+ Sites gov.br] -->|Raspagem| B[Scraper]
     B -->|Enriquecimento| C[Cogfy/LLM]
     C -->|Armazenamento| D[(HuggingFace)]
     D -->|Indexação| E[(Typesense)]
@@ -64,11 +64,21 @@ docs/
 - **Dataset Reduzido**: [nitaibezerra/govbrnews-reduced](https://huggingface.co/datasets/nitaibezerra/govbrnews-reduced)
 - **Organização GitHub**: [github.com/destaquesgovbr](https://github.com/destaquesgovbr)
 
-## Plano de Implementação
+## Como Esta Documentação Foi Criada
 
-Este repositório de documentação está sendo construído de forma incremental.
+Esta documentação foi **inteiramente gerada por LLM** (Claude Code) usando uma abordagem bottom-up: o código dos repositórios existentes foi analisado para criar uma camada de documentação sobre eles.
 
-→ Veja o andamento em [plano/PLANO_IMPLEMENTACAO.md](plano/PLANO_IMPLEMENTACAO.md)
+### Guia de Engenharia de Prompt
+
+Documentamos o processo completo de criação como um guia de boas práticas:
+
+→ Veja [plano/PLANO_IMPLEMENTACAO.md](plano/PLANO_IMPLEMENTACAO.md)
+
+O guia inclui:
+- **Mindset** para estruturar prompts de documentação
+- **Prompts reais** utilizados neste projeto
+- **Template reutilizável** para outros projetos
+- **Boas práticas** aprendidas no processo
 
 ## Como Contribuir
 
