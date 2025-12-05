@@ -19,7 +19,7 @@ sequenceDiagram
     rect rgb(227, 242, 253)
         Note over GH,SC: ETAPA 1: Scraping gov.br
         GH->>SC: Trigger main-workflow (4AM UTC)
-        SC->>GOV: Requisições HTTP (100+ sites)
+        SC->>GOV: Requisições HTTP (160+ sites)
         GOV-->>SC: HTML das páginas
         SC->>SC: Parse HTML → Markdown
         SC->>SC: Gera unique_id (MD5)
@@ -78,7 +78,7 @@ python src/main.py scrape --start-date YYYY-MM-DD --end-date YYYY-MM-DD
 ```
 
 **Processo**:
-1. Carrega URLs de `src/scraper/site_urls.yaml` (~100+ URLs)
+1. Carrega URLs de `src/scraper/site_urls.yaml` (~160+ URLs)
 2. Para cada URL, instancia `WebScraper`
 3. Navega por páginas com paginação (`?b_start:int=N`)
 4. Extrai campos: title, date, url, image, category, tags

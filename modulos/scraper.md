@@ -7,7 +7,7 @@
 ## Visão Geral
 
 O scraper é responsável por:
-1. **Raspar** notícias de ~100+ sites gov.br e EBC
+1. **Raspar** notícias de ~160+ sites gov.br e EBC
 2. **Armazenar** no dataset HuggingFace
 3. **Enviar** para classificação no Cogfy
 4. **Enriquecer** com temas e resumos gerados por LLM
@@ -54,7 +54,7 @@ govbrnews-scraper/
 │       ├── ebc_webscraper.py        # Scraper especializado EBC
 │       ├── scrape_manager.py        # Orquestração de scrapers
 │       ├── agencies.yaml            # Mapeamento ID → Nome
-│       └── site_urls.yaml           # URLs de raspagem (~100+)
+│       └── site_urls.yaml           # URLs de raspagem (~160+)
 ├── tests/                           # Testes unitários
 ├── .github/workflows/
 │   ├── main-workflow.yaml           # Pipeline diário (4AM UTC)
@@ -325,7 +325,7 @@ urls:
     agency: gestao
   - url: https://www.gov.br/fazenda/pt-br/assuntos/noticias
     agency: fazenda
-  # ... ~100+ URLs
+  # ... ~160+ URLs
 ```
 
 #### `agencies.yaml` - Mapeamento de órgãos

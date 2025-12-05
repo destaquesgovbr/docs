@@ -181,7 +181,7 @@ sequenceDiagram
     Note over GH: 4AM UTC - Trigger
 
     GH->>SC: Job: scraper
-    SC->>GOV: Fetch ~100+ sites
+    SC->>GOV: Fetch ~160+ sites
     GOV-->>SC: HTML pages
     SC->>SC: Parse → Markdown
     SC->>HF: Insert articles

@@ -4,7 +4,7 @@
 
 O DestaquesGovbr é uma plataforma de agregação e enriquecimento de notícias governamentais composta por 5 camadas principais:
 
-1. **Coleta** - Raspagem automatizada de ~100+ sites gov.br
+1. **Coleta** - Raspagem automatizada de ~160+ sites gov.br
 2. **Enriquecimento** - Classificação temática e sumarização via AI/LLM
 3. **Armazenamento** - Dataset no HuggingFace como fonte de verdade
 4. **Indexação** - Typesense para busca full-text
@@ -15,7 +15,7 @@ O DestaquesGovbr é uma plataforma de agregação e enriquecimento de notícias 
 ```mermaid
 flowchart TB
     subgraph COLETA["1. Coleta"]
-        A[100+ Sites gov.br] -->|Raspagem diária 4AM UTC| B[WebScraper Python]
+        A[160+ Sites gov.br] -->|Raspagem diária 4AM UTC| B[WebScraper Python]
         A2[Sites EBC] -->|Raspagem| B
         B --> C[DatasetManager]
     end
@@ -130,7 +130,7 @@ sequenceDiagram
     Note over Cron: Trigger diário
 
     Cron->>Scraper: main-workflow.yaml
-    Scraper->>Scraper: scrape gov.br (100+ sites)
+    Scraper->>Scraper: scrape gov.br (160+ sites)
     Scraper->>Scraper: scrape EBC
     Scraper->>HF: Insert novos artigos
 
