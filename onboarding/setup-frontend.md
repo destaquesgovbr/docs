@@ -1,0 +1,394 @@
+# Setup Frontend (TypeScript)
+
+> Guia de configuração do ambiente para desenvolvedores TypeScript trabalhando no portal Next.js.
+
+## Pré-requisitos
+
+| Ferramenta | Versão | Instalação |
+|------------|--------|------------|
+| Node.js | 20+ | [nodejs.org](https://nodejs.org/) ou nvm |
+| npm | 10+ | Incluído no Node.js |
+| Docker | 24+ | [docker.com](https://www.docker.com/products/docker-desktop/) |
+| Git | 2.40+ | [git-scm.com](https://git-scm.com/) |
+
+### Verificação
+
+```bash
+node --version    # v20.x.x ou superior
+npm --version     # 10.x.x ou superior
+docker --version  # Docker 24.x ou superior
+git --version     # Git 2.40.x ou superior
+```
+
+---
+
+## 1. Clonar Repositório
+
+```bash
+# Clone o repositório do portal
+git clone https://github.com/destaquesgovbr/destaquesgovbr-portal.git
+cd destaquesgovbr-portal
+```
+
+---
+
+## 2. Instalar Dependências
+
+```bash
+# Instalar dependências
+npm install
+```
+
+---
+
+## 3. Setup Typesense Local
+
+O portal precisa do Typesense para funcionar. Vamos configurar uma instância local:
+
+```bash
+# Clone o repositório do Typesense local
+git clone https://github.com/destaquesgovbr/destaquesgovbr-typesense.git
+cd destaquesgovbr-typesense
+
+# Subir Typesense com Docker
+docker compose up -d
+```
+
+### Verificar se está rodando
+
+```bash
+curl http://localhost:8108/health
+# Deve retornar: {"ok":true}
+```
+
+### Carregar dados de teste
+
+```bash
+# Ainda no diretório destaquesgovbr-typesense
+cd python
+
+# Instalar dependências Python (necessário para o script de carga)
+pip install -r requirements.txt
+
+# Carregar últimos 7 dias de dados
+python scripts/load_data.py --mode incremental --days 7
+```
+
+---
+
+## 4. Configurar Variáveis de Ambiente
+
+Volte ao diretório do portal e crie o arquivo `.env.local`:
+
+```bash
+cd ../destaquesgovbr-portal
+```
+
+Crie o arquivo `.env.local`:
+
+```bash
+# .env.local
+TYPESENSE_HOST=localhost
+TYPESENSE_PORT=8108
+TYPESENSE_PROTOCOL=http
+TYPESENSE_API_KEY=xyz  # API key padrão do Typesense local
+TYPESENSE_COLLECTION_NAME=news
+```
+
+> **Nota**: A API key `xyz` é a padrão configurada no Docker Compose do Typesense local.
+
+---
+
+## 5. Executar o Portal
+
+```bash
+# Modo desenvolvimento
+npm run dev
+```
+
+Acesse [http://localhost:3000](http://localhost:3000) no navegador.
+
+---
+
+## 6. Estrutura do Projeto
+
+```
+destaquesgovbr-portal/
+├── src/
+│   ├── app/                       # App Router (Next.js 15)
+│   │   ├── page.tsx               # Homepage
+│   │   ├── layout.tsx             # Layout principal
+│   │   ├── temas/
+│   │   │   └── [themeLabel]/      # Páginas por tema
+│   │   ├── orgaos/
+│   │   │   └── [agencyKey]/       # Páginas por órgão
+│   │   └── noticias/
+│   │       └── [id]/              # Página de notícia
+│   ├── components/                # Componentes React
+│   │   ├── ui/                    # Componentes shadcn/ui
+│   │   ├── search/                # Componentes de busca
+│   │   └── news/                  # Componentes de notícias
+│   ├── lib/
+│   │   ├── typesense-client.ts    # Cliente Typesense
+│   │   ├── themes.yaml            # Árvore temática
+│   │   ├── agencies.yaml          # Catálogo de órgãos
+│   │   └── prioritization.yaml    # Config de priorização
+│   └── styles/
+│       └── globals.css            # Estilos globais (Tailwind)
+├── public/                        # Assets estáticos
+├── .github/workflows/             # GitHub Actions
+├── package.json                   # Dependências
+├── tailwind.config.ts             # Config Tailwind
+├── next.config.ts                 # Config Next.js
+└── tsconfig.json                  # Config TypeScript
+```
+
+---
+
+## 7. Stack Tecnológico
+
+| Tecnologia | Uso | Documentação |
+|------------|-----|--------------|
+| Next.js 15 | Framework React | [nextjs.org/docs](https://nextjs.org/docs) |
+| TypeScript 5 | Tipagem | [typescriptlang.org](https://www.typescriptlang.org/) |
+| Typesense | Busca full-text | [typesense.org/docs](https://typesense.org/docs/) |
+| shadcn/ui | Componentes UI | [ui.shadcn.com](https://ui.shadcn.com/) |
+| Tailwind CSS | Estilização | [tailwindcss.com](https://tailwindcss.com/) |
+| React Query | Data fetching | [tanstack.com/query](https://tanstack.com/query) |
+
+---
+
+## 8. Comandos Úteis
+
+### Desenvolvimento
+
+```bash
+# Rodar em desenvolvimento
+npm run dev
+
+# Build de produção
+npm run build
+
+# Rodar build de produção localmente
+npm run start
+
+# Verificar tipos TypeScript
+npm run type-check
+# ou
+npx tsc --noEmit
+```
+
+### Linting e Formatação
+
+```bash
+# Lint com Biome
+npm run lint
+
+# Formatar com Biome
+npm run format
+
+# Fix automático
+npm run lint:fix
+```
+
+### Testes
+
+```bash
+# Executar testes (se configurados)
+npm run test
+```
+
+---
+
+## 9. Componentes shadcn/ui
+
+O projeto usa [shadcn/ui](https://ui.shadcn.com/) para componentes de interface.
+
+### Adicionar novo componente
+
+```bash
+# Exemplo: adicionar componente Dialog
+npx shadcn@latest add dialog
+
+# Listar componentes disponíveis
+npx shadcn@latest add
+```
+
+### Usar componente existente
+
+```tsx
+import { Button } from "@/components/ui/button"
+import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card"
+
+export function MyComponent() {
+  return (
+    <Card>
+      <CardHeader>
+        <CardTitle>Título</CardTitle>
+      </CardHeader>
+      <CardContent>
+        <Button>Clique aqui</Button>
+      </CardContent>
+    </Card>
+  )
+}
+```
+
+---
+
+## 10. Cliente Typesense
+
+O cliente Typesense está em `src/lib/typesense-client.ts`:
+
+```typescript
+// Exemplo de busca
+import { searchNews } from "@/lib/typesense-client"
+
+const results = await searchNews({
+  query: "economia",
+  filters: {
+    agency: ["gestao", "fazenda"],
+    theme_1_level_1_code: ["01"]
+  },
+  page: 1,
+  perPage: 20
+})
+```
+
+### Estrutura do documento no Typesense
+
+```typescript
+interface NewsDocument {
+  id: string
+  unique_id: string
+  agency: string
+  title: string
+  url: string
+  image?: string
+  content: string
+  published_at: number
+  theme_1_level_1_code?: string
+  theme_1_level_1_label?: string
+  theme_1_level_2_code?: string
+  theme_1_level_2_label?: string
+  theme_1_level_3_code?: string
+  theme_1_level_3_label?: string
+  summary?: string
+}
+```
+
+---
+
+## 11. Arquivos de Configuração
+
+### Temas (`src/lib/themes.yaml`)
+
+```yaml
+themes:
+  - label: Economia e Finanças
+    code: "01"
+    children:
+      - label: Política Econômica
+        code: "01.01"
+        children:
+          - label: Política Fiscal
+            code: "01.01.01"
+```
+
+### Órgãos (`src/lib/agencies.yaml`)
+
+```yaml
+sources:
+  gestao:
+    name: Ministério da Gestão e da Inovação em Serviços Públicos
+    parent: presidencia
+    type: Ministério
+```
+
+### Priorização (`src/lib/prioritization.yaml`)
+
+```yaml
+priority_agencies:
+  - gestao
+  - fazenda
+  - saude
+```
+
+---
+
+## 12. Fluxo de Desenvolvimento
+
+```mermaid
+flowchart TD
+    A[1. Criar branch] --> B[2. Fazer alterações]
+    B --> C[3. Verificar tipos]
+    C --> D[4. Rodar lint]
+    D --> E{Tudo OK?}
+    E -->|Não| B
+    E -->|Sim| F[5. Commit + Push]
+    F --> G[6. Abrir PR]
+    G --> H[7. Preview deploy]
+    H --> I[8. Code Review]
+    I --> J[9. Merge]
+```
+
+---
+
+## 13. Web UI do Typesense
+
+O Typesense local inclui uma interface web para debug:
+
+- **URL**: [http://localhost:8108](http://localhost:8108) (com API key)
+- **Alternativa**: Use o [Typesense Dashboard](https://cloud.typesense.org/dashboard) apontando para localhost
+
+---
+
+## Troubleshooting
+
+### Erro de conexão com Typesense
+
+```
+Error: connect ECONNREFUSED 127.0.0.1:8108
+```
+
+**Solução**: Verificar se o Typesense está rodando:
+
+```bash
+docker ps | grep typesense
+# Se não estiver, subir novamente
+cd destaquesgovbr-typesense && docker compose up -d
+```
+
+### Erro de tipos TypeScript
+
+```bash
+# Verificar erros de tipo
+npx tsc --noEmit
+
+# Se necessário, atualizar tipos
+npm run type-check
+```
+
+### Página em branco / sem dados
+
+- Verificar se o Typesense tem dados carregados
+- Verificar variáveis de ambiente no `.env.local`
+- Verificar console do navegador para erros
+
+### Componente shadcn não encontrado
+
+```bash
+# Reinstalar componente
+npx shadcn@latest add <nome-do-componente>
+```
+
+---
+
+## Próximos Passos
+
+1. Explore a estrutura de páginas em `src/app/`
+2. Entenda como funcionam os filtros de busca
+3. Modifique um componente de UI
+4. Escolha uma issue para trabalhar
+
+→ Continue com [Primeiro PR](./primeiro-pr.md)
