@@ -9,6 +9,7 @@
 A documentação técnica deste repositório foi **inteiramente gerada por LLM** (Claude Code) a partir dos repositórios existentes do projeto. Este é um caso real de uso de IA generativa para acelerar a criação de documentação técnica de qualidade.
 
 O objetivo deste guia é compartilhar:
+
 - O mindset utilizado para estruturar os prompts
 - A abordagem bottom-up de reutilização de código existente
 - Os prompts reais utilizados
@@ -48,6 +49,7 @@ O LLM analisa o código, workflows, configurações e README existentes para **s
 ### 1. Defina o Objetivo com Clareza
 
 Antes de escrever o prompt, responda:
+
 - **Para quem** é a documentação? (público-alvo)
 - **Qual problema** ela resolve? (onboarding, referência, troubleshooting)
 - **Que formato** é esperado? (markdown, diagramas, guias passo-a-passo)
@@ -55,6 +57,7 @@ Antes de escrever o prompt, responda:
 ### 2. Forneça Contexto dos Repositórios
 
 O Claude Code precisa saber **onde olhar**. Liste:
+
 - Caminhos locais dos repositórios
 - Função de cada repositório
 - Arquivos-chave a serem analisados
@@ -63,6 +66,7 @@ O Claude Code precisa saber **onde olhar**. Liste:
 ### 3. Seja Específico sobre Entregas
 
 Em vez de "documente o projeto", especifique:
+
 - Quais módulos documentar
 - Que tipo de diagramas criar
 - Estrutura de pastas esperada
@@ -71,6 +75,7 @@ Em vez de "documente o projeto", especifique:
 ### 4. Itere com Perguntas de Clarificação
 
 O LLM pode (e deve) fazer perguntas. Isso resulta em:
+
 - Documentação mais precisa
 - Menos retrabalho
 - Decisões registradas
@@ -113,6 +118,7 @@ Para saber mais conceitualmente sobre o projeto DestaqueGovbr olhe este
 documento @/Users/nitai/Dropbox/dev-mgi/destaquesgov-projeto/planos-de-trabalho/Plano_Trabalho_DestaquesGov_v3.odt
 
 Demais repositórios que devem ser cobertos pela documentação:
+
 - /Users/nitai/Dropbox/dev-mgi/govbrnews-scraper
   → Este é o repositório mais backend. Ele contém o Scraper
 - /Users/nitai/Dropbox/dev-mgi/destaquesgovbr-portal

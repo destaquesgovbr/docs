@@ -95,6 +95,7 @@ flowchart TB
 | EnrichmentManager | `src/enrichment_manager.py` | Busca resultados e atualiza dataset |
 
 **Campos enriquecidos:**
+
 - `theme_1_level_1_code/label` - Tema nível 1 (ex: "01 - Economia")
 - `theme_1_level_2_code/label` - Tema nível 2 (ex: "01.01 - Política Econômica")
 - `theme_1_level_3_code/label` - Tema nível 3 (ex: "01.01.01 - Política Fiscal")
@@ -115,6 +116,7 @@ flowchart TB
 **Collection**: `news`
 
 Configurado para:
+
 - Busca full-text em `title` e `content`
 - Filtros facetados por `agency`, `theme_*`, `published_at`
 - Ordenação por relevância e data
@@ -158,12 +160,14 @@ sequenceDiagram
 ## Tecnologias Principais
 
 ### Backend (Scraper)
+
 - **Python 3.12+** com Poetry
 - **BeautifulSoup4** para parsing HTML
 - **datasets** (HuggingFace) para gerenciamento de dados
 - **requests** com retry logic
 
 ### Frontend (Portal)
+
 - **Next.js 15** com App Router
 - **TypeScript 5**
 - **Typesense** para busca
@@ -171,6 +175,7 @@ sequenceDiagram
 - **React Query** para data fetching
 
 ### Infraestrutura
+
 - **GCP** - Cloud Run, Compute Engine, VPC
 - **Terraform** - IaC
 - **Docker** - Containerização

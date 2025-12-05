@@ -98,6 +98,7 @@ themes:
 ### Meta Futura
 
 Criar repositório dedicado `destaquesgovbr-themes` para:
+
 - Centralizar a árvore temática
 - Automatizar sincronização entre scraper e portal
 - Versionamento e histórico de mudanças
@@ -113,6 +114,7 @@ O catálogo contém **156 órgãos governamentais** com metadados e hierarquia o
 ### Estrutura de Dados
 
 Cada órgão possui:
+
 - `name` - Nome oficial
 - `parent` - Órgão superior (para hierarquia)
 - `type` - Tipo (Ministério, Agência, Instituto, etc.)
@@ -182,6 +184,7 @@ presidencia:
 ### Meta Futura
 
 Automatizar sincronização:
+
 1. Editar apenas em `destaquesgovbr-agencies`
 2. GitHub Action publica automaticamente no scraper e portal
 3. Possível interface web para gestão
