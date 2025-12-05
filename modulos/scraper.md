@@ -91,13 +91,20 @@ class WebScraper:
 ```
 
 **Campos extraídos:**
-- `title` - Título da notícia
-- `url` - URL original
-- `published_at` - Data de publicação (timestamp)
-- `image` - URL da imagem principal
-- `content` - Conteúdo em Markdown
-- `category` - Categoria original do site
-- `tags` - Tags/keywords
+
+| Campo | Descrição |
+|-------|-----------|
+| `title` | Título da notícia |
+| `subtitle` | Subtítulo (quando disponível) |
+| `editorial_lead` | Lead editorial / linha fina |
+| `url` | URL original |
+| `published_at` | Data/hora de publicação (ISO 8601, UTC) |
+| `updated_datetime` | Data/hora de atualização |
+| `image` | URL da imagem principal |
+| `video_url` | URL de vídeo incorporado |
+| `content` | Conteúdo em Markdown |
+| `category` | Categoria original do site |
+| `tags` | Tags/keywords |
 
 **Retry Logic:**
 ```python

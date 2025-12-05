@@ -70,12 +70,23 @@ flowchart TB
 | DatasetManager | `src/dataset_manager.py` | Insert/Update no HuggingFace |
 
 **Dados extraídos por notícia:**
-- `unique_id` - Hash MD5 (agency + published_at + title)
-- `agency` - Identificador do órgão
-- `published_at` - Data de publicação
-- `title`, `url`, `image` - Metadados básicos
-- `content` - Conteúdo completo em Markdown
-- `category`, `tags` - Categorização original
+
+| Campo | Descrição |
+|-------|-----------|
+| `unique_id` | Hash MD5 (agency + published_at + title) |
+| `agency` | Identificador do órgão |
+| `published_at` | Data/hora de publicação (ISO 8601, UTC) |
+| `updated_datetime` | Data/hora de atualização, quando disponível |
+| `extracted_at` | Data/hora da extração |
+| `title` | Título da notícia |
+| `subtitle` | Subtítulo (quando disponível) |
+| `editorial_lead` | Lead editorial / linha fina |
+| `url` | URL original da notícia |
+| `content` | Conteúdo completo em Markdown |
+| `image` | URL da imagem principal |
+| `video_url` | URL de vídeo incorporado (quando disponível) |
+| `category` | Categoria original do site |
+| `tags` | Tags/keywords do site |
 
 ### 2. Enriquecimento (`govbrnews-scraper` + Cogfy)
 

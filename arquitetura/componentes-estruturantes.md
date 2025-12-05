@@ -207,25 +207,56 @@ O dataset no HuggingFace é a **fonte de verdade** de todos os dados do sistema.
 
 ### Schema do Dataset
 
+**Identificação:**
+
 | Campo | Tipo | Origem | Descrição |
 |-------|------|--------|-----------|
 | `unique_id` | string | Scraper | MD5(agency + published_at + title) |
 | `agency` | string | Scraper | Identificador do órgão |
-| `published_at` | int | Scraper | Timestamp Unix (segundos) |
+
+**Datas:**
+
+| Campo | Tipo | Origem | Descrição |
+|-------|------|--------|-----------|
+| `published_at` | timestamp | Scraper | Data/hora de publicação (ISO 8601, UTC) |
+| `updated_datetime` | timestamp | Scraper | Data/hora de atualização |
+| `extracted_at` | timestamp | Scraper | Data/hora da extração |
+
+**Conteúdo Principal:**
+
+| Campo | Tipo | Origem | Descrição |
+|-------|------|--------|-----------|
 | `title` | string | Scraper | Título da notícia |
+| `subtitle` | string | Scraper | Subtítulo (quando disponível) |
+| `editorial_lead` | string | Scraper | Lead editorial / linha fina |
 | `url` | string | Scraper | URL original |
-| `image` | string | Scraper | URL da imagem |
 | `content` | string | Scraper | Conteúdo em Markdown |
-| `category` | string | Scraper | Categoria original |
+
+**Mídia:**
+
+| Campo | Tipo | Origem | Descrição |
+|-------|------|--------|-----------|
+| `image` | string | Scraper | URL da imagem principal |
+| `video_url` | string | Scraper | URL de vídeo incorporado |
+
+**Classificação Original:**
+
+| Campo | Tipo | Origem | Descrição |
+|-------|------|--------|-----------|
+| `category` | string | Scraper | Categoria do site |
 | `tags` | list | Scraper | Tags/keywords |
-| `extracted_at` | int | Scraper | Timestamp da extração |
-| `theme_1_level_1_code` | string | Cogfy | Código tema L1 |
-| `theme_1_level_1_label` | string | Cogfy | Label tema L1 |
-| `theme_1_level_2_code` | string | Cogfy | Código tema L2 |
+
+**Enriquecimento AI (Cogfy/LLM):**
+
+| Campo | Tipo | Origem | Descrição |
+|-------|------|--------|-----------|
+| `theme_1_level_1_code` | string | Cogfy | Código tema L1 (ex: "01") |
+| `theme_1_level_1_label` | string | Cogfy | Label tema L1 (ex: "Economia e Finanças") |
+| `theme_1_level_2_code` | string | Cogfy | Código tema L2 (ex: "01.01") |
 | `theme_1_level_2_label` | string | Cogfy | Label tema L2 |
-| `theme_1_level_3_code` | string | Cogfy | Código tema L3 |
+| `theme_1_level_3_code` | string | Cogfy | Código tema L3 (ex: "01.01.01") |
 | `theme_1_level_3_label` | string | Cogfy | Label tema L3 |
-| `most_specific_theme_code` | string | Enrichment | Tema mais específico |
+| `most_specific_theme_code` | string | Enrichment | Tema mais específico disponível |
 | `most_specific_theme_label` | string | Enrichment | Label mais específico |
 | `summary` | string | Cogfy | Resumo gerado por AI |
 
