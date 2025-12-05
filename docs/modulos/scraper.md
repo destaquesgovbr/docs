@@ -7,6 +7,7 @@
 ## Visão Geral
 
 O scraper é responsável por:
+
 1. **Raspar** notícias de ~160+ sites gov.br e EBC
 2. **Armazenar** no dataset HuggingFace
 3. **Enviar** para classificação no Cogfy
@@ -203,6 +204,7 @@ class EnrichmentManager:
 ```
 
 **Campos enriquecidos:**
+
 - `theme_1_level_1_code/label` - Tema nível 1
 - `theme_1_level_2_code/label` - Tema nível 2
 - `theme_1_level_3_code/label` - Tema nível 3
@@ -395,6 +397,7 @@ python src/main.py scrape \
 ### 4. Verificar Compatibilidade
 
 Se o site tiver estrutura HTML diferente:
+
 1. Analisar estrutura no navegador
 2. Criar scraper especializado se necessário
 3. Adicionar testes

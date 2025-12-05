@@ -120,6 +120,7 @@ python src/upload_to_cogfy_manager.py --start-date YYYY-MM-DD --end-date YYYY-MM
 
 1. Carrega artigos do HuggingFace por intervalo de datas
 2. Converte campos para formato Cogfy:
+
    - `published_at` → datetime UTC
    - `tags` → string JSON
 3. Envia em batches de 1000 registros
@@ -149,6 +150,7 @@ python src/enrichment_manager.py --start-date YYYY-MM-DD --end-date YYYY-MM-DD
 1. Aguarda delay de 20 minutos (1200 segundos)
 2. Busca registros processados no Cogfy por `unique_id`
 3. Extrai campos enriquecidos:
+
    - `theme_1_level_1` (select) → código e label
    - `theme_1_level_2` (text) → código e label
    - `theme_1_level_3` (text) → código e label

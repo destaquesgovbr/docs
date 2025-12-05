@@ -5,6 +5,7 @@
 ## Visão Geral
 
 O **Cogfy** é uma plataforma SaaS que fornece inferência LLM para:
+
 - **Classificação temática** em 3 níveis hierárquicos
 - **Geração de resumos** automáticos
 
@@ -269,6 +270,7 @@ def theme_distribution(df: pd.DataFrame) -> dict:
 ## Custos
 
 O Cogfy cobra por:
+
 - **Tokens processados** (entrada + saída)
 - **Requisições de API**
 
@@ -300,6 +302,7 @@ sequenceDiagram
 ## Placeholder para Screenshots
 
 > **TODO**: Adicionar screenshots da interface do Cogfy:
+>
 > - [ ] Configuração da collection
 > - [ ] Prompt de classificação
 > - [ ] Prompt de sumarização

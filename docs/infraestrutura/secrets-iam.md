@@ -5,6 +5,7 @@
 ## Visão Geral
 
 O projeto usa:
+
 - **Secret Manager** para armazenar credenciais sensíveis
 - **IAM** para controle de acesso
 - **Workload Identity Federation** para autenticação sem chaves
@@ -309,6 +310,7 @@ gcloud iam service-accounts get-iam-policy SA_EMAIL
 ### Cloud Audit Logs
 
 Habilitado automaticamente para:
+
 - Admin Activity (sempre)
 - Data Access (configurável)
 
@@ -383,6 +385,7 @@ Error: Unable to exchange token
 ```
 
 **Solução**:
+
 1. Verificar `attribute_condition` no provider
 2. Verificar nome do repositório no binding
 3. Verificar permissões `roles/iam.workloadIdentityUser`

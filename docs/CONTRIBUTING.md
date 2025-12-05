@@ -8,6 +8,7 @@ Obrigado por considerar contribuir com o projeto DestaquesGovbr!
 
 1. Verifique se o bug já foi reportado nas [issues](https://github.com/destaquesgovbr)
 2. Se não, abra uma nova issue com:
+
    - Descrição clara do problema
    - Passos para reproduzir
    - Comportamento esperado vs atual

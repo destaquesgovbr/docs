@@ -92,6 +92,7 @@ flowchart TB
 ### 4. Secret Manager
 
 Secrets armazenadas:
+
 - `typesense-api-key` - API Key do Typesense
 - Outras credenciais sensíveis
 

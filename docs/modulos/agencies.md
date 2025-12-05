@@ -176,6 +176,7 @@ tipos:
 ### 1. Scraper
 
 O scraper usa os dados para:
+
 - Determinar **quais sites raspar** (URLs)
 - Identificar a **agência** de cada notícia
 - Mapear **IDs para nomes** completos
@@ -189,6 +190,7 @@ agencies:
 ### 2. Portal
 
 O portal usa para:
+
 - **Filtros** de busca por órgão
 - **Páginas** dedicadas (`/orgaos/[agencyKey]`)
 - **Navegação** hierárquica

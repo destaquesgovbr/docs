@@ -7,6 +7,7 @@
 ## Visão Geral
 
 O repositório `destaquesgovbr-typesense` fornece:
+
 - **Docker Compose** para rodar Typesense localmente
 - **Scripts Python** para carregar dados do HuggingFace
 - **Configuração** da collection `news`

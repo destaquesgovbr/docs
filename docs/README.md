@@ -76,6 +76,7 @@ Documentamos o processo completo de criação como um guia de boas práticas:
 → Veja [plano/PLANO_IMPLEMENTACAO.md](plano/PLANO_IMPLEMENTACAO.md)
 
 O guia inclui:
+
 - **Mindset** para estruturar prompts de documentação
 - **Prompts reais** utilizados neste projeto
 - **Template reutilizável** para outros projetos

@@ -170,6 +170,7 @@ presidencia:
 - **Total de órgãos**: 156
 - **Tipos únicos**: 29
 - **Principais pais**:
+
   - MCTI: 21 subordinados
   - Gestão: 12 subordinados
   - Cultura: 8 subordinados

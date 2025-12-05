@@ -7,6 +7,7 @@
 ## Visão Geral
 
 O Streamlit App é uma aplicação interativa para:
+
 - **Explorar** o dataset de notícias governamentais
 - **Visualizar** estatísticas e tendências
 - **Analisar** distribuição por órgão e tema

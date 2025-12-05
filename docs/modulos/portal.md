@@ -9,6 +9,7 @@
 ## Visão Geral
 
 O portal é a interface principal do DestaquesGovbr, oferecendo:
+
 - **Busca full-text** com Typesense
 - **Filtros** por órgão, tema e data
 - **Navegação** por temas e órgãos

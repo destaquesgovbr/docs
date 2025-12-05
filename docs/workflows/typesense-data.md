@@ -3,6 +3,7 @@
 > Workflows para carga e atualização de dados no Typesense.
 
 **Arquivos**:
+
 - `destaquesgovbr-infra/.github/workflows/typesense-daily-load.yml`
 - `destaquesgovbr-infra/.github/workflows/typesense-full-reload.yml`
 

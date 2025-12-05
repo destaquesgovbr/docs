@@ -121,6 +121,7 @@ CMD ["python", "src/main.py", "--help"]
 ### Tags geradas
 
 Para tag `v1.2.3`:
+
 - `ghcr.io/destaquesgovbr/govbrnews-scraper:1.2.3`
 - `ghcr.io/destaquesgovbr/govbrnews-scraper:1.2`
 - `ghcr.io/destaquesgovbr/govbrnews-scraper:latest`
