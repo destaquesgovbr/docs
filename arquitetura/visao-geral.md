@@ -28,14 +28,12 @@ flowchart TB
         F --> G
     end
 
-    subgraph ARMAZENAMENTO["3. Armazenamento"]
+    subgraph ARMAZENAMENTO["3. Armazenamento<br/>~300k docs"]
         G -->|Push| H[(HuggingFace Dataset)]
-        H -->|~295k docs| H
     end
 
-    subgraph INDEXACAO["4. Indexação"]
+    subgraph INDEXACAO["4. Indexação<br/>Busca full-text"]
         H -->|Sync diário| I[(Typesense)]
-        I -->|Busca full-text| I
     end
 
     subgraph APRESENTACAO["5. Apresentação"]
@@ -107,7 +105,7 @@ flowchart TB
 
 **Dataset principal**: [nitaibezerra/govbrnews](https://huggingface.co/datasets/nitaibezerra/govbrnews)
 
-- ~295.000+ documentos
+- ~300.000+ documentos
 - Atualização diária automatizada
 - Exportação em CSV por agência e ano
 - Versionamento automático pelo HuggingFace

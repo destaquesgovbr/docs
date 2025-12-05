@@ -200,7 +200,7 @@ O dataset no HuggingFace é a **fonte de verdade** de todos os dados do sistema.
 
 | Característica | Valor |
 |----------------|-------|
-| Documentos | ~295.000+ |
+| Documentos | ~300.000+ |
 | Atualização | Diária (4AM UTC) |
 | Formato | Parquet + CSV |
 | Versionamento | Automático pelo HF |
@@ -302,7 +302,7 @@ graph TB
     subgraph "Componentes Estruturantes"
         AT[Árvore Temática<br/>25 temas × 3 níveis]
         CO[Catálogo de Órgãos<br/>156 agências]
-        DS[Dataset HuggingFace<br/>~295k docs]
+        DS[Dataset HuggingFace<br/>~300k docs]
     end
 
     subgraph "Uso no Sistema"
