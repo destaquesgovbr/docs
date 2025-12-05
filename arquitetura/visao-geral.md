@@ -123,8 +123,8 @@ Configurado para:
 
 | App | Tecnologia | URL |
 |-----|------------|-----|
-| Portal | Next.js 15 + Typesense | Cloud Run (GCP) |
-| Streamlit | Python + Altair | HuggingFace Spaces |
+| Portal | Next.js 15 + Typesense | [destaquesgovbr-portal](https://destaquesgovbr-portal-klvx64dufq-rj.a.run.app/) *(provisória)* |
+| Streamlit | Python + Altair | [HuggingFace Spaces](https://huggingface.co/spaces/nitaibezerra/govbrnews) |
 
 ## Fluxo de Dados Diário
 

@@ -6,6 +6,8 @@
 
 O DestaquesGovbr é uma plataforma que centraliza e enriquece notícias governamentais brasileiras. Este roteiro vai guiá-lo através do processo de onboarding.
 
+**Acesse o portal**: [destaquesgovbr-portal-klvx64dufq-rj.a.run.app](https://destaquesgovbr-portal-klvx64dufq-rj.a.run.app/) *(URL provisória)*
+
 ## Pré-requisitos Comuns
 
 Antes de começar, certifique-se de ter:

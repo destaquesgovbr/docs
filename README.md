@@ -60,6 +60,7 @@ docs/
 
 ## Recursos Externos
 
+- **Portal (Preview)**: [destaquesgovbr-portal](https://destaquesgovbr-portal-klvx64dufq-rj.a.run.app/) *(URL provisória)*
 - **Dataset Principal**: [nitaibezerra/govbrnews](https://huggingface.co/datasets/nitaibezerra/govbrnews)
 - **Dataset Reduzido**: [nitaibezerra/govbrnews-reduced](https://huggingface.co/datasets/nitaibezerra/govbrnews-reduced)
 - **Organização GitHub**: [github.com/destaquesgovbr](https://github.com/destaquesgovbr)

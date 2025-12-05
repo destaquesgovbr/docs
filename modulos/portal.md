@@ -4,7 +4,7 @@
 
 **Repositório**: [github.com/destaquesgovbr/destaquesgovbr-portal](https://github.com/destaquesgovbr/destaquesgovbr-portal)
 
-**URL Produção**: Cloud Run (GCP)
+**URL Produção**: [destaquesgovbr-portal-klvx64dufq-rj.a.run.app](https://destaquesgovbr-portal-klvx64dufq-rj.a.run.app/) *(URL provisória - Cloud Run/GCP)*
 
 ## Visão Geral
 
