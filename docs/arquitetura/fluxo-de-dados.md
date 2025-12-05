@@ -78,6 +78,7 @@ python src/main.py scrape --start-date YYYY-MM-DD --end-date YYYY-MM-DD
 ```
 
 **Processo**:
+
 1. Carrega URLs de `src/scraper/site_urls.yaml` (~160+ URLs)
 2. Para cada URL, instancia `WebScraper`
 3. Navega por páginas com paginação (`?b_start:int=N`)
@@ -102,6 +103,7 @@ python src/main.py scrape-ebc --start-date YYYY-MM-DD --end-date YYYY-MM-DD --al
 ```
 
 **Diferenças**:
+
 - Scraper especializado (`EBCWebScraper`)
 - Estrutura HTML diferente dos sites gov.br
 - `allow_update=True` permite sobrescrever registros existentes
@@ -115,6 +117,7 @@ python src/upload_to_cogfy_manager.py --start-date YYYY-MM-DD --end-date YYYY-MM
 ```
 
 **Processo**:
+
 1. Carrega artigos do HuggingFace por intervalo de datas
 2. Converte campos para formato Cogfy:
    - `published_at` → datetime UTC
@@ -127,6 +130,7 @@ python src/upload_to_cogfy_manager.py --start-date YYYY-MM-DD --end-date YYYY-MM
 **Tempo**: ~20 minutos de delay configurado no workflow
 
 O Cogfy executa:
+
 - **Classificação temática** em 3 níveis usando a árvore de temas
 - **Geração de resumo** via LLM
 
@@ -141,6 +145,7 @@ python src/enrichment_manager.py --start-date YYYY-MM-DD --end-date YYYY-MM-DD
 ```
 
 **Processo**:
+
 1. Aguarda delay de 20 minutos (1200 segundos)
 2. Busca registros processados no Cogfy por `unique_id`
 3. Extrai campos enriquecidos:
@@ -160,6 +165,7 @@ python python/scripts/load_data.py --mode incremental --days 7
 ```
 
 **Processo**:
+
 1. Conecta ao Typesense em produção
 2. Baixa dataset do HuggingFace (últimos 7 dias)
 3. Faz upsert dos documentos na collection `news`

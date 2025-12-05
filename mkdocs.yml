@@ -1,0 +1,72 @@
+site_name: DestaquesGovbr
+site_description: Documentação técnica da plataforma DestaquesGovbr
+site_url: https://destaquesgovbr.github.io/docs/
+repo_url: https://github.com/destaquesgovbr/docs
+repo_name: destaquesgovbr/docs
+docs_dir: docs
+
+theme:
+  name: material
+  language: pt-BR
+  palette:
+    - scheme: default
+      primary: green
+      accent: green
+  features:
+    - navigation.tabs
+    - navigation.sections
+    - navigation.top
+    - search.highlight
+    - search.suggest
+    - content.code.copy
+
+plugins:
+  - search:
+      lang: pt
+
+markdown_extensions:
+  - admonition
+  - pymdownx.superfences:
+      custom_fences:
+        - name: mermaid
+          class: mermaid
+          format: !!python/name:pymdownx.superfences.fence_code_format
+  - pymdownx.highlight
+  - pymdownx.tabbed:
+      alternate_style: true
+  - tables
+  - toc:
+      permalink: true
+
+nav:
+  - Home: index.md
+  - Arquitetura:
+    - Visão Geral: arquitetura/visao-geral.md
+    - Fluxo de Dados: arquitetura/fluxo-de-dados.md
+    - Componentes: arquitetura/componentes-estruturantes.md
+  - Módulos:
+    - Scraper: modulos/scraper.md
+    - Portal: modulos/portal.md
+    - Cogfy/LLM: modulos/cogfy-integracao.md
+    - Árvore Temática: modulos/arvore-tematica.md
+    - Órgãos: modulos/agencies.md
+    - Typesense: modulos/typesense-local.md
+    - Streamlit: modulos/spaces-streamlit.md
+  - Workflows:
+    - Pipeline Scraper: workflows/scraper-pipeline.md
+    - Deploy Portal: workflows/portal-deploy.md
+    - Docker Builds: workflows/docker-builds.md
+    - Typesense Data: workflows/typesense-data.md
+  - Infraestrutura:
+    - Arquitetura GCP: infraestrutura/arquitetura-gcp.md
+    - Terraform: infraestrutura/terraform-guide.md
+    - Secrets & IAM: infraestrutura/secrets-iam.md
+  - Onboarding:
+    - Roteiro: onboarding/roteiro-onboarding.md
+    - Setup Backend: onboarding/setup-backend.md
+    - Setup Frontend: onboarding/setup-frontend.md
+    - Primeiro PR: onboarding/primeiro-pr.md
+    - Troubleshooting: onboarding/troubleshooting.md
+  - Sobre:
+    - Contribuir: CONTRIBUTING.md
+    - Engenharia de Prompt: plano/PLANO_IMPLEMENTACAO.md
