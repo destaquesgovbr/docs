@@ -19,8 +19,40 @@ O **DestaquesGovbr** é uma plataforma integrada de notícias e informações do
 ### Para Desenvolvedores Frontend (TypeScript)
 → Veja [onboarding/setup-frontend.md](onboarding/setup-frontend.md)
 
+### Ambiente de Desenvolvimento no GCP (Sandbox)
+→ Veja [onboarding/setup-sandbox.md](onboarding/setup-sandbox.md)
+
 ### Roteiro Completo de Onboarding
 → Veja [onboarding/roteiro-onboarding.md](onboarding/roteiro-onboarding.md)
+
+---
+
+## Sandbox: Seu Ambiente no GCP
+
+Cada desenvolvedor pode ter uma **VM dedicada no GCP** para desenvolvimento:
+
+```mermaid
+flowchart LR
+    Dev[Seu Computador] -->|SSH via IAP| VM[Sandbox VM]
+    VM -->|Autenticado| BQ[(BigQuery)]
+    VM -->|Autenticado| GCS[(Storage)]
+    VSCode[VSCode Remote] -->|SSH| VM
+```
+
+**Benefícios:**
+
+- 🔐 **Acesso direto** a BigQuery, Cloud Storage e outros recursos GCP
+- 💾 **Disco persistente** de 50GB em `/mnt/data` para seus projetos
+- 🛡️ **Seguro** - sem IP público, acesso apenas via IAP
+- 💰 **Econômico** - auto-shutdown às 19h
+
+**Para criar sua sandbox:**
+
+1. Clone o repo [destaquesgovbr-infra](https://github.com/destaquesgovbr/destaquesgovbr-infra)
+2. Adicione sua configuração em `terraform/terraform.tfvars`
+3. Abra um PR e aguarde o merge
+
+→ Guia completo: [infraestrutura/sandbox-vms.md](infraestrutura/sandbox-vms.md)
 
 ## Arquitetura
 
