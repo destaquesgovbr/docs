@@ -1,6 +1,6 @@
-# Setup Sandbox (VSCode Remote)
+# Setup Dev VM (VSCode Remote)
 
-> Configurar VSCode para desenvolvimento remoto na sua VM sandbox.
+> Configurar VSCode para desenvolvimento remoto na sua Dev VM.
 
 ## Pré-requisitos
 
@@ -28,7 +28,7 @@ gcloud config get-value project  # inspire-7-finep
 Antes de configurar o VSCode, teste a conexão:
 
 ```bash
-gcloud compute ssh seu-nome-sandbox \
+gcloud compute ssh seu-nome-devvm \
   --zone=southamerica-east1-a \
   --tunnel-through-iap
 ```
@@ -36,7 +36,7 @@ gcloud compute ssh seu-nome-sandbox \
 !!! tip "VM desligada?"
     Se der erro, a VM pode estar desligada. Ligue com:
     ```bash
-    gcloud compute instances start seu-nome-sandbox \
+    gcloud compute instances start seu-nome-devvm \
       --zone=southamerica-east1-a
     ```
 
@@ -55,8 +55,8 @@ gcloud compute ssh seu-nome-sandbox \
     Adicione:
 
     ```ssh-config
-    Host sandbox
-        HostName seu-nome-sandbox
+    Host devvm
+        HostName seu-nome-devvm
         User seu-usuario
         ProxyCommand gcloud compute start-iap-tunnel %h %p --listen-on-stdin --project=inspire-7-finep --zone=southamerica-east1-a
         StrictHostKeyChecking no
@@ -64,7 +64,7 @@ gcloud compute ssh seu-nome-sandbox \
     ```
 
     !!! note "Substitua"
-        - `seu-nome-sandbox` → nome da sua VM
+        - `seu-nome-devvm` → nome da sua VM
         - `seu-usuario` → seu username Linux (geralmente parte do email antes do @)
 
 === "Windows"
@@ -72,8 +72,8 @@ gcloud compute ssh seu-nome-sandbox \
     Edite `C:\Users\SeuUsuario\.ssh\config`:
 
     ```ssh-config
-    Host sandbox
-        HostName seu-nome-sandbox
+    Host devvm
+        HostName seu-nome-devvm
         User seu-usuario
         ProxyCommand gcloud.cmd compute start-iap-tunnel %h %p --listen-on-stdin --project=inspire-7-finep --zone=southamerica-east1-a
         StrictHostKeyChecking no
@@ -86,7 +86,7 @@ gcloud compute ssh seu-nome-sandbox \
 ### Testar configuração
 
 ```bash
-ssh sandbox
+ssh devvm
 ```
 
 Deve conectar à VM.
@@ -101,7 +101,7 @@ Deve conectar à VM.
 
 3. Digite: **Remote-SSH: Connect to Host**
 
-4. Selecione **sandbox**
+4. Selecione **devvm**
 
 5. Aguarde a instalação do servidor VSCode (~1 min na primeira vez)
 
@@ -110,7 +110,7 @@ Deve conectar à VM.
 Após conectar, você verá no canto inferior esquerdo:
 
 ```
->< SSH: sandbox
+>< SSH: devvm
 ```
 
 ---
@@ -177,15 +177,15 @@ flowchart TD
 
 ```bash
 # Ligar VM
-gcloud compute instances start seu-nome-sandbox \
+gcloud compute instances start seu-nome-devvm \
   --zone=southamerica-east1-a
 
 # Verificar status
-gcloud compute instances describe seu-nome-sandbox \
+gcloud compute instances describe seu-nome-devvm \
   --zone=southamerica-east1-a --format="value(status)"
 
 # Desligar manualmente
-gcloud compute instances stop seu-nome-sandbox \
+gcloud compute instances stop seu-nome-devvm \
   --zone=southamerica-east1-a
 ```
 
@@ -199,11 +199,11 @@ A VM provavelmente está desligada:
 
 ```bash
 # Verificar
-gcloud compute instances describe seu-nome-sandbox \
+gcloud compute instances describe seu-nome-devvm \
   --zone=southamerica-east1-a --format="value(status)"
 
 # Ligar
-gcloud compute instances start seu-nome-sandbox \
+gcloud compute instances start seu-nome-devvm \
   --zone=southamerica-east1-a
 
 # Aguardar ~30s e reconectar
@@ -216,14 +216,14 @@ gcloud compute instances start seu-nome-sandbox \
 gcloud auth login
 
 # Tentar novamente
-ssh sandbox
+ssh devvm
 ```
 
 ### VSCode trava ao conectar
 
 ```bash
 # Conectar via terminal
-gcloud compute ssh seu-nome-sandbox \
+gcloud compute ssh seu-nome-devvm \
   --zone=southamerica-east1-a --tunnel-through-iap
 
 # Remover servidor VSCode corrompido
@@ -245,7 +245,7 @@ ProxyCommand "C:\Users\User\AppData\Local\Google\Cloud SDK\google-cloud-sdk\bin\
 Adicione keep-alive ao `~/.ssh/config`:
 
 ```ssh-config
-Host sandbox
+Host devvm
     # ... outras configs ...
     ServerAliveInterval 60
     ServerAliveCountMax 3
@@ -268,7 +268,7 @@ Se o ProxyCommand não funcionar no Windows:
 5. Configure VSCode para `localhost:PORTA`:
 
 ```ssh-config
-Host sandbox-tunnel
+Host devvm-tunnel
     HostName localhost
     Port 12345
     User seu-usuario
@@ -291,6 +291,6 @@ Agora que seu VSCode está configurado:
 
 ## Links Relacionados
 
-- [VMs Sandbox](../infraestrutura/sandbox-vms.md) - Criar e gerenciar sandboxes
+- [VMs de Desenvolvimento](../infraestrutura/devvm.md) - Criar e gerenciar Dev VMs
 - [Setup Backend](./setup-backend.md) - Configurar Python
 - [Setup Frontend](./setup-frontend.md) - Configurar Next.js

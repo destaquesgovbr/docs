@@ -62,13 +62,13 @@ nav:
   - Infraestrutura:
     - Arquitetura GCP: infraestrutura/arquitetura-gcp.md
     - Terraform: infraestrutura/terraform-guide.md
-    - VMs Sandbox: infraestrutura/sandbox-vms.md
+    - VMs de Desenvolvimento: infraestrutura/devvm.md
     - Secrets & IAM: infraestrutura/secrets-iam.md
   - Onboarding:
     - Roteiro: onboarding/roteiro-onboarding.md
     - Setup Backend: onboarding/setup-backend.md
     - Setup Frontend: onboarding/setup-frontend.md
-    - Setup Sandbox: onboarding/setup-sandbox.md
+    - Setup Dev VM: onboarding/setup-devvm.md
     - Primeiro PR: onboarding/primeiro-pr.md
     - Troubleshooting: onboarding/troubleshooting.md
   - Sobre:
