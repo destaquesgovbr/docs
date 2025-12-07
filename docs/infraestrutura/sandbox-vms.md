@@ -19,9 +19,9 @@ As sandboxes são VMs individuais no GCP criadas para cada desenvolvedor:
 
 ### Por que usar sandbox?
 
-- **Acesso a recursos GCP**: BigQuery, Storage, etc. autenticados automaticamente
-- **Ambiente consistente**: Mesma configuração para toda equipe
-- **Persistência**: Dados em `/mnt/data` sobrevivem reinicializações
+- **Ambiente padronizado**: Mesma configuração para toda equipe
+- **Persistência**: Projetos em `/mnt/data` sobrevivem reinicializações
+- **VSCode Remote**: Desenvolva como se fosse local
 - **Segurança**: Sem IP público, acesso apenas via IAP
 - **Economia**: Auto-shutdown às 19h reduz custos em ~40%
 
@@ -33,6 +33,7 @@ As sandboxes são VMs individuais no GCP criadas para cada desenvolvedor:
 flowchart TB
     subgraph Internet
         Dev[Desenvolvedor]
+        VSCode[VSCode Remote]
     end
 
     subgraph GCP["GCP Project (inspire-7-finep)"]
@@ -45,18 +46,17 @@ flowchart TB
                 VMn[...]
             end
         end
+    end
 
-        SA[Service Account]
-        BQ[(BigQuery)]
-        GCS[(Cloud Storage)]
+    subgraph External
+        GH[GitHub]
     end
 
     Dev -->|SSH via IAP| IAP
+    VSCode -->|SSH via IAP| IAP
     IAP --> VM1
     IAP --> VM2
-    VM1 & VM2 -->|Autenticado| SA
-    SA --> BQ
-    SA --> GCS
+    VM1 & VM2 -->|Git push/pull| GH
 ```
 
 ---
@@ -134,11 +134,9 @@ Após aprovação:
 
 | Tipo | vCPUs | RAM | Custo/mês* | Recomendação |
 |------|-------|-----|------------|--------------|
-| `e2-medium` | 2 | 4GB | ~$25 | Dev leve |
+| `e2-medium` | 2 | 4GB | ~$25 | Edição de código simples |
 | `e2-standard-2` | 2 | 8GB | ~$50 | Dev geral |
-| `e2-standard-4` | 4 | 16GB | ~$100 | Processamento dados |
-| `e2-standard-8` | 8 | 32GB | ~$200 | ML/AI |
-| `e2-highmem-4` | 4 | 32GB | ~$140 | Memory-intensive |
+| `e2-standard-4` | 4 | 16GB | ~$100 | **Recomendado** - Dev com Docker/builds |
 
 *Custos 24/7. Com auto-shutdown, ~40% menor.
 

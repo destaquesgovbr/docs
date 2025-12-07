@@ -29,19 +29,18 @@ O **DestaquesGovbr** é uma plataforma integrada de notícias e informações do
 
 ## Sandbox: Seu Ambiente no GCP
 
-Cada desenvolvedor pode ter uma **VM dedicada no GCP** para desenvolvimento:
+Cada desenvolvedor pode ter uma **VM dedicada no GCP** para desenvolvimento de código:
 
 ```mermaid
 flowchart LR
     Dev[Seu Computador] -->|SSH via IAP| VM[Sandbox VM]
-    VM -->|Autenticado| BQ[(BigQuery)]
-    VM -->|Autenticado| GCS[(Storage)]
     VSCode[VSCode Remote] -->|SSH| VM
+    VM -->|Git| GH[GitHub]
 ```
 
 **Benefícios:**
 
-- 🔐 **Acesso direto** a BigQuery, Cloud Storage e outros recursos GCP
+- 💻 **Ambiente padronizado** - mesma configuração para toda equipe
 - 💾 **Disco persistente** de 50GB em `/mnt/data` para seus projetos
 - 🛡️ **Seguro** - sem IP público, acesso apenas via IAP
 - 💰 **Econômico** - auto-shutdown às 19h
