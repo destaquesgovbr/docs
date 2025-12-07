@@ -1,4 +1,4 @@
-# VMs Sandbox para Desenvolvimento
+# VMs de Desenvolvimento para Desenvolvimento
 
 > Ambientes de desenvolvimento isolados no GCP para a equipe.
 
@@ -6,7 +6,7 @@
 
 ## Visão Geral
 
-As sandboxes são VMs individuais no GCP criadas para cada desenvolvedor:
+As devvms são VMs individuais no GCP criadas para cada desenvolvedor:
 
 | Recurso | Especificação |
 |---------|---------------|
@@ -17,7 +17,7 @@ As sandboxes são VMs individuais no GCP criadas para cada desenvolvedor:
 | Auto-shutdown | 19:00 (Brasília) |
 | Região | southamerica-east1 (São Paulo) |
 
-### Por que usar sandbox?
+### Por que usar devvm?
 
 - **Ambiente padronizado**: Mesma configuração para toda equipe
 - **Persistência**: Projetos em `/mnt/data` sobrevivem reinicializações
@@ -39,10 +39,10 @@ flowchart TB
     subgraph GCP["GCP Project (inspire-7-finep)"]
         IAP[Identity-Aware Proxy]
 
-        subgraph VPC["VPC: sandbox-network"]
+        subgraph VPC["VPC: devvm-network"]
             subgraph Subnet["Subnet: 10.128.0.0/20"]
-                VM1[dev1-sandbox]
-                VM2[dev2-sandbox]
+                VM1[dev1-devvm]
+                VM2[dev2-devvm]
                 VMn[...]
             end
         end
@@ -61,10 +61,10 @@ flowchart TB
 
 ---
 
-## Como Solicitar uma Sandbox
+## Como Solicitar uma Dev VM
 
 !!! info "Gerenciado via Terraform"
-    As sandboxes são criadas automaticamente via CI/CD quando você abre um PR.
+    As devvms são criadas automaticamente via CI/CD quando você abre um PR.
 
 ### Passo 1: Clone o Repositório
 
@@ -78,7 +78,7 @@ cd destaquesgovbr-infra
 ```bash
 git checkout main
 git pull origin main
-git checkout -b feat/sandbox-seu-nome
+git checkout -b feat/devvm-seu-nome
 ```
 
 ### Passo 3: Adicione sua Configuração
@@ -86,8 +86,8 @@ git checkout -b feat/sandbox-seu-nome
 Edite `terraform/terraform.tfvars`:
 
 ```hcl
-sandboxes = {
-  # Sandboxes existentes...
+devvms = {
+  # Dev VMes existentes...
   nitai = {
     instance = {
       machine_type = "e2-standard-4"
@@ -109,8 +109,8 @@ sandboxes = {
 
 ```bash
 git add terraform/terraform.tfvars
-git commit -m "feat: add sandbox for seu-nome"
-git push origin feat/sandbox-seu-nome
+git commit -m "feat: add devvm for seu-nome"
+git push origin feat/devvm-seu-nome
 ```
 
 ### Passo 5: Abra um Pull Request
@@ -160,7 +160,7 @@ seu-nome = {
 ### Comando Básico
 
 ```bash
-gcloud compute ssh seu-nome-sandbox \
+gcloud compute ssh seu-nome-devvm \
   --zone=southamerica-east1-a \
   --tunnel-through-iap
 ```
@@ -169,7 +169,7 @@ gcloud compute ssh seu-nome-sandbox \
 
 ```bash
 # Ver se está rodando
-gcloud compute instances describe seu-nome-sandbox \
+gcloud compute instances describe seu-nome-devvm \
   --zone=southamerica-east1-a \
   --format="value(status)"
 ```
@@ -177,7 +177,7 @@ gcloud compute instances describe seu-nome-sandbox \
 ### Ligar VM (se desligada)
 
 ```bash
-gcloud compute instances start seu-nome-sandbox \
+gcloud compute instances start seu-nome-devvm \
   --zone=southamerica-east1-a
 ```
 
@@ -211,14 +211,14 @@ As VMs desligam automaticamente às **19:00** (horário de Brasília) para econo
 ### Ligar pela Manhã
 
 ```bash
-gcloud compute instances start seu-nome-sandbox \
+gcloud compute instances start seu-nome-devvm \
   --zone=southamerica-east1-a
 ```
 
 ### Desligar Manualmente
 
 ```bash
-gcloud compute instances stop seu-nome-sandbox \
+gcloud compute instances stop seu-nome-devvm \
   --zone=southamerica-east1-a
 ```
 
@@ -245,13 +245,13 @@ flowchart TD
 
 1. Verificar se está rodando:
    ```bash
-   gcloud compute instances describe seu-nome-sandbox \
+   gcloud compute instances describe seu-nome-devvm \
      --zone=southamerica-east1-a --format="value(status)"
    ```
 
 2. Se `TERMINATED`, ligar:
    ```bash
-   gcloud compute instances start seu-nome-sandbox \
+   gcloud compute instances start seu-nome-devvm \
      --zone=southamerica-east1-a
    ```
 
@@ -283,6 +283,6 @@ Edite `terraform.tfvars` e abra um PR para alterar `machine_type` ou `data_disk_
 
 ## Links Relacionados
 
-- [Setup VSCode Remote](../onboarding/setup-sandbox.md) - Configurar VSCode
+- [Setup VSCode Remote](../onboarding/setup-devvm.md) - Configurar VSCode
 - [Terraform Guide](./terraform-guide.md) - Como funciona o Terraform
 - [Arquitetura GCP](./arquitetura-gcp.md) - Visão geral
