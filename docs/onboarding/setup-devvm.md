@@ -13,12 +13,17 @@
 ### Verificação
 
 ```bash
-# gcloud instalado e logado
+# Verificar instalação do gcloud
 gcloud --version
+
+# Verificar login
 gcloud auth list  # Sua conta deve aparecer
 
-# Projeto configurado
-gcloud config get-value project  # inspire-7-finep
+# Se não estiver logado, execute:
+gcloud init
+
+# Verificar projeto configurado
+gcloud config get-value project  # Deve retornar: inspire-7-finep
 ```
 
 ---
@@ -115,29 +120,37 @@ Após conectar, você verá no canto inferior esquerdo:
 
 ---
 
-## 4. Abrir Projetos
+## 4. Configurar Ambiente de Desenvolvimento
 
-No VSCode conectado:
+A VM é fornecida sem diretórios de projetos. Siga estes passos para configurar seu ambiente:
 
-1. Clique em **File → Open Folder**
+### Criar diretório de projetos
 
-2. Navegue para `/mnt/data/projects`
+No terminal integrado do VSCode (`Ctrl+`):
 
-3. Selecione o projeto desejado
+```bash
+# Criar diretório para os projetos
+mkdir -p ~/projects
+
+# Navegar para o diretório
+cd ~/projects
+```
 
 ### Clonar repositórios
 
-No terminal integrado (`Ctrl+`):
-
 ```bash
-cd /mnt/data/projects
-
 # Clone o scraper
 git clone https://github.com/destaquesgovbr/govbrnews-scraper.git
 
 # Clone o portal
 git clone https://github.com/destaquesgovbr/destaquesgovbr-portal.git
 ```
+
+### Abrir Projetos no VSCode
+
+1. Clique em **File → Open Folder**
+2. Navegue até `~/projects`
+3. Selecione o projeto desejado
 
 ---
 
