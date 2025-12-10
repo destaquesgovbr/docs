@@ -8,7 +8,7 @@ docs_dir: docs
 theme:
   name: material
   language: pt-BR
-  logo: assets/logo.png
+  logo: assets/logo-header.png
   favicon: assets/logo.png
   palette:
     - scheme: default
