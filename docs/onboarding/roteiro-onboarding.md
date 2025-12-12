@@ -31,14 +31,15 @@ Antes de começar, certifique-se de ter:
 
 ### Desenvolvedor Backend (Python)
 
-**Foco**: Scraper, pipeline de dados, integrações
+**Foco**: Scraper, pipeline de dados, integrações, orquestração com Airflow
 
 ```mermaid
 flowchart LR
     A[1. Visão Geral] --> B[2. Setup Backend]
     B --> C[3. Entender Scraper]
-    C --> D[4. Entender Pipeline]
-    D --> E[5. Primeiro PR]
+    C --> D[4. Apache Airflow]
+    D --> E[5. Entender Pipeline]
+    E --> F[6. Primeiro PR]
 ```
 
 **Ordem de leitura:**
@@ -47,7 +48,8 @@ flowchart LR
 2. [Fluxo de Dados](../arquitetura/fluxo-de-dados.md) (20 min)
 3. [Setup Backend](./setup-backend.md) (1-2 horas)
 4. [Módulo Scraper](../modulos/scraper.md) (quando disponível)
-5. [Primeiro PR](./primeiro-pr.md) (30 min)
+5. [**Apache Airflow**](./airflow-tutorial.md) (3-5 horas) ⭐ **Novo**
+6. [Primeiro PR](./primeiro-pr.md) (30 min)
 
 **Exercícios práticos:**
 
@@ -55,6 +57,8 @@ flowchart LR
 2. Verificar os dados no HuggingFace após uma execução
 3. Adicionar uma nova fonte de dados (site gov.br)
 4. Executar o pipeline de enriquecimento manualmente
+5. Configurar ambiente Airflow local com Astro CLI
+6. Criar primeira DAG de exemplo seguindo o tutorial
 
 ---
 
@@ -129,6 +133,8 @@ flowchart LR
 | Pandas/Datasets | Básico | DatasetManager |
 | APIs REST | Intermediário | Integração Cogfy |
 | GitHub Actions | Básico | Workflows |
+| **Apache Airflow** | Básico → Intermediário | [Tutorial Airflow](./airflow-tutorial.md) |
+| Astro CLI | Básico | Setup ambiente local |
 
 ### Frontend (TypeScript)
 
@@ -181,6 +187,9 @@ flowchart LR
 - [ ] Entendi a integração com Cogfy
 - [ ] Entendi como funciona o DatasetManager
 - [ ] Executei o workflow de testes
+- [ ] Configurei ambiente Airflow local (Astro CLI)
+- [ ] Criei minha primeira DAG
+- [ ] Completei pelo menos 3 exercícios do tutorial Airflow
 
 ### Frontend Específico
 

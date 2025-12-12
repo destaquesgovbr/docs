@@ -69,6 +69,7 @@ nav:
     - Setup Backend: onboarding/setup-backend.md
     - Setup Frontend: onboarding/setup-frontend.md
     - Setup Dev VM: onboarding/setup-devvm.md
+    - Apache Airflow: onboarding/airflow-tutorial.md
     - Primeiro PR: onboarding/primeiro-pr.md
     - Troubleshooting: onboarding/troubleshooting.md
   - Sobre:
