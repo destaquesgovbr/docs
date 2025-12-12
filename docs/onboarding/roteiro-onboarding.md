@@ -48,7 +48,7 @@ flowchart LR
 2. [Fluxo de Dados](../arquitetura/fluxo-de-dados.md) (20 min)
 3. [Setup Backend](./setup-backend.md) (1-2 horas)
 4. [Módulo Scraper](../modulos/scraper.md) (quando disponível)
-5. [**Apache Airflow**](./airflow-tutorial.md) (2-3 horas) ⭐ **Novo**
+5. [**Apache Airflow**](./airflow-tutorial.md) (3-5 horas) ⭐ **Novo**
 6. [Primeiro PR](./primeiro-pr.md) (30 min)
 
 **Exercícios práticos:**
