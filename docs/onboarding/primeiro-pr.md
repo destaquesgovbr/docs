@@ -23,12 +23,12 @@ Certifique-se de que você:
 
 Procure issues com as labels:
 
-| Label | Significado |
-|-------|-------------|
+| Label              | Significado                      |
+| ------------------ | -------------------------------- |
 | `good first issue` | Ideal para primeira contribuição |
-| `help wanted` | Contribuições bem-vindas |
-| `documentation` | Melhorias de documentação |
-| `bug` | Correção de bugs |
+| `help wanted`      | Contribuições bem-vindas         |
+| `documentation`    | Melhorias de documentação        |
+| `bug`              | Correção de bugs                 |
 
 ### Se não encontrar uma issue
 
@@ -94,13 +94,13 @@ poetry run pytest
 
 ```bash
 # Formatação e lint
-npm run lint:fix
+pnpm lint:fix
 
 # Verificar tipos
-npm run type-check
+pnpm type-check
 
 # Verificar antes de commitar
-npm run build
+pnpm build
 ```
 
 ---
@@ -121,15 +121,15 @@ Usamos [Conventional Commits](https://www.conventionalcommits.org/):
 
 ### Tipos comuns
 
-| Tipo | Uso |
-|------|-----|
-| `feat` | Nova funcionalidade |
-| `fix` | Correção de bug |
-| `docs` | Documentação |
-| `style` | Formatação (não altera código) |
-| `refactor` | Refatoração |
-| `test` | Testes |
-| `chore` | Manutenção |
+| Tipo       | Uso                            |
+| ---------- | ------------------------------ |
+| `feat`     | Nova funcionalidade            |
+| `fix`      | Correção de bug                |
+| `docs`     | Documentação                   |
+| `style`    | Formatação (não altera código) |
+| `refactor` | Refatoração                    |
+| `test`     | Testes                         |
+| `chore`    | Manutenção                     |
 
 ### Exemplos
 

@@ -4,7 +4,7 @@
 
 **Repositório**: [github.com/destaquesgovbr/destaquesgovbr-portal](https://github.com/destaquesgovbr/destaquesgovbr-portal)
 
-**URL Produção**: [destaquesgovbr-portal-klvx64dufq-rj.a.run.app](https://destaquesgovbr-portal-klvx64dufq-rj.a.run.app/) *(URL provisória - Cloud Run/GCP)*
+**URL Produção**: [destaquesgovbr-portal-klvx64dufq-rj.a.run.app](https://destaquesgovbr-portal-klvx64dufq-rj.a.run.app/) _(URL provisória - Cloud Run/GCP)_
 
 ## Visão Geral
 
@@ -27,15 +27,15 @@ flowchart LR
 
 ## Stack Tecnológico
 
-| Tecnologia | Versão | Uso |
-|------------|--------|-----|
-| Next.js | 15 | Framework React (App Router) |
-| TypeScript | 5 | Tipagem estática |
-| Typesense | - | Busca full-text |
-| shadcn/ui | - | Componentes UI |
-| Tailwind CSS | 3 | Estilização |
-| React Query | 5 | Data fetching |
-| Biome | - | Lint + Format |
+| Tecnologia   | Versão | Uso                          |
+| ------------ | ------ | ---------------------------- |
+| Next.js      | 15     | Framework React (App Router) |
+| TypeScript   | 5      | Tipagem estática             |
+| Typesense    | -      | Busca full-text              |
+| shadcn/ui    | -      | Componentes UI               |
+| Tailwind CSS | 3      | Estilização                  |
+| React Query  | 5      | Data fetching                |
+| Biome        | -      | Lint + Format                |
 
 ---
 
@@ -162,48 +162,52 @@ destaquesgovbr-portal/
 ### Configuração (`typesense-client.ts`)
 
 ```typescript
-import Typesense from "typesense"
+import Typesense from "typesense";
 
 const client = new Typesense.Client({
-  nodes: [{
-    host: process.env.TYPESENSE_HOST,
-    port: Number(process.env.TYPESENSE_PORT),
-    protocol: process.env.TYPESENSE_PROTOCOL,
-  }],
+  nodes: [
+    {
+      host: process.env.TYPESENSE_HOST,
+      port: Number(process.env.TYPESENSE_PORT),
+      protocol: process.env.TYPESENSE_PROTOCOL,
+    },
+  ],
   apiKey: process.env.TYPESENSE_API_KEY,
   connectionTimeoutSeconds: 2,
-})
+});
 ```
 
 ### Função de Busca
 
 ```typescript
 interface SearchParams {
-  query: string
+  query: string;
   filters?: {
-    agency?: string[]
-    theme_1_level_1_code?: string[]
-    dateFrom?: number
-    dateTo?: number
-  }
-  page?: number
-  perPage?: number
-  sortBy?: string
+    agency?: string[];
+    theme_1_level_1_code?: string[];
+    dateFrom?: number;
+    dateTo?: number;
+  };
+  page?: number;
+  perPage?: number;
+  sortBy?: string;
 }
 
 async function searchNews(params: SearchParams): Promise<SearchResult> {
-  const { query, filters, page = 1, perPage = 20 } = params
+  const { query, filters, page = 1, perPage = 20 } = params;
 
   // Construir filter_by
-  const filterClauses: string[] = []
+  const filterClauses: string[] = [];
   if (filters?.agency?.length) {
-    filterClauses.push(`agency:[${filters.agency.join(",")}]`)
+    filterClauses.push(`agency:[${filters.agency.join(",")}]`);
   }
   if (filters?.theme_1_level_1_code?.length) {
-    filterClauses.push(`theme_1_level_1_code:[${filters.theme_1_level_1_code.join(",")}]`)
+    filterClauses.push(
+      `theme_1_level_1_code:[${filters.theme_1_level_1_code.join(",")}]`
+    );
   }
   if (filters?.dateFrom) {
-    filterClauses.push(`published_at:>=${filters.dateFrom}`)
+    filterClauses.push(`published_at:>=${filters.dateFrom}`);
   }
 
   const result = await client
@@ -217,9 +221,9 @@ async function searchNews(params: SearchParams): Promise<SearchResult> {
       page,
       per_page: perPage,
       highlight_fields: "title,summary",
-    })
+    });
 
-  return result
+  return result;
 }
 ```
 
@@ -229,27 +233,27 @@ async function searchNews(params: SearchParams): Promise<SearchResult> {
 
 ```typescript
 interface NewsDocument {
-  id: string                        // unique_id
-  unique_id: string
-  agency: string                    // ex: "gestao"
-  title: string
-  url: string
-  image?: string
-  content: string                   // Markdown
-  published_at: number              // Unix timestamp
-  category?: string
-  tags?: string[]
+  id: string; // unique_id
+  unique_id: string;
+  agency: string; // ex: "gestao"
+  title: string;
+  url: string;
+  image?: string;
+  content: string; // Markdown
+  published_at: number; // Unix timestamp
+  category?: string;
+  tags?: string[];
 
   // Campos enriquecidos
-  theme_1_level_1_code?: string     // ex: "01"
-  theme_1_level_1_label?: string    // ex: "Economia e Finanças"
-  theme_1_level_2_code?: string
-  theme_1_level_2_label?: string
-  theme_1_level_3_code?: string
-  theme_1_level_3_label?: string
-  most_specific_theme_code?: string
-  most_specific_theme_label?: string
-  summary?: string                  // Resumo AI
+  theme_1_level_1_code?: string; // ex: "01"
+  theme_1_level_1_label?: string; // ex: "Economia e Finanças"
+  theme_1_level_2_code?: string;
+  theme_1_level_2_label?: string;
+  theme_1_level_3_code?: string;
+  theme_1_level_3_label?: string;
+  most_specific_theme_code?: string;
+  most_specific_theme_label?: string;
+  summary?: string; // Resumo AI
 }
 ```
 
@@ -300,9 +304,9 @@ priority_agencies:
 
 # Temas em destaque
 priority_themes:
-  - "01"  # Economia
-  - "03"  # Saúde
-  - "20"  # Políticas Públicas
+  - "01" # Economia
+  - "03" # Saúde
+  - "20" # Políticas Públicas
 ```
 
 ---
@@ -317,29 +321,24 @@ export default async function ThemePage({ params }: Props) {
   // Busca no servidor
   const news = await searchNews({
     query: "*",
-    filters: { theme_1_level_1_label: [params.themeLabel] }
-  })
+    filters: { theme_1_level_1_label: [params.themeLabel] },
+  });
 
-  return <NewsList news={news.hits} />
+  return <NewsList news={news.hits} />;
 }
 ```
 
 ### Client Components
 
 ```tsx
-"use client"
+"use client";
 
 // components/search/SearchBar.tsx
 export function SearchBar() {
-  const [query, setQuery] = useState("")
+  const [query, setQuery] = useState("");
 
   // Interatividade no cliente
-  return (
-    <input
-      value={query}
-      onChange={(e) => setQuery(e.target.value)}
-    />
-  )
+  return <input value={query} onChange={(e) => setQuery(e.target.value)} />;
 }
 ```
 
@@ -368,27 +367,27 @@ TYPESENSE_API_KEY=<api-key-producao>
 
 ```bash
 # Instalar dependências
-npm install
+pnpm install
 
 # Desenvolvimento
-npm run dev
+pnpm dev
 
 # Build de produção
-npm run build
+pnpm build
 
 # Rodar build local
-npm run start
+pnpm start
 
 # Lint
-npm run lint
+pnpm lint
 
 # Formatar
-npm run format
+pnpm format
 
 # Type check
-npm run type-check
+pnpm type-check
 # ou
-npx tsc --noEmit
+pnpm exec tsc --noEmit
 ```
 
 ---
@@ -407,9 +406,9 @@ npx shadcn@latest add select
 ### Usar componente
 
 ```tsx
-import { Button } from "@/components/ui/button"
-import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card"
-import { Input } from "@/components/ui/input"
+import { Button } from "@/components/ui/button";
+import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
+import { Input } from "@/components/ui/input";
 
 export function Example() {
   return (
@@ -422,7 +421,7 @@ export function Example() {
         <Button>Buscar</Button>
       </CardContent>
     </Card>
-  )
+  );
 }
 ```
 
