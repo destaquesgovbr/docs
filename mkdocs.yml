@@ -66,6 +66,8 @@ nav:
     - Secrets & IAM: infraestrutura/secrets-iam.md
   - Onboarding:
     - Roteiro: onboarding/roteiro-onboarding.md
+    - Git Fundamentos: onboarding/git-fundamentos.md
+    - GitHub Colaboração: onboarding/github-colaboracao.md
     - Setup Backend: onboarding/setup-backend.md
     - Setup Frontend: onboarding/setup-frontend.md
     - Setup Dev VM: onboarding/setup-devvm.md
