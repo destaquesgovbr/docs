@@ -6,10 +6,10 @@
 
 O projeto usa Docker para containerização de dois serviços principais:
 
-| Serviço | Imagem | Registry |
-|---------|--------|----------|
-| Scraper | `govbrnews-scraper` | GitHub Container Registry |
-| Portal | `destaquesgovbr-portal` | GCP Artifact Registry |
+| Serviço | Imagem                  | Registry                  |
+| ------- | ----------------------- | ------------------------- |
+| Scraper | `govbrnews-scraper`     | GitHub Container Registry |
+| Portal  | `destaquesgovbr-portal` | GCP Artifact Registry     |
 
 ```mermaid
 flowchart LR
@@ -37,8 +37,8 @@ flowchart LR
 on:
   push:
     tags:
-      - 'v*'  # Apenas tags de versão
-  workflow_dispatch:  # Manual
+      - "v*" # Apenas tags de versão
+  workflow_dispatch: # Manual
 ```
 
 ### Workflow
@@ -49,7 +49,7 @@ name: Build Docker Image
 on:
   push:
     tags:
-      - 'v*'
+      - "v*"
   workflow_dispatch:
 
 jobs:
@@ -151,8 +151,9 @@ gh workflow run docker-build.yaml
 # Stage 1: Dependencies
 FROM node:20-alpine AS deps
 WORKDIR /app
-COPY package*.json ./
-RUN npm ci --only=production
+RUN corepack enable && corepack prepare pnpm@latest --activate
+COPY package.json pnpm-lock.yaml ./
+RUN pnpm install --prod --frozen-lockfile
 
 # Stage 2: Build
 FROM node:20-alpine AS builder
@@ -176,7 +177,7 @@ ENV TYPESENSE_API_KEY=$TYPESENSE_API_KEY
 ENV NEXT_TELEMETRY_DISABLED=1
 
 # Build Next.js standalone
-RUN npm run build
+RUN corepack enable && corepack prepare pnpm@latest --activate && pnpm build
 
 # Stage 3: Production
 FROM node:20-alpine AS runner
@@ -289,11 +290,11 @@ docker run -p 3000:3000 destaquesgovbr-portal
 ```dockerfile
 # ❌ Ruim - invalida cache a cada mudança
 COPY . .
-RUN npm install
+RUN pnpm install
 
 # ✅ Bom - aproveita cache de deps
-COPY package*.json ./
-RUN npm ci
+COPY package.json pnpm-lock.yaml ./
+RUN pnpm install --frozen-lockfile
 COPY . .
 ```
 

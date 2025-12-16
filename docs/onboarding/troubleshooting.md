@@ -143,7 +143,7 @@ Type error: Property 'x' does not exist on type 'y'
 
 ```bash
 # Verificar erros de tipo
-npm run type-check
+pnpm type-check
 
 # Corrigir tipos ou adicionar definições
 ```
@@ -432,8 +432,8 @@ poetry show
 
 ```bash
 node --version
-npm --version
-npm ls
+pnpm --version
+pnpm list
 ```
 
 ### Verificar Docker

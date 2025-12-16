@@ -4,18 +4,18 @@
 
 ## Pré-requisitos
 
-| Ferramenta | Versão | Instalação |
-|------------|--------|------------|
-| Node.js | 20+ | [nodejs.org](https://nodejs.org/) ou nvm |
-| npm | 10+ | Incluído no Node.js |
-| Docker | 24+ | [docker.com](https://www.docker.com/products/docker-desktop/) |
-| Git | 2.40+ | [git-scm.com](https://git-scm.com/) |
+| Ferramenta | Versão | Instalação                                                    |
+| ---------- | ------ | ------------------------------------------------------------- |
+| Node.js    | 20+    | [nodejs.org](https://nodejs.org/) ou nvm                      |
+| pnpm       | 9+     | `corepack enable` ou [pnpm.io](https://pnpm.io/installation)  |
+| Docker     | 24+    | [docker.com](https://www.docker.com/products/docker-desktop/) |
+| Git        | 2.40+  | [git-scm.com](https://git-scm.com/)                           |
 
 ### Verificação
 
 ```bash
 node --version    # v20.x.x ou superior
-npm --version     # 10.x.x ou superior
+pnpm --version    # 9.x.x ou superior
 docker --version  # Docker 24.x ou superior
 git --version     # Git 2.40.x ou superior
 ```
@@ -36,7 +36,7 @@ cd destaquesgovbr-portal
 
 ```bash
 # Instalar dependências
-npm install
+pnpm install
 ```
 
 ---
@@ -103,7 +103,7 @@ TYPESENSE_COLLECTION_NAME=news
 
 ```bash
 # Modo desenvolvimento
-npm run dev
+pnpm dev
 ```
 
 Acesse [http://localhost:3000](http://localhost:3000) no navegador.
@@ -147,14 +147,14 @@ destaquesgovbr-portal/
 
 ## 7. Stack Tecnológico
 
-| Tecnologia | Uso | Documentação |
-|------------|-----|--------------|
-| Next.js 15 | Framework React | [nextjs.org/docs](https://nextjs.org/docs) |
-| TypeScript 5 | Tipagem | [typescriptlang.org](https://www.typescriptlang.org/) |
-| Typesense | Busca full-text | [typesense.org/docs](https://typesense.org/docs/) |
-| shadcn/ui | Componentes UI | [ui.shadcn.com](https://ui.shadcn.com/) |
-| Tailwind CSS | Estilização | [tailwindcss.com](https://tailwindcss.com/) |
-| React Query | Data fetching | [tanstack.com/query](https://tanstack.com/query) |
+| Tecnologia   | Uso             | Documentação                                          |
+| ------------ | --------------- | ----------------------------------------------------- |
+| Next.js 15   | Framework React | [nextjs.org/docs](https://nextjs.org/docs)            |
+| TypeScript 5 | Tipagem         | [typescriptlang.org](https://www.typescriptlang.org/) |
+| Typesense    | Busca full-text | [typesense.org/docs](https://typesense.org/docs/)     |
+| shadcn/ui    | Componentes UI  | [ui.shadcn.com](https://ui.shadcn.com/)               |
+| Tailwind CSS | Estilização     | [tailwindcss.com](https://tailwindcss.com/)           |
+| React Query  | Data fetching   | [tanstack.com/query](https://tanstack.com/query)      |
 
 ---
 
@@ -164,38 +164,38 @@ destaquesgovbr-portal/
 
 ```bash
 # Rodar em desenvolvimento
-npm run dev
+pnpm dev
 
 # Build de produção
-npm run build
+pnpm build
 
 # Rodar build de produção localmente
-npm run start
+pnpm start
 
 # Verificar tipos TypeScript
-npm run type-check
+pnpm type-check
 # ou
-npx tsc --noEmit
+pnpm exec tsc --noEmit
 ```
 
 ### Linting e Formatação
 
 ```bash
 # Lint com Biome
-npm run lint
+pnpm lint
 
 # Formatar com Biome
-npm run format
+pnpm format
 
 # Fix automático
-npm run lint:fix
+pnpm lint:fix
 ```
 
 ### Testes
 
 ```bash
 # Executar testes (se configurados)
-npm run test
+pnpm test
 ```
 
 ---
@@ -217,8 +217,8 @@ npx shadcn@latest add
 ### Usar componente existente
 
 ```tsx
-import { Button } from "@/components/ui/button"
-import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card"
+import { Button } from "@/components/ui/button";
+import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
 
 export function MyComponent() {
   return (
@@ -230,7 +230,7 @@ export function MyComponent() {
         <Button>Clique aqui</Button>
       </CardContent>
     </Card>
-  )
+  );
 }
 ```
 
@@ -242,38 +242,38 @@ O cliente Typesense está em `src/lib/typesense-client.ts`:
 
 ```typescript
 // Exemplo de busca
-import { searchNews } from "@/lib/typesense-client"
+import { searchNews } from "@/lib/typesense-client";
 
 const results = await searchNews({
   query: "economia",
   filters: {
     agency: ["gestao", "fazenda"],
-    theme_1_level_1_code: ["01"]
+    theme_1_level_1_code: ["01"],
   },
   page: 1,
-  perPage: 20
-})
+  perPage: 20,
+});
 ```
 
 ### Estrutura do documento no Typesense
 
 ```typescript
 interface NewsDocument {
-  id: string
-  unique_id: string
-  agency: string
-  title: string
-  url: string
-  image?: string
-  content: string
-  published_at: number
-  theme_1_level_1_code?: string
-  theme_1_level_1_label?: string
-  theme_1_level_2_code?: string
-  theme_1_level_2_label?: string
-  theme_1_level_3_code?: string
-  theme_1_level_3_label?: string
-  summary?: string
+  id: string;
+  unique_id: string;
+  agency: string;
+  title: string;
+  url: string;
+  image?: string;
+  content: string;
+  published_at: number;
+  theme_1_level_1_code?: string;
+  theme_1_level_1_label?: string;
+  theme_1_level_2_code?: string;
+  theme_1_level_2_label?: string;
+  theme_1_level_3_code?: string;
+  theme_1_level_3_label?: string;
+  summary?: string;
 }
 ```
 
@@ -363,10 +363,10 @@ cd destaquesgovbr-typesense && docker compose up -d
 
 ```bash
 # Verificar erros de tipo
-npx tsc --noEmit
+pnpm exec tsc --noEmit
 
 # Se necessário, atualizar tipos
-npm run type-check
+pnpm type-check
 ```
 
 ### Página em branco / sem dados

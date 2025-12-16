@@ -24,7 +24,7 @@ on:
   push:
     branches:
       - main
-  workflow_dispatch:  # Manual
+  workflow_dispatch: # Manual
 ```
 
 ### Automático
@@ -49,7 +49,7 @@ build-and-deploy:
   runs-on: ubuntu-latest
   permissions:
     contents: read
-    id-token: write  # Para Workload Identity
+    id-token: write # Para Workload Identity
 
   steps:
     - name: Checkout
@@ -99,8 +99,9 @@ build-and-deploy:
 # Stage 1: Dependencies
 FROM node:20-alpine AS deps
 WORKDIR /app
-COPY package*.json ./
-RUN npm ci
+RUN corepack enable && corepack prepare pnpm@latest --activate
+COPY package.json pnpm-lock.yaml ./
+RUN pnpm install --frozen-lockfile
 
 # Stage 2: Build
 FROM node:20-alpine AS builder
@@ -117,7 +118,7 @@ ENV TYPESENSE_HOST=$TYPESENSE_HOST
 ENV TYPESENSE_PORT=$TYPESENSE_PORT
 ENV TYPESENSE_API_KEY=$TYPESENSE_API_KEY
 
-RUN npm run build
+RUN corepack enable && corepack prepare pnpm@latest --activate && pnpm build
 
 # Stage 3: Production
 FROM node:20-alpine AS runner
@@ -175,14 +176,14 @@ resource "google_iam_workload_identity_pool_provider" "github" {
 
 ## Secrets Necessárias
 
-| Secret | Descrição |
-|--------|-----------|
-| `GCP_PROJECT` | ID do projeto GCP |
-| `WIF_PROVIDER` | Provider do Workload Identity |
+| Secret                | Descrição                        |
+| --------------------- | -------------------------------- |
+| `GCP_PROJECT`         | ID do projeto GCP                |
+| `WIF_PROVIDER`        | Provider do Workload Identity    |
 | `WIF_SERVICE_ACCOUNT` | Service account para impersonate |
-| `TYPESENSE_HOST` | Host do Typesense (IP interno) |
-| `TYPESENSE_PORT` | Porta do Typesense |
-| `TYPESENSE_API_KEY` | API Key do Typesense |
+| `TYPESENSE_HOST`      | Host do Typesense (IP interno)   |
+| `TYPESENSE_PORT`      | Porta do Typesense               |
+| `TYPESENSE_API_KEY`   | API Key do Typesense             |
 
 ### Formato do WIF_PROVIDER
 
@@ -304,14 +305,14 @@ git push origin main
 
 ## Duração
 
-| Etapa | Duração Típica |
-|-------|----------------|
-| Checkout | ~10s |
-| Auth GCP | ~20s |
-| Build Docker | 2-4 min |
-| Push Registry | 30-60s |
-| Deploy Cloud Run | 1-2 min |
-| **Total** | **~5-8 min** |
+| Etapa            | Duração Típica |
+| ---------------- | -------------- |
+| Checkout         | ~10s           |
+| Auth GCP         | ~20s           |
+| Build Docker     | 2-4 min        |
+| Push Registry    | 30-60s         |
+| Deploy Cloud Run | 1-2 min        |
+| **Total**        | **~5-8 min**   |
 
 ---
 
