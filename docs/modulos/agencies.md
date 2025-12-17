@@ -1,12 +1,12 @@
-# Módulo: Agencies (destaquesgovbr-agencies)
+# Módulo: Agencies (agencies)
 
 > Catálogo centralizado de órgãos governamentais.
 
-**Repositório**: [github.com/destaquesgovbr/destaquesgovbr-agencies](https://github.com/destaquesgovbr/destaquesgovbr-agencies)
+**Repositório**: [github.com/destaquesgovbr/agencies](https://github.com/destaquesgovbr/agencies)
 
 ## Visão Geral
 
-O repositório `destaquesgovbr-agencies` é a **fonte centralizada** de dados sobre os órgãos governamentais do Brasil, contendo:
+O repositório `agencies` é a **fonte centralizada** de dados sobre os órgãos governamentais do Brasil, contendo:
 
 - **156 órgãos** catalogados
 - **29 tipos** diferentes (Ministério, Agência, Instituto, etc.)
@@ -14,8 +14,8 @@ O repositório `destaquesgovbr-agencies` é a **fonte centralizada** de dados so
 
 ```mermaid
 flowchart TB
-    AG[destaquesgovbr-agencies] -->|Sincronização| SC[govbrnews-scraper]
-    AG -->|Sincronização| PO[destaquesgovbr-portal]
+    AG[agencies] -->|Sincronização| SC[scraper]
+    AG -->|Sincronização| PO[portal]
 
     subgraph "Arquivos"
         AG --> A1[agencies.yaml]
@@ -28,7 +28,7 @@ flowchart TB
 ## Estrutura do Repositório
 
 ```
-destaquesgovbr-agencies/
+agencies/
 ├── agencies.yaml        # Dados completos dos órgãos
 ├── hierarchy.yaml       # Árvore hierárquica
 └── README.md
@@ -182,7 +182,7 @@ O scraper usa os dados para:
 - Mapear **IDs para nomes** completos
 
 ```python
-# govbrnews-scraper/src/scraper/agencies.yaml
+# scraper/src/scraper/agencies.yaml
 agencies:
   gestao: Ministério da Gestão e da Inovação em Serviços Públicos
 ```
@@ -196,7 +196,7 @@ O portal usa para:
 - **Navegação** hierárquica
 
 ```yaml
-# destaquesgovbr-portal/src/lib/agencies.yaml
+# portal/src/lib/agencies.yaml
 sources:
   gestao:
     name: Ministério da Gestão...
@@ -229,9 +229,9 @@ flowchart LR
 ```
 
 **Processo:**
-1. Editar `destaquesgovbr-agencies/agencies.yaml`
-2. Copiar manualmente para `govbrnews-scraper`
-3. Copiar manualmente para `destaquesgovbr-portal`
+1. Editar `agencies/agencies.yaml`
+2. Copiar manualmente para `scraper`
+3. Copiar manualmente para `portal`
 4. Atualizar `site_urls.yaml` se necessário
 
 ### Situação Futura (Automática)
@@ -243,7 +243,7 @@ flowchart LR
 ```
 
 **Meta:**
-- Push em `destaquesgovbr-agencies` dispara workflow
+- Push em `agencies` dispara workflow
 - Workflow atualiza automaticamente scraper e portal
 - PRs automáticos ou commits diretos
 
@@ -275,10 +275,10 @@ orgao-pai:
 
 ```bash
 # Copiar para scraper
-cp agencies.yaml ../govbrnews-scraper/src/scraper/agencies.yaml
+cp agencies.yaml ../scraper/src/scraper/agencies.yaml
 
 # Copiar para portal
-cp agencies.yaml ../destaquesgovbr-portal/src/lib/agencies.yaml
+cp agencies.yaml ../portal/src/lib/agencies.yaml
 
 # Atualizar site_urls.yaml no scraper
 ```

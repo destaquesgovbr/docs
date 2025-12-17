@@ -6,7 +6,7 @@
 
 O DestaquesGovbr é uma plataforma que centraliza e enriquece notícias governamentais brasileiras. Este roteiro vai guiá-lo através do processo de onboarding.
 
-**Acesse o portal**: [destaquesgovbr-portal-klvx64dufq-rj.a.run.app](https://destaquesgovbr-portal-klvx64dufq-rj.a.run.app/) *(URL provisória)*
+**Acesse o portal**: [portal-klvx64dufq-rj.a.run.app](https://portal-klvx64dufq-rj.a.run.app/) *(URL provisória)*
 
 ## Pré-requisitos Comuns
 
@@ -19,9 +19,21 @@ Antes de começar, certifique-se de ter:
 | Docker Compose | 2.20+ | `docker compose version` |
 | VS Code ou IDE preferida | - | - |
 
+### Fundamentos Git e GitHub
+
+Se você é novo em Git ou GitHub, comece por aqui:
+
+| Guia | Descrição | Tempo |
+|------|-----------|-------|
+| [Git Fundamentos](./git-fundamentos.md) | Do zero ao intermediário: commits, branches, merge | 1-2h |
+| [GitHub Colaboração](./github-colaboracao.md) | Clone, PRs, issues, code review | 1h |
+
+> **Dica**: Mesmo que você já conheça Git, vale revisar a seção de [Boas Práticas de Commits](./git-fundamentos.md#boas-praticas-de-commits) que segue o padrão do projeto.
+
 ### Acesso Necessário
 
 - [ ] Conta GitHub com acesso à [organização destaquesgovbr](https://github.com/destaquesgovbr)
+- [ ] Chave SSH configurada ([tutorial](./github-colaboracao.md#configurando-ssh-recomendado))
 - [ ] Acesso ao GCP (solicitar ao tech lead se necessário)
 - [ ] Token HuggingFace (para desenvolvimento do scraper)
 
@@ -35,21 +47,22 @@ Antes de começar, certifique-se de ter:
 
 ```mermaid
 flowchart LR
-    A[1. Visão Geral] --> B[2. Setup Backend]
-    B --> C[3. Entender Scraper]
-    C --> D[4. Apache Airflow]
-    D --> E[5. Entender Pipeline]
+    A[1. Git/GitHub] --> B[2. Visão Geral]
+    B --> C[3. Setup Backend]
+    C --> D[4. Entender Scraper]
+    D --> E[5. Apache Airflow]
     E --> F[6. Primeiro PR]
 ```
 
 **Ordem de leitura:**
 
-1. [Visão Geral da Arquitetura](../arquitetura/visao-geral.md) (30 min)
-2. [Fluxo de Dados](../arquitetura/fluxo-de-dados.md) (20 min)
-3. [Setup Backend](./setup-backend.md) (1-2 horas)
-4. [Módulo Scraper](../modulos/scraper.md) (quando disponível)
-5. [**Apache Airflow**](./airflow-tutorial.md) (3-5 horas) ⭐ **Novo**
-6. [Primeiro PR](./primeiro-pr.md) (30 min)
+1. [Git Fundamentos](./git-fundamentos.md) + [GitHub Colaboração](./github-colaboracao.md) (2-3 horas)
+2. [Visão Geral da Arquitetura](../arquitetura/visao-geral.md) (30 min)
+3. [Fluxo de Dados](../arquitetura/fluxo-de-dados.md) (20 min)
+4. [Setup Backend](./setup-backend.md) (1-2 horas)
+5. [Módulo Scraper](../modulos/scraper.md) (quando disponível)
+6. [**Apache Airflow**](./airflow-tutorial.md) (3-5 horas)
+7. [Primeiro PR](./primeiro-pr.md) (30 min)
 
 **Exercícios práticos:**
 
@@ -68,19 +81,20 @@ flowchart LR
 
 ```mermaid
 flowchart LR
-    A[1. Visão Geral] --> B[2. Setup Frontend]
-    B --> C[3. Entender Portal]
-    C --> D[4. Typesense Local]
+    A[1. Git/GitHub] --> B[2. Visão Geral]
+    B --> C[3. Setup Frontend]
+    C --> D[4. Entender Portal]
     D --> E[5. Primeiro PR]
 ```
 
 **Ordem de leitura:**
 
-1. [Visão Geral da Arquitetura](../arquitetura/visao-geral.md) (30 min)
-2. [Componentes Estruturantes](../arquitetura/componentes-estruturantes.md) (20 min)
-3. [Setup Frontend](./setup-frontend.md) (1-2 horas)
-4. [Módulo Portal](../modulos/portal.md) (quando disponível)
-5. [Primeiro PR](./primeiro-pr.md) (30 min)
+1. [Git Fundamentos](./git-fundamentos.md) + [GitHub Colaboração](./github-colaboracao.md) (2-3 horas)
+2. [Visão Geral da Arquitetura](../arquitetura/visao-geral.md) (30 min)
+3. [Componentes Estruturantes](../arquitetura/componentes-estruturantes.md) (20 min)
+4. [Setup Frontend](./setup-frontend.md) (1-2 horas)
+5. [Módulo Portal](../modulos/portal.md) (quando disponível)
+6. [Primeiro PR](./primeiro-pr.md) (30 min)
 
 **Exercícios práticos:**
 
@@ -97,6 +111,8 @@ flowchart LR
 
 | Tarefa | Tempo | Recurso |
 |--------|-------|---------|
+| Aprender Git (se iniciante) | 1-2h | [git-fundamentos.md](./git-fundamentos.md) |
+| Configurar GitHub e SSH | 30 min | [github-colaboracao.md](./github-colaboracao.md) |
 | Ler visão geral da arquitetura | 30 min | [visao-geral.md](../arquitetura/visao-geral.md) |
 | Ler fluxo de dados | 20 min | [fluxo-de-dados.md](../arquitetura/fluxo-de-dados.md) |
 | Setup do ambiente | 1-2h | [setup-backend.md](./setup-backend.md) ou [setup-frontend.md](./setup-frontend.md) |
@@ -153,11 +169,11 @@ flowchart LR
 
 | Repositório | Descrição | Quem Usa |
 |-------------|-----------|----------|
-| [govbrnews-scraper](https://github.com/destaquesgovbr/govbrnews-scraper) | Pipeline de dados | Backend |
-| [destaquesgovbr-portal](https://github.com/destaquesgovbr/destaquesgovbr-portal) | Portal web | Frontend |
-| [destaquesgovbr-typesense](https://github.com/destaquesgovbr/destaquesgovbr-typesense) | Typesense local | Ambos |
-| [destaquesgovbr-infra](https://github.com/destaquesgovbr/destaquesgovbr-infra) | Infraestrutura | DevOps |
-| [destaquesgovbr-agencies](https://github.com/destaquesgovbr/destaquesgovbr-agencies) | Dados de órgãos | Ambos |
+| [scraper](https://github.com/destaquesgovbr/scraper) | Pipeline de dados | Backend |
+| [portal](https://github.com/destaquesgovbr/portal) | Portal web | Frontend |
+| [typesense](https://github.com/destaquesgovbr/typesense) | Typesense local | Ambos |
+| [infra](https://github.com/destaquesgovbr/infra) | Infraestrutura | DevOps |
+| [agencies](https://github.com/destaquesgovbr/agencies) | Dados de órgãos | Ambos |
 
 ---
 
@@ -173,6 +189,8 @@ flowchart LR
 
 ### Todos os Desenvolvedores
 
+- [ ] Completei o guia [Git Fundamentos](./git-fundamentos.md) (ou já domino Git)
+- [ ] Configurei minha chave SSH no GitHub
 - [ ] Li a visão geral da arquitetura
 - [ ] Entendi o fluxo de dados do pipeline
 - [ ] Tenho acesso aos repositórios necessários

@@ -2,7 +2,7 @@
 
 > Deploy automatizado do portal Next.js para Google Cloud Run.
 
-**Arquivo**: `destaquesgovbr-portal/.github/workflows/deploy-production.yml`
+**Arquivo**: `portal/.github/workflows/deploy-production.yml`
 
 ## Visão Geral
 
@@ -84,7 +84,7 @@ build-and-deploy:
 
     - name: Deploy to Cloud Run
       run: |
-        gcloud run deploy destaquesgovbr-portal \
+        gcloud run deploy portal \
           --image us-east1-docker.pkg.dev/${{ secrets.GCP_PROJECT }}/destaquesgovbr/portal:${{ github.sha }} \
           --region us-east1 \
           --platform managed \
@@ -245,13 +245,13 @@ sequenceDiagram
 gh run list --workflow=deploy-production.yml
 
 # Status do Cloud Run
-gcloud run services describe destaquesgovbr-portal --region=us-east1
+gcloud run services describe portal --region=us-east1
 ```
 
 ### Logs do Cloud Run
 
 ```bash
-gcloud run services logs read destaquesgovbr-portal --region=us-east1
+gcloud run services logs read portal --region=us-east1
 ```
 
 ---
@@ -262,10 +262,10 @@ gcloud run services logs read destaquesgovbr-portal --region=us-east1
 
 ```bash
 # Listar revisões
-gcloud run revisions list --service=destaquesgovbr-portal --region=us-east1
+gcloud run revisions list --service=portal --region=us-east1
 
 # Voltar para revisão anterior
-gcloud run services update-traffic destaquesgovbr-portal \
+gcloud run services update-traffic portal \
   --to-revisions=<revision-name>=100 \
   --region=us-east1
 ```

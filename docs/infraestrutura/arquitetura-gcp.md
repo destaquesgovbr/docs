@@ -2,7 +2,7 @@
 
 > Infraestrutura do DestaquesGovbr no Google Cloud Platform.
 
-**Repositório**: [github.com/destaquesgovbr/destaquesgovbr-infra](https://github.com/destaquesgovbr/destaquesgovbr-infra) (privado)
+**Repositório**: [github.com/destaquesgovbr/infra](https://github.com/destaquesgovbr/infra) (privado)
 
 ## Visão Geral
 
@@ -50,7 +50,7 @@ flowchart TB
 
 | Propriedade | Valor |
 |-------------|-------|
-| Serviço | `destaquesgovbr-portal` |
+| Serviço | `portal` |
 | Região | `us-east1` |
 | CPU | 1 |
 | Memória | 512Mi |
@@ -204,13 +204,13 @@ curl http://localhost:8108/health
 
 ```bash
 # Status do serviço
-gcloud run services describe destaquesgovbr-portal --region=us-east1
+gcloud run services describe portal --region=us-east1
 
 # Logs
-gcloud run services logs read destaquesgovbr-portal --region=us-east1
+gcloud run services logs read portal --region=us-east1
 
 # Métricas (via Console)
-# Console > Cloud Run > destaquesgovbr-portal > Metrics
+# Console > Cloud Run > portal > Metrics
 ```
 
 ### Compute Engine

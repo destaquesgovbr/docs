@@ -224,7 +224,7 @@ resource "google_service_account_iam_binding" "workload_identity" {
   role               = "roles/iam.workloadIdentityUser"
 
   members = [
-    "principalSet://iam.googleapis.com/${google_iam_workload_identity_pool.github.name}/attribute.repository/destaquesgovbr/destaquesgovbr-portal"
+    "principalSet://iam.googleapis.com/${google_iam_workload_identity_pool.github.name}/attribute.repository/destaquesgovbr/portal"
   ]
 }
 ```
@@ -254,7 +254,7 @@ gh secret set WIF_SERVICE_ACCOUNT --body "github-actions@project.iam.gserviceacc
 
 ### Secrets por Repositório
 
-#### `destaquesgovbr-portal`
+#### `portal`
 
 | Secret | Descrição |
 |--------|-----------|
@@ -265,7 +265,7 @@ gh secret set WIF_SERVICE_ACCOUNT --body "github-actions@project.iam.gserviceacc
 | `TYPESENSE_PORT` | Porta (8108) |
 | `TYPESENSE_API_KEY` | API Key do Typesense |
 
-#### `govbrnews-scraper`
+#### `scraper`
 
 | Secret | Descrição |
 |--------|-----------|
@@ -273,7 +273,7 @@ gh secret set WIF_SERVICE_ACCOUNT --body "github-actions@project.iam.gserviceacc
 | `COGFY_API_KEY` | API Key do Cogfy |
 | `COGFY_COLLECTION_ID` | ID da collection Cogfy |
 
-#### `destaquesgovbr-infra`
+#### `infra`
 
 | Secret | Descrição |
 |--------|-----------|

@@ -4,8 +4,8 @@
 
 **Arquivos**:
 
-- `destaquesgovbr-infra/.github/workflows/typesense-daily-load.yml`
-- `destaquesgovbr-infra/.github/workflows/typesense-full-reload.yml`
+- `infra/.github/workflows/typesense-daily-load.yml`
+- `infra/.github/workflows/typesense-full-reload.yml`
 
 ## Visão Geral
 

@@ -119,16 +119,16 @@ documento @/Users/nitai/Dropbox/dev-mgi/destaquesgov-projeto/planos-de-trabalho/
 
 Demais repositórios que devem ser cobertos pela documentação:
 
-- /Users/nitai/Dropbox/dev-mgi/govbrnews-scraper
+- /Users/nitai/Dropbox/dev-mgi/scraper
   → Este é o repositório mais backend. Ele contém o Scraper
-- /Users/nitai/Dropbox/dev-mgi/destaquesgovbr-portal
+- /Users/nitai/Dropbox/dev-mgi/portal
   → Este é o portal, a aplicação principal. Aqui existe um workflow de
     atualização do portal no gcp para todo push na branch main
-- /Users/nitai/Dropbox/dev-mgi/destaquesgovbr-typesense
+- /Users/nitai/Dropbox/dev-mgi/typesense
   → Aqui está o typensense rodando em docker para desenvolvimento local
-- /Users/nitai/Dropbox/dev-mgi/destaquesgovbr-infra
+- /Users/nitai/Dropbox/dev-mgi/infra
   → Aqui está a infraestrutura como código em terraform para subir no gcp
-- /Users/nitai/Dropbox/dev-mgi/destaquesgovbr-agencies
+- /Users/nitai/Dropbox/dev-mgi/agencies
   → Este repositório não contém código, ainda. Ele contém 2 arquivos de
     dados estruturantes dos órgãos. Um arquivo possui os dados de cada
     órgão incluindo a URL das notícias utilizada no scraper, e o outro
@@ -162,8 +162,8 @@ Demais repositórios que devem ser cobertos pela documentação:
   A árvore temática é um componente chave do sistema, pois é a base para
   a classificação das notícias e para os filtros de navegação no portal.
   A árvore temática está aqui:
-  - @/Users/nitai/Dropbox/dev-mgi/govbrnews-scraper/src/enrichment/themes_tree.yaml
-  - @/Users/nitai/Dropbox/dev-mgi/destaquesgovbr-portal/src/lib/themes.yaml
+  - @/Users/nitai/Dropbox/dev-mgi/scraper/src/enrichment/themes_tree.yaml
+  - @/Users/nitai/Dropbox/dev-mgi/portal/src/lib/themes.yaml
 
 Pretendo criar um novo repositório para armazenar esta documentação geral
 do DestaquesGovBr.
@@ -210,7 +210,7 @@ Perguntas de clarificação:
    com o projeto ser do governo brasileiro) ou inglês (para potencial
    internacionalização)?
 
-6. **Integração com docs existentes**: Notei que destaquesgovbr-infra já tem
+6. **Integração com docs existentes**: Notei que infra já tem
    documentação em docs/. Prefere:
    - Migrar essa documentação para o novo repositório centralizado
    - Manter a documentação de infra lá e apenas referenciar

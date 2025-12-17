@@ -26,8 +26,8 @@ git --version       # Git 2.40.x ou superior
 
 ```bash
 # Clone o repositório do scraper
-git clone https://github.com/destaquesgovbr/govbrnews-scraper.git
-cd govbrnews-scraper
+git clone https://github.com/destaquesgovbr/scraper.git
+cd scraper
 ```
 
 ---
@@ -83,7 +83,7 @@ COGFY_COLLECTION_ID=xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx
 ## 4. Estrutura do Projeto
 
 ```
-govbrnews-scraper/
+scraper/
 ├── src/
 │   ├── main.py                    # CLI principal
 │   ├── dataset_manager.py         # Gerenciador HuggingFace
@@ -156,8 +156,8 @@ Para testar a indexação localmente:
 
 ```bash
 # Clone o repositório do Typesense local
-git clone https://github.com/destaquesgovbr/destaquesgovbr-typesense.git
-cd destaquesgovbr-typesense
+git clone https://github.com/destaquesgovbr/typesense.git
+cd typesense
 
 # Subir Typesense com Docker
 docker compose up -d
@@ -169,7 +169,7 @@ curl http://localhost:8108/health
 ### Carregar dados no Typesense
 
 ```bash
-# No repositório destaquesgovbr-typesense
+# No repositório typesense
 python python/scripts/load_data.py --mode incremental --days 7
 ```
 
@@ -209,10 +209,10 @@ poetry run mypy src/
 
 ```bash
 # Build da imagem
-docker build -t govbrnews-scraper .
+docker build -t scraper .
 
 # Executar container
-docker run --env-file .env govbrnews-scraper python src/main.py --help
+docker run --env-file .env scraper python src/main.py --help
 ```
 
 ---

@@ -6,10 +6,10 @@
 
 O projeto usa Docker para containerização de dois serviços principais:
 
-| Serviço | Imagem                  | Registry                  |
-| ------- | ----------------------- | ------------------------- |
-| Scraper | `govbrnews-scraper`     | GitHub Container Registry |
-| Portal  | `destaquesgovbr-portal` | GCP Artifact Registry     |
+| Serviço | Imagem    | Registry                  |
+| ------- | --------- | ------------------------- |
+| Scraper | `scraper` | GitHub Container Registry |
+| Portal  | `portal`  | GCP Artifact Registry     |
 
 ```mermaid
 flowchart LR
@@ -29,7 +29,7 @@ flowchart LR
 
 ## Build do Scraper
 
-**Arquivo**: `govbrnews-scraper/.github/workflows/docker-build.yaml`
+**Arquivo**: `scraper/.github/workflows/docker-build.yaml`
 
 ### Trigger
 
@@ -122,9 +122,9 @@ CMD ["python", "src/main.py", "--help"]
 
 Para tag `v1.2.3`:
 
-- `ghcr.io/destaquesgovbr/govbrnews-scraper:1.2.3`
-- `ghcr.io/destaquesgovbr/govbrnews-scraper:1.2`
-- `ghcr.io/destaquesgovbr/govbrnews-scraper:latest`
+- `ghcr.io/destaquesgovbr/scraper:1.2.3`
+- `ghcr.io/destaquesgovbr/scraper:1.2`
+- `ghcr.io/destaquesgovbr/scraper:latest`
 
 ### Execução
 
@@ -141,7 +141,7 @@ gh workflow run docker-build.yaml
 
 ## Build do Portal
 
-**Arquivo**: `destaquesgovbr-portal/.github/workflows/deploy-production.yml`
+**Arquivo**: `portal/.github/workflows/deploy-production.yml`
 
 > O build do portal está integrado ao workflow de deploy (ver [portal-deploy.md](./portal-deploy.md)).
 
@@ -224,7 +224,7 @@ echo $GITHUB_TOKEN | docker login ghcr.io -u USERNAME --password-stdin
 ### Pull de imagem
 
 ```bash
-docker pull ghcr.io/destaquesgovbr/govbrnews-scraper:latest
+docker pull ghcr.io/destaquesgovbr/scraper:latest
 ```
 
 ### Permissões
@@ -255,19 +255,19 @@ docker push us-east1-docker.pkg.dev/PROJECT_ID/destaquesgovbr/portal:TAG
 ### Scraper
 
 ```bash
-cd govbrnews-scraper
+cd scraper
 
 # Build
-docker build -t govbrnews-scraper .
+docker build -t scraper .
 
 # Executar
-docker run --env-file .env govbrnews-scraper python src/main.py --help
+docker run --env-file .env scraper python src/main.py --help
 ```
 
 ### Portal
 
 ```bash
-cd destaquesgovbr-portal
+cd portal
 
 # Build (precisa das vars de ambiente)
 docker build \
@@ -275,10 +275,10 @@ docker build \
   --build-arg TYPESENSE_PORT=8108 \
   --build-arg TYPESENSE_PROTOCOL=http \
   --build-arg TYPESENSE_API_KEY=xyz \
-  -t destaquesgovbr-portal .
+  -t portal .
 
 # Executar
-docker run -p 3000:3000 destaquesgovbr-portal
+docker run -p 3000:3000 portal
 ```
 
 ---

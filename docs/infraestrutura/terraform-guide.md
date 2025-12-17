@@ -2,14 +2,14 @@
 
 > Como gerenciar a infraestrutura GCP com Terraform.
 
-**Repositório**: [github.com/destaquesgovbr/destaquesgovbr-infra](https://github.com/destaquesgovbr/destaquesgovbr-infra) (privado)
+**Repositório**: [github.com/destaquesgovbr/infra](https://github.com/destaquesgovbr/infra) (privado)
 
 ## Visão Geral
 
 A infraestrutura é gerenciada como código (IaC) usando Terraform:
 
 ```
-destaquesgovbr-infra/
+infra/
 ├── terraform/
 │   ├── main.tf              # Provider e networking
 │   ├── variables.tf         # Variáveis de entrada
@@ -68,7 +68,7 @@ zone       = "us-east1-b"
 
 # GitHub (para Workload Identity)
 github_org  = "destaquesgovbr"
-github_repo = "destaquesgovbr-portal"
+github_repo = "portal"
 ```
 
 ### 3. Inicializar Terraform
@@ -171,7 +171,7 @@ resource "google_compute_firewall" "typesense" {
 
 ```hcl
 resource "google_cloud_run_v2_service" "portal" {
-  name     = "destaquesgovbr-portal"
+  name     = "portal"
   location = var.region
 
   template {

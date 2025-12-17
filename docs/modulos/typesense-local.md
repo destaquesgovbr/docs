@@ -1,12 +1,12 @@
-# Módulo: Typesense Local (destaquesgovbr-typesense)
+# Módulo: Typesense Local (typesense)
 
 > Ambiente de desenvolvimento local para busca full-text.
 
-**Repositório**: [github.com/destaquesgovbr/destaquesgovbr-typesense](https://github.com/destaquesgovbr/destaquesgovbr-typesense)
+**Repositório**: [github.com/destaquesgovbr/typesense](https://github.com/destaquesgovbr/typesense)
 
 ## Visão Geral
 
-O repositório `destaquesgovbr-typesense` fornece:
+O repositório `typesense` fornece:
 
 - **Docker Compose** para rodar Typesense localmente
 - **Scripts Python** para carregar dados do HuggingFace
@@ -24,7 +24,7 @@ flowchart LR
 ## Estrutura do Repositório
 
 ```
-destaquesgovbr-typesense/
+typesense/
 ├── docker-compose.yml       # Typesense container
 ├── python/
 │   ├── scripts/
@@ -41,8 +41,8 @@ destaquesgovbr-typesense/
 ### 1. Clonar repositório
 
 ```bash
-git clone https://github.com/destaquesgovbr/destaquesgovbr-typesense.git
-cd destaquesgovbr-typesense
+git clone https://github.com/destaquesgovbr/typesense.git
+cd typesense
 ```
 
 ### 2. Subir Typesense

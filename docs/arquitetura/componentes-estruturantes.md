@@ -58,8 +58,8 @@ A árvore temática está duplicada em dois repositórios (sincronização manua
 
 | Repositório | Arquivo | Formato |
 |-------------|---------|---------|
-| govbrnews-scraper | `src/enrichment/themes_tree.yaml` | YAML plano |
-| destaquesgovbr-portal | `src/lib/themes.yaml` | YAML estruturado |
+| scraper | `src/enrichment/themes_tree.yaml` | YAML plano |
+| portal | `src/lib/themes.yaml` | YAML estruturado |
 
 #### Formato no Scraper (`themes_tree.yaml`)
 ```yaml
@@ -124,11 +124,11 @@ Cada órgão possui:
 
 | Repositório | Arquivo | Conteúdo |
 |-------------|---------|----------|
-| destaquesgovbr-agencies | `agencies.yaml` | Dados dos 156 órgãos |
-| destaquesgovbr-agencies | `hierarchy.yaml` | Árvore hierárquica |
-| destaquesgovbr-portal | `src/lib/agencies.yaml` | Cópia (sincronização manual) |
-| govbrnews-scraper | `src/scraper/agencies.yaml` | Mapeamento ID → Nome |
-| govbrnews-scraper | `src/scraper/site_urls.yaml` | URLs de raspagem |
+| agencies | `agencies.yaml` | Dados dos 156 órgãos |
+| agencies | `hierarchy.yaml` | Árvore hierárquica |
+| portal | `src/lib/agencies.yaml` | Cópia (sincronização manual) |
+| scraper | `src/scraper/agencies.yaml` | Mapeamento ID → Nome |
+| scraper | `src/scraper/site_urls.yaml` | URLs de raspagem |
 
 ### Exemplo de Entrada
 
@@ -186,7 +186,7 @@ presidencia:
 
 Automatizar sincronização:
 
-1. Editar apenas em `destaquesgovbr-agencies`
+1. Editar apenas em `agencies`
 2. GitHub Action publica automaticamente no scraper e portal
 3. Possível interface web para gestão
 
@@ -339,6 +339,6 @@ themes_tree.yaml → Cópia manual → portal/themes.yaml
 
 ### Futuro (Automatizado)
 ```
-destaquesgovbr-agencies → GitHub Action → portal + scraper
+agencies → GitHub Action → portal + scraper
 destaquesgovbr-themes   → GitHub Action → portal + scraper
 ```

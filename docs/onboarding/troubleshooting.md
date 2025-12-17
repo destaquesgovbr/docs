@@ -124,7 +124,7 @@ Error: connect ECONNREFUSED 127.0.0.1:8108
 docker ps | grep typesense
 
 # Se não estiver, subir
-cd destaquesgovbr-typesense
+cd typesense
 docker compose up -d
 
 # Verificar saúde
@@ -167,7 +167,7 @@ curl "http://localhost:8108/collections/news/documents/search?q=*" \
 3. Carregar dados se necessário:
 
 ```bash
-cd destaquesgovbr-typesense/python
+cd typesense/python
 python scripts/load_data.py --mode incremental --days 7
 ```
 
@@ -219,7 +219,7 @@ Could not find a collection named 'news'
 curl http://localhost:8108/collections -H "X-TYPESENSE-API-KEY: xyz"
 
 # Criar collection (script de carga faz isso automaticamente)
-cd destaquesgovbr-typesense/python
+cd typesense/python
 python scripts/load_data.py --mode full
 ```
 
@@ -409,7 +409,7 @@ Error 403: Permission denied
 
 ```bash
 # Verificar status do deploy
-gcloud run services describe destaquesgovbr-portal --region=us-east1
+gcloud run services describe portal --region=us-east1
 
 # Forçar novo deploy
 # (via GitHub Actions ou manualmente)

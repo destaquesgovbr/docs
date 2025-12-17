@@ -1165,7 +1165,7 @@ def destaques_govbr_pipeline():
         """
         Executa scraping de ~160 sites gov.br.
 
-        Usa WebScraper do repositório govbrnews-scraper.
+        Usa WebScraper do repositório scraper.
         Salva resultados no HuggingFace Dataset.
         """
         # Import dentro da função para não sobrecarregar scheduler
@@ -1301,7 +1301,7 @@ destaques_govbr_pipeline()
 
 ### Próximos Passos para Adoção
 
-1. **Local**: Configurar Astro CLI no repositório govbrnews-scraper
+1. **Local**: Configurar Astro CLI no repositório scraper
 2. **Adaptar**: Refatorar scripts atuais para formato task
 3. **Testar**: Validar pipeline localmente com dados de teste
 4. **Deploy**: Configurar Astronomer Cloud ou self-hosted no GKE
