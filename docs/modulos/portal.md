@@ -1,8 +1,8 @@
-# Módulo: Portal (destaquesgovbr-portal)
+# Módulo: Portal (portal)
 
 > Portal web para busca e navegação de notícias governamentais.
 
-**Repositório**: [github.com/destaquesgovbr/destaquesgovbr-portal](https://github.com/destaquesgovbr/destaquesgovbr-portal)
+**Repositório**: [github.com/destaquesgovbr/portal](https://github.com/destaquesgovbr/portal)
 
 **URL Produção**: [destaquesgovbr-portal-klvx64dufq-rj.a.run.app](https://destaquesgovbr-portal-klvx64dufq-rj.a.run.app/) _(URL provisória - Cloud Run/GCP)_
 
@@ -42,7 +42,7 @@ flowchart LR
 ## Estrutura do Repositório
 
 ```
-destaquesgovbr-portal/
+portal/
 ├── src/
 │   ├── app/                         # App Router (Next.js 15)
 │   │   ├── page.tsx                 # Homepage
@@ -437,15 +437,15 @@ Push para `main` → Deploy automático via `deploy-production.yml`
 
 ```bash
 # Build Docker
-docker build -t destaquesgovbr-portal .
+docker build -t portal .
 
 # Push para Artifact Registry
-docker tag destaquesgovbr-portal gcr.io/PROJECT_ID/destaquesgovbr-portal
-docker push gcr.io/PROJECT_ID/destaquesgovbr-portal
+docker tag portal gcr.io/PROJECT_ID/portal
+docker push gcr.io/PROJECT_ID/portal
 
 # Deploy Cloud Run
-gcloud run deploy destaquesgovbr-portal \
-  --image gcr.io/PROJECT_ID/destaquesgovbr-portal \
+gcloud run deploy portal \
+  --image gcr.io/PROJECT_ID/portal \
   --region us-east1
 ```
 

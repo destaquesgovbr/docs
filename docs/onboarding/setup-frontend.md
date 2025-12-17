@@ -26,8 +26,8 @@ git --version     # Git 2.40.x ou superior
 
 ```bash
 # Clone o repositório do portal
-git clone https://github.com/destaquesgovbr/destaquesgovbr-portal.git
-cd destaquesgovbr-portal
+git clone https://github.com/destaquesgovbr/portal.git
+cd portal
 ```
 
 ---
@@ -47,8 +47,8 @@ O portal precisa do Typesense para funcionar. Vamos configurar uma instância lo
 
 ```bash
 # Clone o repositório do Typesense local
-git clone https://github.com/destaquesgovbr/destaquesgovbr-typesense.git
-cd destaquesgovbr-typesense
+git clone https://github.com/destaquesgovbr/typesense.git
+cd typesense
 
 # Subir Typesense com Docker
 docker compose up -d
@@ -64,7 +64,7 @@ curl http://localhost:8108/health
 ### Carregar dados de teste
 
 ```bash
-# Ainda no diretório destaquesgovbr-typesense
+# Ainda no diretório typesense
 cd python
 
 # Instalar dependências Python (necessário para o script de carga)
@@ -81,7 +81,7 @@ python scripts/load_data.py --mode incremental --days 7
 Volte ao diretório do portal e crie o arquivo `.env.local`:
 
 ```bash
-cd ../destaquesgovbr-portal
+cd ../portal
 ```
 
 Crie o arquivo `.env.local`:
@@ -113,7 +113,7 @@ Acesse [http://localhost:3000](http://localhost:3000) no navegador.
 ## 6. Estrutura do Projeto
 
 ```
-destaquesgovbr-portal/
+portal/
 ├── src/
 │   ├── app/                       # App Router (Next.js 15)
 │   │   ├── page.tsx               # Homepage
@@ -356,7 +356,7 @@ Error: connect ECONNREFUSED 127.0.0.1:8108
 ```bash
 docker ps | grep typesense
 # Se não estiver, subir novamente
-cd destaquesgovbr-typesense && docker compose up -d
+cd typesense && docker compose up -d
 ```
 
 ### Erro de tipos TypeScript

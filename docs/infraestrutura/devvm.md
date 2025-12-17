@@ -2,7 +2,7 @@
 
 > Ambientes de desenvolvimento isolados no GCP para a equipe.
 
-**Repositório**: [github.com/destaquesgovbr/destaquesgovbr-infra](https://github.com/destaquesgovbr/destaquesgovbr-infra) (privado)
+**Repositório**: [github.com/destaquesgovbr/infra](https://github.com/destaquesgovbr/infra) (privado)
 
 ## Visão Geral
 
@@ -69,8 +69,8 @@ flowchart TB
 ### Passo 1: Clone o Repositório
 
 ```bash
-git clone https://github.com/destaquesgovbr/destaquesgovbr-infra.git
-cd destaquesgovbr-infra
+git clone https://github.com/destaquesgovbr/infra.git
+cd infra
 ```
 
 ### Passo 2: Crie uma Branch
@@ -196,7 +196,7 @@ mkdir -p /mnt/data/projects
 cd /mnt/data/projects
 
 # Clonar repositórios
-git clone https://github.com/destaquesgovbr/govbrnews-scraper.git
+git clone https://github.com/destaquesgovbr/scraper.git
 ```
 
 !!! warning "Importante"

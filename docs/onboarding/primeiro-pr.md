@@ -16,8 +16,8 @@ Certifique-se de que você:
 
 ### Onde procurar
 
-- [Issues do Scraper](https://github.com/destaquesgovbr/govbrnews-scraper/issues)
-- [Issues do Portal](https://github.com/destaquesgovbr/destaquesgovbr-portal/issues)
+- [Issues do Scraper](https://github.com/destaquesgovbr/scraper/issues)
+- [Issues do Portal](https://github.com/destaquesgovbr/portal/issues)
 
 ### Labels para iniciantes
 

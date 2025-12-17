@@ -58,7 +58,7 @@ flowchart TB
 
 ## Componentes por Camada
 
-### 1. Coleta (`govbrnews-scraper`)
+### 1. Coleta (`scraper`)
 
 | Componente | Arquivo | Responsabilidade |
 |------------|---------|------------------|
@@ -86,7 +86,7 @@ flowchart TB
 | `category` | Categoria original do site |
 | `tags` | Tags/keywords do site |
 
-### 2. Enriquecimento (`govbrnews-scraper` + Cogfy)
+### 2. Enriquecimento (`scraper` + Cogfy)
 
 | Componente | Arquivo | Responsabilidade |
 |------------|---------|------------------|
@@ -125,7 +125,7 @@ Configurado para:
 
 | App | Tecnologia | URL |
 |-----|------------|-----|
-| Portal | Next.js 15 + Typesense | [destaquesgovbr-portal](https://destaquesgovbr-portal-klvx64dufq-rj.a.run.app/) *(provisória)* |
+| Portal | Next.js 15 + Typesense | [portal](https://portal-klvx64dufq-rj.a.run.app/) *(provisória)* |
 | Streamlit | Python + Altair | [HuggingFace Spaces](https://huggingface.co/spaces/nitaibezerra/govbrnews) |
 
 ## Fluxo de Dados Diário

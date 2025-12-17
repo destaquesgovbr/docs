@@ -424,7 +424,7 @@ flowchart TD
 | Repositório | Descrição |
 |-------------|-----------|
 | [destaquesgovbr-scraper](https://github.com/destaquesgovbr/destaquesgovbr-scraper) | Pipeline de coleta de dados |
-| [destaquesgovbr-portal](https://github.com/destaquesgovbr/destaquesgovbr-portal) | Frontend Next.js |
+| [portal](https://github.com/destaquesgovbr/portal) | Frontend Next.js |
 | [docs](https://github.com/destaquesgovbr/docs) | Esta documentação |
 
 #### Fluxo de Contribuição

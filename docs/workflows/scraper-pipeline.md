@@ -2,7 +2,7 @@
 
 > Pipeline diário de coleta e enriquecimento de notícias.
 
-**Arquivo**: `govbrnews-scraper/.github/workflows/main-workflow.yaml`
+**Arquivo**: `scraper/.github/workflows/main-workflow.yaml`
 
 ## Visão Geral
 
@@ -66,7 +66,7 @@ Raspa notícias dos sites gov.br.
 scraper:
   runs-on: ubuntu-latest
   container:
-    image: ghcr.io/destaquesgovbr/govbrnews-scraper:latest
+    image: ghcr.io/destaquesgovbr/scraper:latest
   steps:
     - name: Scrape gov.br sites
       run: |
@@ -88,7 +88,7 @@ ebc-scraper:
   needs: scraper
   runs-on: ubuntu-latest
   container:
-    image: ghcr.io/destaquesgovbr/govbrnews-scraper:latest
+    image: ghcr.io/destaquesgovbr/scraper:latest
   steps:
     - name: Scrape EBC sites
       run: |
@@ -111,7 +111,7 @@ upload-to-cogfy:
   needs: ebc-scraper
   runs-on: ubuntu-latest
   container:
-    image: ghcr.io/destaquesgovbr/govbrnews-scraper:latest
+    image: ghcr.io/destaquesgovbr/scraper:latest
   steps:
     - name: Upload to Cogfy
       run: |
@@ -150,7 +150,7 @@ enrich-themes:
   needs: wait-cogfy
   runs-on: ubuntu-latest
   container:
-    image: ghcr.io/destaquesgovbr/govbrnews-scraper:latest
+    image: ghcr.io/destaquesgovbr/scraper:latest
   steps:
     - name: Enrich with themes
       run: |

@@ -1,8 +1,8 @@
-# Módulo: Scraper (govbrnews-scraper)
+# Módulo: Scraper (scraper)
 
 > Pipeline de coleta e enriquecimento de notícias governamentais.
 
-**Repositório**: [github.com/destaquesgovbr/govbrnews-scraper](https://github.com/destaquesgovbr/govbrnews-scraper)
+**Repositório**: [github.com/destaquesgovbr/scraper](https://github.com/destaquesgovbr/scraper)
 
 ## Visão Geral
 
@@ -40,7 +40,7 @@ flowchart LR
 ## Estrutura do Repositório
 
 ```
-govbrnews-scraper/
+scraper/
 ├── src/
 │   ├── main.py                      # CLI principal (Typer)
 │   ├── dataset_manager.py           # Gerenciador HuggingFace
@@ -426,10 +426,10 @@ poetry run pytest tests/integration/ -v
 
 ```bash
 # Build
-docker build -t govbrnews-scraper .
+docker build -t scraper .
 
 # Executar
-docker run --env-file .env govbrnews-scraper \
+docker run --env-file .env scraper \
   python src/main.py scrape --start-date 2024-12-01 --end-date 2024-12-01
 ```
 

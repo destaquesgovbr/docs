@@ -39,11 +39,11 @@ flowchart LR
 
 | Repositório | Descrição | Tecnologia |
 |-------------|-----------|------------|
-| [govbrnews-scraper](https://github.com/destaquesgovbr/govbrnews-scraper) | Scraper + Pipeline de dados | Python/Poetry |
-| [destaquesgovbr-portal](https://github.com/destaquesgovbr/destaquesgovbr-portal) | Portal web principal | Next.js 15 |
-| [destaquesgovbr-infra](https://github.com/destaquesgovbr/destaquesgovbr-infra) | Infraestrutura como código | Terraform/GCP |
-| [destaquesgovbr-typesense](https://github.com/destaquesgovbr/destaquesgovbr-typesense) | Typesense para dev local | Docker |
-| [destaquesgovbr-agencies](https://github.com/destaquesgovbr/destaquesgovbr-agencies) | Dados dos órgãos | YAML |
+| [scraper](https://github.com/destaquesgovbr/scraper) | Scraper + Pipeline de dados | Python/Poetry |
+| [portal](https://github.com/destaquesgovbr/portal) | Portal web principal | Next.js 15 |
+| [infra](https://github.com/destaquesgovbr/infra) | Infraestrutura como código | Terraform/GCP |
+| [typesense](https://github.com/destaquesgovbr/typesense) | Typesense para dev local | Docker |
+| [agencies](https://github.com/destaquesgovbr/agencies) | Dados dos órgãos | YAML |
 
 ## Estrutura da Documentação
 
@@ -60,7 +60,7 @@ docs/
 
 ## Recursos Externos
 
-- **Portal (Preview)**: [destaquesgovbr-portal](https://destaquesgovbr-portal-klvx64dufq-rj.a.run.app/) *(URL provisória)*
+- **Portal (Preview)**: [portal](https://portal-klvx64dufq-rj.a.run.app/) *(URL provisória)*
 - **Dataset Principal**: [nitaibezerra/govbrnews](https://huggingface.co/datasets/nitaibezerra/govbrnews)
 - **Dataset Reduzido**: [nitaibezerra/govbrnews-reduced](https://huggingface.co/datasets/nitaibezerra/govbrnews-reduced)
 - **Organização GitHub**: [github.com/destaquesgovbr](https://github.com/destaquesgovbr)

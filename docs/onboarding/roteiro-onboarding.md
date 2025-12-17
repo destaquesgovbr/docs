@@ -6,7 +6,7 @@
 
 O DestaquesGovbr é uma plataforma que centraliza e enriquece notícias governamentais brasileiras. Este roteiro vai guiá-lo através do processo de onboarding.
 
-**Acesse o portal**: [destaquesgovbr-portal-klvx64dufq-rj.a.run.app](https://destaquesgovbr-portal-klvx64dufq-rj.a.run.app/) *(URL provisória)*
+**Acesse o portal**: [portal-klvx64dufq-rj.a.run.app](https://portal-klvx64dufq-rj.a.run.app/) *(URL provisória)*
 
 ## Pré-requisitos Comuns
 
@@ -169,11 +169,11 @@ flowchart LR
 
 | Repositório | Descrição | Quem Usa |
 |-------------|-----------|----------|
-| [govbrnews-scraper](https://github.com/destaquesgovbr/govbrnews-scraper) | Pipeline de dados | Backend |
-| [destaquesgovbr-portal](https://github.com/destaquesgovbr/destaquesgovbr-portal) | Portal web | Frontend |
-| [destaquesgovbr-typesense](https://github.com/destaquesgovbr/destaquesgovbr-typesense) | Typesense local | Ambos |
-| [destaquesgovbr-infra](https://github.com/destaquesgovbr/destaquesgovbr-infra) | Infraestrutura | DevOps |
-| [destaquesgovbr-agencies](https://github.com/destaquesgovbr/destaquesgovbr-agencies) | Dados de órgãos | Ambos |
+| [scraper](https://github.com/destaquesgovbr/scraper) | Pipeline de dados | Backend |
+| [portal](https://github.com/destaquesgovbr/portal) | Portal web | Frontend |
+| [typesense](https://github.com/destaquesgovbr/typesense) | Typesense local | Ambos |
+| [infra](https://github.com/destaquesgovbr/infra) | Infraestrutura | DevOps |
+| [agencies](https://github.com/destaquesgovbr/agencies) | Dados de órgãos | Ambos |
 
 ---
 

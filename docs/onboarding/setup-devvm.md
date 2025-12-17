@@ -140,10 +140,10 @@ cd ~/projects
 
 ```bash
 # Clone o scraper
-git clone https://github.com/destaquesgovbr/govbrnews-scraper.git
+git clone https://github.com/destaquesgovbr/scraper.git
 
 # Clone o portal
-git clone https://github.com/destaquesgovbr/destaquesgovbr-portal.git
+git clone https://github.com/destaquesgovbr/portal.git
 ```
 
 ### Abrir Projetos no VSCode

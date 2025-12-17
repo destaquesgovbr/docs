@@ -93,13 +93,13 @@ Nível 1 (Tema)      → Nível 2 (Subtema)       → Nível 3 (Tópico)
 
 | Repositório | Arquivo | Formato |
 |-------------|---------|---------|
-| govbrnews-scraper | `src/enrichment/themes_tree.yaml` | YAML plano |
-| destaquesgovbr-portal | `src/lib/themes.yaml` | YAML estruturado |
+| scraper | `src/enrichment/themes_tree.yaml` | YAML plano |
+| portal | `src/lib/themes.yaml` | YAML estruturado |
 
 ### Formato no Scraper
 
 ```yaml
-# govbrnews-scraper/src/enrichment/themes_tree.yaml
+# scraper/src/enrichment/themes_tree.yaml
 01 - Economia e Finanças:
   01.01 - Política Econômica:
     - 01.01.01 - Política Fiscal
@@ -118,7 +118,7 @@ Nível 1 (Tema)      → Nível 2 (Subtema)       → Nível 3 (Tópico)
 ### Formato no Portal
 
 ```yaml
-# destaquesgovbr-portal/src/lib/themes.yaml
+# portal/src/lib/themes.yaml
 themes:
   - label: Economia e Finanças
     code: "01"
@@ -251,8 +251,8 @@ flowchart LR
 
 ### 3. Atualizar arquivos
 
-1. Editar `govbrnews-scraper/src/enrichment/themes_tree.yaml`
-2. Editar `destaquesgovbr-portal/src/lib/themes.yaml`
+1. Editar `scraper/src/enrichment/themes_tree.yaml`
+2. Editar `portal/src/lib/themes.yaml`
 3. Atualizar configuração no Cogfy (via interface web)
 
 ### 4. Testar
