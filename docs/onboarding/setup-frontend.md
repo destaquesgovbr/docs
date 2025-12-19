@@ -78,24 +78,36 @@ python scripts/load_data.py --mode incremental --days 7
 
 ## 4. Configurar Variáveis de Ambiente
 
-Volte ao diretório do portal e crie o arquivo `.env.local`:
+Volte ao diretório do portal e configure as variáveis de ambiente:
 
 ```bash
 cd ../portal
 ```
 
-Crie o arquivo `.env.local`:
+Copie o arquivo de exemplo:
+
+```bash
+cp .env.example .env.local
+```
+
+O container Typesense busca a API key do GCP Secret Manager na inicialização. Para obter a API key correta, verifique os logs do container:
+
+```bash
+docker logs govbrnews-typesense | grep "API Key:"
+```
+
+Atualize o arquivo `.env.local` com a API key obtida dos logs:
 
 ```bash
 # .env.local
-TYPESENSE_HOST=localhost
-TYPESENSE_PORT=8108
-TYPESENSE_PROTOCOL=http
-TYPESENSE_API_KEY=xyz  # API key padrão do Typesense local
-TYPESENSE_COLLECTION_NAME=news
+NEXT_PUBLIC_TYPESENSE_HOST=localhost
+NEXT_PUBLIC_TYPESENSE_SEARCH_ONLY_API_KEY=<sua-api-key-dos-logs>
+
+# Site Configuration (opcional - será auto-detectado do Cloud Run se não configurado)
+# NEXT_PUBLIC_SITE_URL=https://your-domain.com
 ```
 
-> **Nota**: A API key `xyz` é a padrão configurada no Docker Compose do Typesense local.
+> **Nota**: A API key é obtida dinamicamente do GCP Secret Manager quando o container Typesense inicia. Certifique-se de copiar a chave correta dos logs do container.
 
 ---
 
