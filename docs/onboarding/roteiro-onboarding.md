@@ -150,6 +150,7 @@ flowchart LR
 | APIs REST | Intermediário | Integração Cogfy |
 | GitHub Actions | Básico | Workflows |
 | **Apache Airflow** | Básico → Intermediário | [Tutorial Airflow](./airflow-tutorial.md) |
+| **Cloud Pub/Sub** | Básico → Intermediário | [Tutorial Pub/Sub](./cloud-pubsub-tutorial.md) |
 | Astro CLI | Básico | Setup ambiente local |
 
 ### Frontend (TypeScript)
@@ -208,6 +209,8 @@ flowchart LR
 - [ ] Configurei ambiente Airflow local (Astro CLI)
 - [ ] Criei minha primeira DAG
 - [ ] Completei pelo menos 3 exercícios do tutorial Airflow
+- [ ] Completei o [Tutorial Cloud Pub/Sub](./cloud-pubsub-tutorial.md)
+- [ ] Publiquei e consumi mensagens no Pub/Sub
 
 ### Frontend Específico
 
