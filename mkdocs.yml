@@ -68,11 +68,31 @@ nav:
     - Roteiro: onboarding/roteiro-onboarding.md
     - Git Fundamentos: onboarding/git-fundamentos.md
     - GitHub Colaboração: onboarding/github-colaboracao.md
-    - Setup Backend: onboarding/setup-backend.md
-    - Setup Frontend: onboarding/setup-frontend.md
+    - Trilha Backend:
+      - Setup Backend: onboarding/setup-backend.md
+      - Apache Airflow: onboarding/airflow-tutorial.md
+      - Cloud Pub/Sub: onboarding/cloud-pubsub-tutorial.md
+    - Trilha Frontend:
+      - Setup Frontend: onboarding/setup-frontend.md
+    - Trilha Data Science:
+      - Setup Data Science: onboarding/setup-datascience.md
+      - Explorando o Dataset:
+        - Introdução: onboarding/ds/explorando-dataset/index.md
+        - Análise Temática: onboarding/ds/explorando-dataset/analise-tematica.md
+        - Análise de Texto: onboarding/ds/explorando-dataset/analise-texto.md
+      - NLP Aplicado:
+        - Fundamentos: onboarding/ds/nlp-pipeline/index.md
+        - Embeddings: onboarding/ds/nlp-pipeline/embeddings.md
+        - Busca Semântica: onboarding/ds/nlp-pipeline/busca-semantica.md
+      - ML Classificação:
+        - Introdução: onboarding/ds/ml-classificacao/index.md
+        - Modelos Clássicos: onboarding/ds/ml-classificacao/modelos-classicos.md
+        - Deep Learning: onboarding/ds/ml-classificacao/deep-learning.md
+      - Qualidade de Dados:
+        - Validação: onboarding/ds/qualidade-dados/index.md
+        - Métricas: onboarding/ds/qualidade-dados/metricas.md
+        - Feedback Loop: onboarding/ds/qualidade-dados/feedback-loop.md
     - Setup Dev VM: onboarding/setup-devvm.md
-    - Apache Airflow: onboarding/airflow-tutorial.md
-    - Cloud Pub/Sub: onboarding/cloud-pubsub-tutorial.md
     - Primeiro PR: onboarding/primeiro-pr.md
     - Troubleshooting: onboarding/troubleshooting.md
   - Sobre:

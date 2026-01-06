@@ -48,21 +48,23 @@ Se você é novo em Git ou GitHub, comece por aqui:
 ```mermaid
 flowchart LR
     A[1. Git/GitHub] --> B[2. Visão Geral]
-    B --> C[3. Setup Backend]
-    C --> D[4. Entender Scraper]
-    D --> E[5. Apache Airflow]
-    E --> F[6. Primeiro PR]
+    B --> B2[3. Componentes]
+    B2 --> C[4. Setup Backend]
+    C --> D[5. Entender Scraper]
+    D --> E[6. Apache Airflow]
+    E --> F[7. Primeiro PR]
 ```
 
 **Ordem de leitura:**
 
 1. [Git Fundamentos](./git-fundamentos.md) + [GitHub Colaboração](./github-colaboracao.md) (2-3 horas)
 2. [Visão Geral da Arquitetura](../arquitetura/visao-geral.md) (30 min)
-3. [Fluxo de Dados](../arquitetura/fluxo-de-dados.md) (20 min)
-4. [Setup Backend](./setup-backend.md) (1-2 horas)
-5. [Módulo Scraper](../modulos/scraper.md) (quando disponível)
-6. [**Apache Airflow**](./airflow-tutorial.md) (3-5 horas)
-7. [Primeiro PR](./primeiro-pr.md) (30 min)
+3. [Componentes Estruturantes](../arquitetura/componentes-estruturantes.md) (20 min)
+4. [Fluxo de Dados](../arquitetura/fluxo-de-dados.md) (20 min)
+5. [Setup Backend](./setup-backend.md) (1-2 horas)
+6. [Módulo Scraper](../modulos/scraper.md) (quando disponível)
+7. [**Apache Airflow**](./airflow-tutorial.md) (3-5 horas)
+8. [Primeiro PR](./primeiro-pr.md) (30 min)
 
 **Exercícios práticos:**
 
@@ -102,6 +104,58 @@ flowchart LR
 2. Fazer uma busca e entender os filtros
 3. Modificar um componente de UI
 4. Adicionar um novo filtro ou campo de busca
+
+---
+
+### Cientista de Dados (Data Science)
+
+**Foco**: Análise de dados, NLP, Machine Learning, qualidade de dados
+
+```mermaid
+flowchart LR
+    A[1. Git/GitHub] --> B[2. Visão Geral]
+    B --> B2[3. Componentes]
+    B2 --> C[4. Setup DS]
+    C --> D[5. Explorar Dataset]
+    D --> E[6. NLP]
+    E --> F[7. ML]
+    F --> G[8. Qualidade]
+    G --> H[9. Primeiro PR]
+```
+
+#### 🟢 Caminho Básico (Recomendado para iniciantes)
+
+Se você está começando ou quer uma visão geral rápida, siga apenas as **Introduções** de cada módulo:
+
+1. [Git Fundamentos](./git-fundamentos.md) + [GitHub Colaboração](./github-colaboracao.md)
+2. [Visão Geral da Arquitetura](../arquitetura/visao-geral.md)
+3. [Componentes Estruturantes](../arquitetura/componentes-estruturantes.md)
+4. [Setup Data Science](./setup-datascience.md)
+5. [Explorando o Dataset - Introdução](./ds/explorando-dataset/index.md)
+6. [NLP - Fundamentos](./ds/nlp-pipeline/index.md)
+7. [ML Classificação - Introdução](./ds/ml-classificacao/index.md)
+8. [Qualidade de Dados - Validação](./ds/qualidade-dados/index.md)
+9. [Primeiro PR](./primeiro-pr.md)
+
+#### 🔵 Caminho Completo (Para aprofundamento)
+
+Para uma formação completa com todos os exercícios e técnicas avançadas:
+
+| Módulo | Básico | Intermediário | Avançado |
+|--------|--------|---------------|----------|
+| **Explorando Dataset** | [Introdução](./ds/explorando-dataset/index.md) | [Análise Temática](./ds/explorando-dataset/analise-tematica.md) | [Análise de Texto](./ds/explorando-dataset/analise-texto.md) |
+| **NLP Pipeline** | [Fundamentos](./ds/nlp-pipeline/index.md) | [Embeddings](./ds/nlp-pipeline/embeddings.md) | [Busca Semântica](./ds/nlp-pipeline/busca-semantica.md) |
+| **ML Classificação** | [Introdução](./ds/ml-classificacao/index.md) | [Modelos Clássicos](./ds/ml-classificacao/modelos-classicos.md) | [Deep Learning](./ds/ml-classificacao/deep-learning.md) |
+| **Qualidade de Dados** | [Validação](./ds/qualidade-dados/index.md) | [Métricas](./ds/qualidade-dados/metricas.md) | [Feedback Loop](./ds/qualidade-dados/feedback-loop.md) |
+
+**Exercícios práticos:**
+
+1. Carregar e explorar o dataset `nitaibezerra/govbrnews`
+2. Criar visualizações de distribuição de temas e órgãos
+3. Implementar pré-processamento NLP para português
+4. Treinar classificador de tema com TF-IDF + SVM
+5. Avaliar qualidade da classificação Cogfy
+6. Criar relatório de métricas de qualidade
 
 ---
 
@@ -164,6 +218,20 @@ flowchart LR
 | Tailwind CSS | Básico | Estilização |
 | shadcn/ui | Básico | Componentes UI |
 
+### Data Science (Python)
+
+| Competência | Nível Esperado | Como Desenvolver |
+|-------------|----------------|------------------|
+| Python 3.10+ | Intermediário | Todo o pipeline |
+| Pandas/NumPy | Intermediário | [Explorando Dataset](./ds/explorando-dataset/index.md) |
+| Matplotlib/Seaborn | Básico | [Explorando Dataset](./ds/explorando-dataset/index.md) |
+| Altair/Plotly | Básico | [Explorando Dataset](./ds/explorando-dataset/index.md) |
+| spaCy/NLTK | Básico → Intermediário | [NLP Aplicado](./ds/nlp-pipeline/index.md) |
+| Sentence Transformers | Básico | [NLP Aplicado](./ds/nlp-pipeline/index.md) |
+| Scikit-learn | Intermediário | [ML Classificação](./ds/ml-classificacao/index.md) |
+| HuggingFace Transformers | Básico | [ML Classificação](./ds/ml-classificacao/index.md) |
+| Pydantic/Pandera | Básico | [Qualidade de Dados](./ds/qualidade-dados/index.md) |
+
 ---
 
 ## Repositórios Principais
@@ -219,6 +287,28 @@ flowchart LR
 - [ ] Entendi como funcionam os filtros de busca
 - [ ] Modifiquei um componente shadcn/ui
 
+### Data Science Específico
+
+**Caminho Básico** (mínimo para contribuir):
+
+- [ ] Configurei ambiente com Jupyter e bibliotecas de DS
+- [ ] Carreguei o dataset `nitaibezerra/govbrnews` localmente
+- [ ] Criei visualizações básicas de distribuição
+- [ ] Entendi o pipeline NLP e tokenização
+- [ ] Treinei um classificador simples (TF-IDF + SVM)
+- [ ] Implementei validação de schema com Pydantic
+
+**Caminho Completo** (formação avançada):
+
+- [ ] Completei análise temática e temporal do dataset
+- [ ] Implementei pré-processamento NLP completo para português
+- [ ] Gerei embeddings com BERTimbau/E5 para o dataset
+- [ ] Implementei busca semântica com FAISS
+- [ ] Treinei classificador com Deep Learning (fine-tuning)
+- [ ] Avaliei métricas de precisão/recall/F1 por tema
+- [ ] Implementei pipeline de feedback loop
+- [ ] Criei análise completa de qualidade dos dados
+
 ---
 
 ## Dúvidas Frequentes
@@ -254,4 +344,4 @@ Após completar o onboarding básico:
 
 ---
 
-→ Continue com [Setup Backend](./setup-backend.md) ou [Setup Frontend](./setup-frontend.md)
+→ Continue com [Setup Backend](./setup-backend.md), [Setup Frontend](./setup-frontend.md) ou [Setup Data Science](./setup-datascience.md)
