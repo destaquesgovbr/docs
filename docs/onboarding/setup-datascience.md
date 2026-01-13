@@ -11,18 +11,25 @@ Este módulo prepara seu ambiente para análise de dados do projeto DestaquesGov
 ```mermaid
 flowchart LR
     subgraph "Pipeline DestaquesGovBr"
-        A[Scraping] --> B[Enriquecimento LLM/Cogfy]
-        B --> C[HuggingFace Dataset]
-        C --> D[Typesense]
+        A[Scraping] --> B[(PostgreSQL)]
+        B --> C[Enriquecimento LLM/Cogfy]
+        C --> B
+        B --> D[Typesense]
         D --> E[Portal Web]
+        B -.->|DAG Airflow| F[(HuggingFace)]
     end
 
     subgraph "Seu Ambiente"
-        F[Python + Poetry] --> G[VSCode + Notebooks]
-        G --> H[Análise de Dados]
-        C -.->|datasets lib| H
+        G[Python + Poetry] --> H[VSCode + Notebooks]
+        H --> I[Análise de Dados]
+        F -.->|datasets lib| I
     end
 ```
+
+!!! info "Fonte de Dados"
+    O **PostgreSQL** é a fonte de verdade central do sistema. O **HuggingFace** é sincronizado diariamente e serve como camada de distribuição de dados abertos.
+
+    Para análises exploratórias e Data Science, o dataset no HuggingFace é a forma mais prática de acessar os dados.
 
 ---
 

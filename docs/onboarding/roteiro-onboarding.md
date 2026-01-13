@@ -62,18 +62,18 @@ flowchart LR
 3. [Componentes Estruturantes](../arquitetura/componentes-estruturantes.md) (20 min)
 4. [Fluxo de Dados](../arquitetura/fluxo-de-dados.md) (20 min)
 5. [Setup Backend](./setup-backend.md) (1-2 horas)
-6. [Módulo Scraper](../modulos/scraper.md) (quando disponível)
+6. [Data Platform](../modulos/data-platform.md) - Repositório unificado
 7. [**Apache Airflow**](./airflow-tutorial.md) (3-5 horas)
 8. [Primeiro PR](./primeiro-pr.md) (30 min)
 
 **Exercícios práticos:**
 
 1. Rodar o scraper localmente para um órgão específico
-2. Verificar os dados no HuggingFace após uma execução
+2. Verificar os dados no PostgreSQL após uma execução
 3. Adicionar uma nova fonte de dados (site gov.br)
 4. Executar o pipeline de enriquecimento manualmente
 5. Configurar ambiente Airflow local com Astro CLI
-6. Criar primeira DAG de exemplo seguindo o tutorial
+6. Executar sync do Typesense localmente
 
 ---
 
@@ -238,11 +238,13 @@ Para uma formação completa com todos os exercícios e técnicas avançadas:
 
 | Repositório | Descrição | Quem Usa |
 |-------------|-----------|----------|
-| [scraper](https://github.com/destaquesgovbr/scraper) | Pipeline de dados | Backend |
-| [portal](https://github.com/destaquesgovbr/portal) | Portal web | Frontend |
-| [typesense](https://github.com/destaquesgovbr/typesense) | Typesense local | Ambos |
-| [infra](https://github.com/destaquesgovbr/infra) | Infraestrutura | DevOps |
+| [data-platform](https://github.com/destaquesgovbr/data-platform) | Pipeline de dados (scraper, enrichment, sync) | Backend |
+| [portal](https://github.com/destaquesgovbr/portal) | Portal web Next.js | Frontend |
+| [infra](https://github.com/destaquesgovbr/infra) | Infraestrutura Terraform | DevOps |
 | [agencies](https://github.com/destaquesgovbr/agencies) | Dados de órgãos | Ambos |
+| [docs](https://github.com/destaquesgovbr/docs) | Documentação | Todos |
+
+> **Nota**: Os repositórios `scraper` e `typesense` foram arquivados. O código foi movido para `data-platform`.
 
 ---
 
@@ -272,13 +274,13 @@ Para uma formação completa com todos os exercícios e técnicas avançadas:
 
 - [ ] Rodei o scraper para um órgão específico
 - [ ] Entendi a integração com Cogfy
-- [ ] Entendi como funciona o DatasetManager
+- [ ] Entendi como funciona o PostgresManager
+- [ ] Conectei ao PostgreSQL via Cloud SQL Proxy
 - [ ] Executei o workflow de testes
 - [ ] Configurei ambiente Airflow local (Astro CLI)
 - [ ] Criei minha primeira DAG
 - [ ] Completei pelo menos 3 exercícios do tutorial Airflow
 - [ ] Completei o [Tutorial Cloud Pub/Sub](./cloud-pubsub-tutorial.md)
-- [ ] Publiquei e consumi mensagens no Pub/Sub
 
 ### Frontend Específico
 
