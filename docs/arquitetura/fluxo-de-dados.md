@@ -12,9 +12,12 @@ sequenceDiagram
     participant SC as Scraper Container
     participant GOV as Sites gov.br
     participant EBC as Sites EBC
-    participant HF as HuggingFace
+    participant PG as PostgreSQL
     participant CF as Cogfy API
+    participant EMB as Embeddings API
     participant TS as Typesense
+    participant AF as Airflow (6AM UTC)
+    participant HF as HuggingFace
 
     rect rgb(227, 242, 253)
         Note over GH,SC: ETAPA 1: Scraping gov.br
@@ -23,7 +26,7 @@ sequenceDiagram
         GOV-->>SC: HTML das páginas
         SC->>SC: Parse HTML → Markdown
         SC->>SC: Gera unique_id (MD5)
-        SC->>HF: dataset.insert(new_articles)
+        SC->>PG: postgres.insert(new_articles)
     end
 
     rect rgb(255, 243, 224)
@@ -31,13 +34,13 @@ sequenceDiagram
         SC->>EBC: Requisições HTTP (sites EBC)
         EBC-->>SC: HTML das páginas
         SC->>SC: Parse especializado EBC
-        SC->>HF: dataset.insert(ebc_articles, allow_update=True)
+        SC->>PG: postgres.insert(ebc_articles, allow_update=True)
     end
 
     rect rgb(255, 253, 231)
         Note over SC,CF: ETAPA 3: Upload para Cogfy
-        SC->>HF: dataset.get(date_range)
-        HF-->>SC: DataFrame com artigos
+        SC->>PG: get_news(date_range)
+        PG-->>SC: Registros
         SC->>CF: POST /records (batch 1000)
         CF-->>SC: IDs dos registros
     end
@@ -50,20 +53,37 @@ sequenceDiagram
     end
 
     rect rgb(252, 228, 236)
-        Note over SC,HF: ETAPA 5: Enriquecimento
+        Note over SC,PG: ETAPA 5: Enriquecimento
         SC->>CF: GET /records (busca por unique_id)
         CF-->>SC: themes + summary
         SC->>SC: Mapeia códigos → labels
         SC->>SC: Calcula most_specific_theme
-        SC->>HF: dataset.update(enriched_df)
+        SC->>PG: postgres.update(enriched_data)
+    end
+
+    rect rgb(255, 248, 225)
+        Note over SC,EMB: ETAPA 6: Embeddings
+        SC->>PG: get_news_without_embeddings()
+        PG-->>SC: Notícias sem vetores
+        SC->>EMB: POST /embed (batch 100)
+        EMB-->>SC: Vetores 768-dim
+        SC->>PG: postgres.update(embeddings)
     end
 
     rect rgb(243, 229, 245)
-        Note over TS,HF: ETAPA 6: Indexação Typesense
-        GH->>TS: Trigger typesense-daily-load
-        TS->>HF: Download dataset
-        HF-->>TS: Parquet files
+        Note over TS,PG: ETAPA 7: Indexação Typesense
+        GH->>TS: Trigger typesense-sync
+        TS->>PG: iter_news_for_typesense()
+        PG-->>TS: Batches de 5000
         TS->>TS: Upsert documentos
+    end
+
+    rect rgb(225, 245, 254)
+        Note over AF,HF: ETAPA 8: Sync HuggingFace
+        AF->>PG: Query novos registros
+        PG-->>AF: Registros do dia anterior
+        AF->>AF: Cria parquet shard
+        AF->>HF: Upload shard
     end
 ```
 
@@ -74,19 +94,19 @@ sequenceDiagram
 **Workflow**: `main-workflow.yaml` → job `scraper`
 
 ```bash
-python src/main.py scrape --start-date YYYY-MM-DD --end-date YYYY-MM-DD
+data-platform scrape --start-date YYYY-MM-DD --end-date YYYY-MM-DD
 ```
 
 **Processo**:
 
-1. Carrega URLs de `src/scraper/site_urls.yaml` (~160+ URLs)
+1. Carrega URLs de `src/data_platform/scrapers/site_urls.yaml` (~160+ URLs)
 2. Para cada URL, instancia `WebScraper`
 3. Navega por páginas com paginação (`?b_start:int=N`)
 4. Extrai campos: title, date, url, image, category, tags
 5. Faz fetch do conteúdo completo de cada notícia
 6. Converte HTML → Markdown com `markdownify`
 7. Gera `unique_id = MD5(agency + published_at + title)`
-8. Insere no HuggingFace via `DatasetManager.insert()`
+8. Insere no PostgreSQL via `PostgresManager.insert()`
 
 **Retry Logic**:
 ```python
@@ -99,7 +119,7 @@ def fetch_page(url): ...
 **Workflow**: `main-workflow.yaml` → job `ebc-scraper`
 
 ```bash
-python src/main.py scrape-ebc --start-date YYYY-MM-DD --end-date YYYY-MM-DD --allow-update
+data-platform scrape-ebc --start-date YYYY-MM-DD --end-date YYYY-MM-DD --allow-update
 ```
 
 **Diferenças**:
@@ -113,12 +133,12 @@ python src/main.py scrape-ebc --start-date YYYY-MM-DD --end-date YYYY-MM-DD --al
 **Workflow**: `main-workflow.yaml` → job `upload-to-cogfy`
 
 ```bash
-python src/upload_to_cogfy_manager.py --start-date YYYY-MM-DD --end-date YYYY-MM-DD
+data-platform upload-cogfy --start-date YYYY-MM-DD --end-date YYYY-MM-DD
 ```
 
 **Processo**:
 
-1. Carrega artigos do HuggingFace por intervalo de datas
+1. Carrega artigos do PostgreSQL por intervalo de datas
 2. Converte campos para formato Cogfy:
 
    - `published_at` → datetime UTC
@@ -142,7 +162,7 @@ O Cogfy executa:
 **Workflow**: `main-workflow.yaml` → job `enrich-themes`
 
 ```bash
-python src/enrichment_manager.py --start-date YYYY-MM-DD --end-date YYYY-MM-DD
+data-platform enrich --start-date YYYY-MM-DD --end-date YYYY-MM-DD
 ```
 
 **Processo**:
@@ -156,21 +176,51 @@ python src/enrichment_manager.py --start-date YYYY-MM-DD --end-date YYYY-MM-DD
    - `theme_1_level_3` (text) → código e label
    - `summary` (text)
 4. Calcula `most_specific_theme` (prioridade: L3 > L2 > L1)
-5. Atualiza dataset no HuggingFace
+5. Atualiza PostgreSQL
 
-### Etapa 6: Indexação Typesense
+### Etapa 6: Embeddings
 
-**Workflow**: `typesense-daily-load.yml` (10AM UTC)
+**Workflow**: `main-workflow.yaml` → job `generate-embeddings`
 
 ```bash
-python python/scripts/load_data.py --mode incremental --days 7
+data-platform generate-embeddings --start-date YYYY-MM-DD
+```
+
+**Processo**:
+
+1. Busca notícias sem embeddings no PostgreSQL
+2. Prepara texto: `title + summary` (fallback para `content`)
+3. Envia para Embeddings API em batches de 100
+4. Recebe vetores 768-dim do modelo `paraphrase-multilingual-mpnet-base-v2`
+5. Atualiza `content_embedding` no PostgreSQL
+
+### Etapa 7: Indexação Typesense
+
+**Workflow**: `typesense-maintenance-sync.yaml` (10AM UTC)
+
+```bash
+data-platform sync-typesense --start-date YYYY-MM-DD
 ```
 
 **Processo**:
 
 1. Conecta ao Typesense em produção
-2. Baixa dataset do HuggingFace (últimos 7 dias)
-3. Faz upsert dos documentos na collection `news`
+2. Lê dados do PostgreSQL em batches de 5000
+3. Faz upsert dos documentos na collection `news` (incluindo embeddings)
+
+### Etapa 8: Sync HuggingFace
+
+**DAG Airflow**: `sync_postgres_to_huggingface` (6AM UTC)
+
+**Processo**:
+
+1. Query notícias do dia anterior no PostgreSQL
+2. Consulta IDs existentes no HuggingFace via Dataset Viewer API
+3. Filtra apenas novos registros
+4. Cria parquet shard com novos dados
+5. Upload do shard para HuggingFace
+
+→ Veja detalhes em [workflows/airflow-dags.md](../workflows/airflow-dags.md)
 
 ## Dados de Entrada e Saída
 
@@ -188,12 +238,15 @@ python python/scripts/load_data.py --mode incremental --days 7
 </article>
 ```
 
-### Saída (HuggingFace Dataset)
+### Saída (PostgreSQL / News)
 
 ```json
 {
+  "id": 123456,
   "unique_id": "abc123def456",
-  "agency": "gestao",
+  "agency_id": 45,
+  "agency_key": "gestao",
+  "agency_name": "Ministério da Gestão",
   "published_at": "2024-12-02T10:00:00Z",
   "updated_datetime": "2024-12-02T14:30:00Z",
   "extracted_at": "2024-12-02T07:00:00Z",
@@ -202,19 +255,17 @@ python python/scripts/load_data.py --mode incremental --days 7
   "editorial_lead": "Linha fina com contexto",
   "url": "https://www.gov.br/gestao/...",
   "content": "# Título\n\nConteúdo em Markdown...",
-  "image": "https://www.gov.br/.../imagem.jpg",
+  "image_url": "https://www.gov.br/.../imagem.jpg",
   "video_url": null,
   "category": "Notícias",
   "tags": ["tag1", "tag2"],
-  "theme_1_level_1_code": "01",
-  "theme_1_level_1_label": "Economia e Finanças",
-  "theme_1_level_2_code": "01.01",
-  "theme_1_level_2_label": "Política Econômica",
-  "theme_1_level_3_code": "01.01.01",
-  "theme_1_level_3_label": "Política Fiscal",
-  "most_specific_theme_code": "01.01.01",
-  "most_specific_theme_label": "Política Fiscal",
-  "summary": "Resumo gerado por AI..."
+  "theme_l1_id": 1,
+  "theme_l2_id": 5,
+  "theme_l3_id": 15,
+  "most_specific_theme_id": 15,
+  "summary": "Resumo gerado por AI...",
+  "content_embedding": [0.123, -0.456, ...],  // 768 dimensões
+  "embedding_generated_at": "2024-12-02T08:00:00Z"
 }
 ```
 
@@ -229,9 +280,14 @@ python python/scripts/load_data.py --mode incremental --days 7
 - Verificação de status antes de buscar resultados
 - Fallback para valores vazios se inferência falhar
 
-### HuggingFace
-- Retry em push (5 tentativas)
-- Deduplicação por `unique_id`
+### PostgreSQL
+- Connection pooling com retry
+- Deduplicação por `unique_id` (ON CONFLICT)
+- Transações para operações batch
+
+### HuggingFace (Sync)
+- Incremental via parquet shards
+- Deduplicação via Dataset Viewer API
 
 ## Monitoramento
 
@@ -249,18 +305,35 @@ python python/scripts/load_data.py --mode incremental --days 7
 
 ### Scraping de período específico
 ```bash
+# Via CLI
+data-platform scrape --start-date 2024-01-01 --end-date 2024-01-31
+
 # Via GitHub Actions
-gh workflow run scraper-dispatch.yaml \
-  -f min-date=2024-01-01 \
-  -f max-date=2024-01-31
+gh workflow run main-workflow.yaml \
+  -f start-date=2024-01-01 \
+  -f end-date=2024-01-31
 ```
 
-### Resync com Cogfy
+### Enriquecimento manual
 ```bash
-gh workflow run cogfy-sync-dispatch.yaml
+data-platform enrich --start-date 2024-01-01 --force
 ```
 
-### Reload completo do Typesense
+### Geração de embeddings
+```bash
+data-platform generate-embeddings --start-date 2024-01-01
+```
+
+### Sync Typesense
+```bash
+# Incremental
+data-platform sync-typesense --start-date 2024-01-01
+
+# Full reload
+data-platform sync-typesense --full-sync
+```
+
+### Reload completo do Typesense (via GitHub Actions)
 ```bash
 gh workflow run typesense-full-reload.yaml \
   -f confirm=DELETE

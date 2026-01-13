@@ -2,70 +2,86 @@
 
 ## Resumo
 
-O DestaquesGovbr é uma plataforma de agregação e enriquecimento de notícias governamentais composta por 5 camadas principais:
+O DestaquesGovbr é uma plataforma de agregação e enriquecimento de notícias governamentais composta por 7 camadas principais:
 
 1. **Coleta** - Raspagem automatizada de ~160+ sites gov.br
-2. **Enriquecimento** - Classificação temática e sumarização via AI/LLM
-3. **Armazenamento** - Dataset no HuggingFace como fonte de verdade
-4. **Indexação** - Typesense para busca full-text
-5. **Apresentação** - Portal Next.js e apps de análise
+2. **Armazenamento** - PostgreSQL (Cloud SQL) como fonte de verdade
+3. **Enriquecimento** - Classificação temática e sumarização via Cogfy/LLM
+4. **Embeddings** - Geração de vetores 768-dim para busca semântica
+5. **Indexação** - Typesense para busca full-text e vetorial
+6. **Distribuição** - HuggingFace para dados abertos
+7. **Apresentação** - Portal Next.js e apps de análise
 
 ## Diagrama de Arquitetura
 
 ```mermaid
 flowchart TB
     subgraph COLETA["1. Coleta"]
-        A[160+ Sites gov.br] -->|Raspagem diária 4AM UTC| B[WebScraper Python]
+        A[160+ Sites gov.br] -->|Raspagem diária 4AM UTC| B[Scraper Python]
         A2[Sites EBC] -->|Raspagem| B
-        B --> C[DatasetManager]
     end
 
-    subgraph ENRIQUECIMENTO["2. Enriquecimento AI"]
+    subgraph ARMAZENAMENTO["2. Armazenamento - Fonte de Verdade"]
+        B -->|Insert| C[(PostgreSQL<br/>Cloud SQL)]
+    end
+
+    subgraph ENRIQUECIMENTO["3. Enriquecimento AI"]
         C -->|Upload batch| D[Cogfy API]
         D -->|LLM Inference| E[Classificação Temática]
         D -->|LLM Inference| F[Resumo Automático]
         E --> G[EnrichmentManager]
         F --> G
+        G -->|Update| C
     end
 
-    subgraph ARMAZENAMENTO["3. Armazenamento ~300k docs"]
-        G -->|Push| H[(HuggingFace Dataset)]
+    subgraph EMBEDDINGS["4. Embeddings"]
+        C -->|Textos| H[Embeddings API]
+        H -->|Vetores 768-dim| C
     end
 
-    subgraph INDEXACAO["4. Indexação - Busca full-text"]
-        H -->|Sync diário| I[(Typesense)]
+    subgraph INDEXACAO["5. Indexação - Busca"]
+        C -->|Sync| I[(Typesense)]
     end
 
-    subgraph APRESENTACAO["5. Apresentação"]
-        I -->|API Search| J[Portal Next.js]
-        H -->|Análise dados| K[Streamlit App]
+    subgraph DISTRIBUICAO["6. Distribuição"]
+        C -->|DAG Airflow| J[(HuggingFace<br/>Dados Abertos)]
+    end
+
+    subgraph APRESENTACAO["7. Apresentação"]
+        I -->|API Search| K[Portal Next.js]
+        J -->|Análise dados| L[Streamlit App]
     end
 
     subgraph INFRA["Infraestrutura GCP"]
-        L[Cloud Run] -.-> J
-        M[Compute Engine] -.-> I
-        N[Artifact Registry]
-        O[Secret Manager]
+        M[Cloud Run] -.-> K
+        M2[Cloud Run] -.-> H
+        N[Compute Engine] -.-> I
+        O[Cloud SQL] -.-> C
+        P[Cloud Composer] -.-> J
+        Q[Secret Manager]
     end
 
     style COLETA fill:#e3f2fd
-    style ENRIQUECIMENTO fill:#fff3e0
     style ARMAZENAMENTO fill:#e8f5e9
+    style ENRIQUECIMENTO fill:#fff3e0
+    style EMBEDDINGS fill:#fff8e1
     style INDEXACAO fill:#fce4ec
+    style DISTRIBUICAO fill:#e1f5fe
     style APRESENTACAO fill:#f3e5f5
     style INFRA fill:#eceff1
 ```
 
 ## Componentes por Camada
 
-### 1. Coleta (`scraper`)
+### 1. Coleta (`data-platform`)
 
 | Componente | Arquivo | Responsabilidade |
 |------------|---------|------------------|
-| WebScraper | `src/scraper/webscraper.py` | Raspagem genérica de sites gov.br |
-| EBC Scraper | `src/scraper/ebc_webscraper.py` | Raspagem especializada da EBC |
-| ScrapeManager | `src/scraper/scrape_manager.py` | Orquestração paralela/sequencial |
-| DatasetManager | `src/dataset_manager.py` | Insert/Update no HuggingFace |
+| WebScraper | `src/data_platform/scrapers/webscraper.py` | Raspagem genérica de sites gov.br |
+| EBCScraper | `src/data_platform/scrapers/ebc_webscraper.py` | Raspagem especializada da EBC |
+| ScrapeManager | `src/data_platform/scrapers/scrape_manager.py` | Orquestração paralela/sequencial |
+| PostgresManager | `src/data_platform/managers/postgres_manager.py` | Insert/Update no PostgreSQL |
+| StorageAdapter | `src/data_platform/managers/storage_adapter.py` | Abstração de storage (PG/HF/dual) |
 
 **Dados extraídos por notícia:**
 
@@ -86,13 +102,26 @@ flowchart TB
 | `category` | Categoria original do site |
 | `tags` | Tags/keywords do site |
 
-### 2. Enriquecimento (`scraper` + Cogfy)
+### 2. Armazenamento (PostgreSQL)
+
+**Instância Cloud SQL**: `destaquesgovbr-postgres` (PostgreSQL 15)
+
+| Tabela | Registros | Descrição |
+|--------|-----------|-----------|
+| `agencies` | 158 | Órgãos governamentais |
+| `themes` | 200+ | Taxonomia temática (3 níveis) |
+| `news` | 300k+ | Notícias coletadas e enriquecidas |
+| `sync_log` | - | Log de operações |
+
+→ Veja detalhes em [postgresql.md](postgresql.md)
+
+### 3. Enriquecimento (`data-platform` + Cogfy)
 
 | Componente | Arquivo | Responsabilidade |
 |------------|---------|------------------|
-| CogfyManager | `src/cogfy_manager.py` | Cliente da API Cogfy |
-| UploadToCogfy | `src/upload_to_cogfy_manager.py` | Envio de notícias para inferência |
-| EnrichmentManager | `src/enrichment_manager.py` | Busca resultados e atualiza dataset |
+| CogfyManager | `src/data_platform/cogfy/cogfy_manager.py` | Cliente da API Cogfy |
+| UploadManager | `src/data_platform/cogfy/upload_manager.py` | Envio de notícias para inferência |
+| EnrichmentManager | `src/data_platform/cogfy/enrichment_manager.py` | Busca resultados e atualiza PostgreSQL |
 
 **Campos enriquecidos:**
 
@@ -102,26 +131,49 @@ flowchart TB
 - `most_specific_theme_code/label` - Tema mais específico disponível
 - `summary` - Resumo gerado por LLM
 
-### 3. Armazenamento (HuggingFace)
+### 4. Embeddings (`data-platform`)
 
-**Dataset principal**: [nitaibezerra/govbrnews](https://huggingface.co/datasets/nitaibezerra/govbrnews)
+| Componente | Arquivo | Responsabilidade |
+|------------|---------|------------------|
+| EmbeddingGenerator | `src/data_platform/jobs/embeddings/embedding_generator.py` | Geração de vetores |
+| Embeddings API | Cloud Run | Modelo `paraphrase-multilingual-mpnet-base-v2` |
 
-- ~300.000+ documentos
-- Atualização diária automatizada
-- Exportação em CSV por agência e ano
-- Versionamento automático pelo HuggingFace
+**Características:**
+- Vetores de 768 dimensões
+- Input: `title + summary` (fallback para `content`)
+- Armazenados em `news.content_embedding` (tipo `VECTOR`)
 
-### 4. Indexação (Typesense)
+### 5. Indexação (Typesense)
+
+| Componente | Arquivo | Responsabilidade |
+|------------|---------|------------------|
+| TypesenseClient | `src/data_platform/typesense/client.py` | Conexão com Typesense |
+| TypesenseIndexer | `src/data_platform/typesense/indexer.py` | Indexação de documentos |
+| SyncJob | `src/data_platform/jobs/typesense/sync_job.py` | Sincronização PostgreSQL → Typesense |
 
 **Collection**: `news`
 
 Configurado para:
 
 - Busca full-text em `title` e `content`
+- Busca vetorial via `content_embedding` (768-dim)
 - Filtros facetados por `agency`, `theme_*`, `published_at`
 - Ordenação por relevância e data
 
-### 5. Apresentação
+### 6. Distribuição (HuggingFace)
+
+**Dataset principal**: [nitaibezerra/govbrnews](https://huggingface.co/datasets/nitaibezerra/govbrnews)
+
+- ~300.000+ documentos
+- Sincronização diária via DAG Airflow
+- Abordagem incremental (parquet shards)
+- Versionamento automático pelo HuggingFace
+
+**DAG**: `sync_postgres_to_huggingface` (6 AM UTC)
+
+→ Veja detalhes em [workflows/airflow-dags.md](../workflows/airflow-dags.md)
+
+### 7. Apresentação
 
 | App | Tecnologia | URL |
 |-----|------------|-----|
@@ -134,37 +186,49 @@ Configurado para:
 sequenceDiagram
     participant Cron as GitHub Actions (4AM UTC)
     participant Scraper as Scraper Python
+    participant PG as PostgreSQL
     participant Cogfy as Cogfy API
-    participant HF as HuggingFace
+    participant EMB as Embeddings API
     participant TS as Typesense
+    participant Airflow as Cloud Composer (6AM UTC)
+    participant HF as HuggingFace
 
     Note over Cron: Trigger diário
 
     Cron->>Scraper: main-workflow.yaml
     Scraper->>Scraper: scrape gov.br (160+ sites)
     Scraper->>Scraper: scrape EBC
-    Scraper->>HF: Insert novos artigos
+    Scraper->>PG: Insert novos artigos
 
     Scraper->>Cogfy: Upload para inferência
     Note over Cogfy: Aguarda 20 min para processamento
     Cogfy-->>Scraper: Themes + Summary
-    Scraper->>HF: Update com enrichment
+    Scraper->>PG: Update com enrichment
 
-    Cron->>TS: typesense-daily-load.yml
-    TS->>HF: Fetch dataset
+    Scraper->>EMB: Gerar embeddings
+    EMB-->>Scraper: Vetores 768-dim
+    Scraper->>PG: Update com embeddings
+
+    Cron->>TS: typesense-sync
+    TS->>PG: Fetch dados
     TS->>TS: Index documentos
 
-    Note over TS: Portal consome dados atualizados
+    Airflow->>PG: Query novos registros
+    Airflow->>HF: Upload parquet shard
+
+    Note over TS,HF: Portal e comunidade consomem dados atualizados
 ```
 
 ## Tecnologias Principais
 
-### Backend (Scraper)
+### Backend (Data Platform)
 
-- **Python 3.12+** com Poetry
+- **Python 3.11+** com Poetry
+- **PostgreSQL 15** (Cloud SQL) com psycopg2
 - **BeautifulSoup4** para parsing HTML
-- **datasets** (HuggingFace) para gerenciamento de dados
+- **datasets** + **huggingface_hub** para sync HF
 - **requests** com retry logic
+- **Apache Airflow 3** (Cloud Composer)
 
 ### Frontend (Portal)
 
@@ -176,18 +240,21 @@ sequenceDiagram
 
 ### Infraestrutura
 
-- **GCP** - Cloud Run, Compute Engine, VPC
+- **GCP** - Cloud Run, Compute Engine, Cloud SQL, Cloud Composer, VPC
 - **Terraform** - IaC
 - **Docker** - Containerização
 - **GitHub Actions** - CI/CD
+- **Apache Airflow** - Orquestração de pipelines
 
 ## Custos Estimados
 
 | Componente | Custo/mês |
 |------------|-----------|
-| Compute Engine (Typesense) | ~$55 |
-| Cloud Run (Portal) | ~$12-17 |
-| **Total** | **~$70** |
+| Cloud SQL (PostgreSQL) | ~$48 |
+| Compute Engine (Typesense) | ~$64 |
+| Cloud Run (Portal + Embeddings) | ~$15 |
+| Cloud Composer (Airflow) | ~$100-150 |
+| **Total** | **~$230-280** |
 
 ## Próximos Passos
 
