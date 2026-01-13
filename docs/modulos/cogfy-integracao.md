@@ -11,12 +11,12 @@ O **Cogfy** é uma plataforma SaaS que fornece inferência LLM para:
 
 ```mermaid
 flowchart LR
-    SC[Scraper] -->|Upload| CF[Cogfy API]
+    PG[(PostgreSQL)] -->|Upload| CF[Cogfy API]
     CF -->|LLM Inference| CL[Classificação]
     CF -->|LLM Inference| SU[Sumarização]
     CL --> EN[EnrichmentManager]
     SU --> EN
-    EN -->|Update| HF[(HuggingFace)]
+    EN -->|Update| PG
 ```
 
 ---
@@ -26,11 +26,11 @@ flowchart LR
 ### 1. Upload para Cogfy
 
 ```python
-# upload_to_cogfy_manager.py
+# src/data_platform/cogfy/upload_manager.py
 def upload_to_cogfy(start_date: date, end_date: date):
     """Envia notícias para processamento no Cogfy."""
-    # 1. Carregar artigos do HuggingFace
-    df = dataset_manager.load_by_date_range(start_date, end_date)
+    # 1. Carregar artigos do PostgreSQL
+    articles = postgres_manager.get_news_by_date_range(start_date, end_date)
 
     # 2. Converter para formato Cogfy
     records = [
@@ -39,7 +39,7 @@ def upload_to_cogfy(start_date: date, end_date: date):
             "title": row["title"],
             "content": row["content"][:5000],  # Limite de caracteres
         }
-        for _, row in df.iterrows()
+        for row in articles
     ]
 
     # 3. Enviar em batches
@@ -56,20 +56,36 @@ O Cogfy processa via LLM, o que leva aproximadamente **20 minutos** para um batc
   run: sleep 1200  # 20 minutos
 ```
 
-### 3. Buscar Resultados
+### 3. Buscar Resultados e Atualizar PostgreSQL
 
 ```python
-# enrichment_manager.py
-def fetch_enrichment(unique_id: str) -> dict:
-    """Busca resultados processados do Cogfy."""
-    record = cogfy_manager.get_record(unique_id)
+# src/data_platform/cogfy/enrichment_manager.py
+def enrich(start_date: date, end_date: date) -> int:
+    """Busca resultados do Cogfy e atualiza PostgreSQL."""
+    # 1. Buscar artigos sem enriquecimento
+    articles = postgres_manager.get_news_without_enrichment(start_date, end_date)
 
-    return {
-        "theme_1_level_1": record.get("theme_1_level_1"),
-        "theme_1_level_2": record.get("theme_1_level_2"),
-        "theme_1_level_3": record.get("theme_1_level_3"),
-        "summary": record.get("summary"),
-    }
+    # 2. Para cada artigo, buscar no Cogfy
+    for article in articles:
+        cogfy_data = cogfy_manager.get_record(article["unique_id"])
+
+        # 3. Mapear códigos para labels
+        theme_l1_code, theme_l1_label = parse_theme(cogfy_data.get("theme_1_level_1"))
+        theme_l2_code, theme_l2_label = parse_theme(cogfy_data.get("theme_1_level_2"))
+        theme_l3_code, theme_l3_label = parse_theme(cogfy_data.get("theme_1_level_3"))
+
+        # 4. Calcular most_specific_theme (L3 > L2 > L1)
+        most_specific = theme_l3_code or theme_l2_code or theme_l1_code
+
+        # 5. Atualizar PostgreSQL
+        postgres_manager.update_enrichment(
+            unique_id=article["unique_id"],
+            theme_l1_id=get_theme_id(theme_l1_code),
+            theme_l2_id=get_theme_id(theme_l2_code),
+            theme_l3_id=get_theme_id(theme_l3_code),
+            most_specific_theme_id=get_theme_id(most_specific),
+            summary=cogfy_data.get("summary")
+        )
 ```
 
 ---
@@ -107,6 +123,30 @@ class CogfyManager:
         records = response.json()["records"]
         return records[0] if records else {}
 ```
+
+---
+
+## CLI do data-platform
+
+```bash
+# Upload para Cogfy
+data-platform upload-cogfy --start-date YYYY-MM-DD --end-date YYYY-MM-DD
+
+# Buscar enriquecimento (após ~20 min)
+data-platform enrich --start-date YYYY-MM-DD --end-date YYYY-MM-DD
+```
+
+---
+
+## Arquivos Principais
+
+| Componente | Localização |
+|------------|-------------|
+| CogfyManager | `src/data_platform/cogfy/cogfy_manager.py` |
+| UploadManager | `src/data_platform/cogfy/upload_manager.py` |
+| EnrichmentManager | `src/data_platform/cogfy/enrichment_manager.py` |
+| ThemeMapper | `src/data_platform/enrichment/theme_mapper.py` |
+| themes_tree.yaml | `src/data_platform/enrichment/themes_tree.yaml` |
 
 ---
 
@@ -156,21 +196,21 @@ Resumo:
 
 ## Mapeamento de Campos
 
-### Entrada (Scraper → Cogfy)
+### Entrada (PostgreSQL → Cogfy)
 
-| Campo Scraper | Campo Cogfy | Tipo |
-|---------------|-------------|------|
+| Campo PostgreSQL | Campo Cogfy | Tipo |
+|------------------|-------------|------|
 | unique_id | unique_id | string |
 | title | title | string |
 | content | content | string (max 5000 chars) |
 
-### Saída (Cogfy → Dataset)
+### Saída (Cogfy → PostgreSQL)
 
-| Campo Cogfy | Campo Dataset | Tipo |
-|-------------|---------------|------|
-| theme_1_level_1 | theme_1_level_1_code + label | string → split |
-| theme_1_level_2 | theme_1_level_2_code + label | string → split |
-| theme_1_level_3 | theme_1_level_3_code + label | string → split |
+| Campo Cogfy | Campo PostgreSQL | Tipo |
+|-------------|------------------|------|
+| theme_1_level_1 | theme_l1_id (FK) | string → ID lookup |
+| theme_1_level_2 | theme_l2_id (FK) | string → ID lookup |
+| theme_1_level_3 | theme_l3_id (FK) | string → ID lookup |
 | summary | summary | string |
 
 ### Processamento de Temas
@@ -184,6 +224,12 @@ def parse_theme(theme_str: str) -> tuple[str, str]:
         return None, None
     parts = theme_str.split(" - ", 1)
     return parts[0].strip(), parts[1].strip()
+
+def get_theme_id(code: str) -> int | None:
+    """Busca ID do tema no PostgreSQL pelo código."""
+    if not code:
+        return None
+    return postgres_manager.get_theme_id_by_code(code)
 ```
 
 ---
@@ -210,17 +256,18 @@ COGFY_COLLECTION_ID=xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx
 ### Notícia não classificada
 
 ```python
-def enrich_article(row: dict) -> dict:
+def enrich_article(article: dict) -> bool:
     """Enriquece artigo com dados do Cogfy."""
     try:
-        cogfy_data = cogfy_manager.get_record(row["unique_id"])
+        cogfy_data = cogfy_manager.get_record(article["unique_id"])
         if not cogfy_data:
-            logger.warning(f"No Cogfy data for {row['unique_id']}")
-            return row  # Retorna sem enriquecimento
+            logger.warning(f"No Cogfy data for {article['unique_id']}")
+            return False
         # ... processar enriquecimento
+        return True
     except Exception as e:
-        logger.error(f"Error enriching {row['unique_id']}: {e}")
-        return row
+        logger.error(f"Error enriching {article['unique_id']}: {e}")
+        return False
 ```
 
 ### Retry em falhas de API
@@ -234,24 +281,52 @@ def get_record(self, unique_id: str) -> dict:
 
 ---
 
+## Fluxo no Pipeline Diário
+
+```mermaid
+sequenceDiagram
+    participant GH as GitHub Actions
+    participant PG as PostgreSQL
+    participant CF as Cogfy
+    participant EN as EnrichmentManager
+
+    GH->>PG: get_news(date_range)
+    PG-->>GH: Registros
+    GH->>CF: Upload para inferência
+    Note over CF: Processa via LLM (~20 min)
+    CF-->>EN: Themes + Summary prontos
+    EN->>CF: GET records por unique_id
+    EN->>EN: Mapeia código → ID (tabela themes)
+    EN->>EN: Calcula most_specific_theme_id
+    EN->>PG: UPDATE news SET theme_l1_id, summary, ...
+```
+
+---
+
 ## Métricas e Monitoramento
 
 ### Taxa de classificação
 
-```python
-def calculate_classification_rate(df: pd.DataFrame) -> float:
-    """Calcula % de notícias classificadas."""
-    classified = df["theme_1_level_1_code"].notna().sum()
-    total = len(df)
-    return classified / total * 100
+```sql
+-- % de notícias classificadas
+SELECT
+    COUNT(*) FILTER (WHERE theme_l1_id IS NOT NULL) * 100.0 / COUNT(*) as classification_rate
+FROM news
+WHERE published_at >= NOW() - INTERVAL '7 days';
 ```
 
 ### Distribuição por tema
 
-```python
-def theme_distribution(df: pd.DataFrame) -> dict:
-    """Retorna distribuição de notícias por tema."""
-    return df["theme_1_level_1_label"].value_counts().to_dict()
+```sql
+-- Top 10 temas mais frequentes
+SELECT
+    t.label,
+    COUNT(*) as count
+FROM news n
+JOIN themes t ON n.most_specific_theme_id = t.id
+GROUP BY t.label
+ORDER BY count DESC
+LIMIT 10;
 ```
 
 ---
@@ -278,27 +353,6 @@ O Cogfy cobra por:
 
 ---
 
-## Fluxo no Pipeline Diário
-
-```mermaid
-sequenceDiagram
-    participant SC as Scraper
-    participant HF as HuggingFace
-    participant CF as Cogfy
-    participant EN as Enrichment
-
-    SC->>HF: Insert novos artigos
-    SC->>CF: Upload para inferência
-    Note over CF: Processa via LLM (~20 min)
-    CF-->>EN: Themes + Summary prontos
-    EN->>CF: GET records por unique_id
-    EN->>EN: Mapeia código → label
-    EN->>EN: Calcula most_specific_theme
-    EN->>HF: Update com enriquecimento
-```
-
----
-
 ## Placeholder para Screenshots
 
 > **TODO**: Adicionar screenshots da interface do Cogfy:
@@ -312,7 +366,8 @@ sequenceDiagram
 
 ## Links Relacionados
 
+- [Data Platform](data-platform.md) - Repositório unificado
+- [PostgreSQL](../arquitetura/postgresql.md) - Fonte de verdade
 - [Fluxo de Dados](../arquitetura/fluxo-de-dados.md) - Pipeline completo
 - [Árvore Temática](./arvore-tematica.md) - Taxonomia usada
-- [Módulo Scraper](./scraper.md) - Upload e enriquecimento
 - [Pipeline Scraper](../workflows/scraper-pipeline.md) - Workflow diário

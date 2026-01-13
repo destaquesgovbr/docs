@@ -2,11 +2,11 @@
 
 > Pipeline diário de coleta e enriquecimento de notícias.
 
-**Arquivo**: `scraper/.github/workflows/main-workflow.yaml`
+**Arquivo**: `data-platform/.github/workflows/main-workflow.yaml`
 
 ## Visão Geral
 
-O pipeline é executado diariamente às **4AM UTC** (1AM Brasília) e consiste em 5 jobs sequenciais:
+O pipeline é executado diariamente às **4AM UTC** (1AM Brasília) e consiste em 7 jobs sequenciais:
 
 ```mermaid
 flowchart LR
@@ -14,6 +14,8 @@ flowchart LR
     B --> C[upload-to-cogfy]
     C --> D[wait-cogfy]
     D --> E[enrich-themes]
+    E --> F[generate-embeddings]
+    F --> G[sync-typesense]
 ```
 
 ---
@@ -26,10 +28,10 @@ on:
     - cron: '0 4 * * *'  # 4AM UTC diário
   workflow_dispatch:      # Manual
     inputs:
-      min-date:
+      start-date:
         description: 'Data inicial (YYYY-MM-DD)'
         required: false
-      max-date:
+      end-date:
         description: 'Data final (YYYY-MM-DD)'
         required: false
 ```
@@ -50,8 +52,8 @@ gh workflow run main-workflow.yaml
 
 # Período específico
 gh workflow run main-workflow.yaml \
-  -f min-date=2024-12-01 \
-  -f max-date=2024-12-03
+  -f start-date=2024-12-01 \
+  -f end-date=2024-12-03
 ```
 
 ---
@@ -60,21 +62,24 @@ gh workflow run main-workflow.yaml \
 
 ### Job 1: `scraper`
 
-Raspa notícias dos sites gov.br.
+Raspa notícias dos sites gov.br e insere no PostgreSQL.
 
 ```yaml
 scraper:
   runs-on: ubuntu-latest
   container:
-    image: ghcr.io/destaquesgovbr/scraper:latest
+    image: ghcr.io/destaquesgovbr/data-platform:latest
   steps:
     - name: Scrape gov.br sites
       run: |
-        python src/main.py scrape \
-          --start-date ${{ inputs.min-date || steps.dates.outputs.min }} \
-          --end-date ${{ inputs.max-date || steps.dates.outputs.max }}
+        data-platform scrape \
+          --start-date ${{ inputs.start-date || steps.dates.outputs.start }} \
+          --end-date ${{ inputs.end-date || steps.dates.outputs.end }}
       env:
-        HF_TOKEN: ${{ secrets.HF_TOKEN }}
+        POSTGRES_HOST: ${{ secrets.POSTGRES_HOST }}
+        POSTGRES_DB: ${{ secrets.POSTGRES_DB }}
+        POSTGRES_USER: ${{ secrets.POSTGRES_USER }}
+        POSTGRES_PASSWORD: ${{ secrets.POSTGRES_PASSWORD }}
 ```
 
 **Duração**: ~30-60 minutos (dependendo do período)
@@ -88,38 +93,44 @@ ebc-scraper:
   needs: scraper
   runs-on: ubuntu-latest
   container:
-    image: ghcr.io/destaquesgovbr/scraper:latest
+    image: ghcr.io/destaquesgovbr/data-platform:latest
   steps:
     - name: Scrape EBC sites
       run: |
-        python src/main.py scrape-ebc \
-          --start-date ${{ inputs.min-date || steps.dates.outputs.min }} \
-          --end-date ${{ inputs.max-date || steps.dates.outputs.max }} \
+        data-platform scrape-ebc \
+          --start-date ${{ inputs.start-date || steps.dates.outputs.start }} \
+          --end-date ${{ inputs.end-date || steps.dates.outputs.end }} \
           --allow-update
       env:
-        HF_TOKEN: ${{ secrets.HF_TOKEN }}
+        POSTGRES_HOST: ${{ secrets.POSTGRES_HOST }}
+        POSTGRES_DB: ${{ secrets.POSTGRES_DB }}
+        POSTGRES_USER: ${{ secrets.POSTGRES_USER }}
+        POSTGRES_PASSWORD: ${{ secrets.POSTGRES_PASSWORD }}
 ```
 
 **Duração**: ~10-20 minutos
 
 ### Job 3: `upload-to-cogfy`
 
-Envia notícias para classificação no Cogfy.
+Envia notícias do PostgreSQL para classificação no Cogfy.
 
 ```yaml
 upload-to-cogfy:
   needs: ebc-scraper
   runs-on: ubuntu-latest
   container:
-    image: ghcr.io/destaquesgovbr/scraper:latest
+    image: ghcr.io/destaquesgovbr/data-platform:latest
   steps:
     - name: Upload to Cogfy
       run: |
-        python src/upload_to_cogfy_manager.py \
-          --start-date ${{ inputs.min-date || steps.dates.outputs.min }} \
-          --end-date ${{ inputs.max-date || steps.dates.outputs.max }}
+        data-platform upload-cogfy \
+          --start-date ${{ inputs.start-date || steps.dates.outputs.start }} \
+          --end-date ${{ inputs.end-date || steps.dates.outputs.end }}
       env:
-        HF_TOKEN: ${{ secrets.HF_TOKEN }}
+        POSTGRES_HOST: ${{ secrets.POSTGRES_HOST }}
+        POSTGRES_DB: ${{ secrets.POSTGRES_DB }}
+        POSTGRES_USER: ${{ secrets.POSTGRES_USER }}
+        POSTGRES_PASSWORD: ${{ secrets.POSTGRES_PASSWORD }}
         COGFY_API_KEY: ${{ secrets.COGFY_API_KEY }}
         COGFY_COLLECTION_ID: ${{ secrets.COGFY_COLLECTION_ID }}
 ```
@@ -143,27 +154,81 @@ wait-cogfy:
 
 ### Job 5: `enrich-themes`
 
-Busca resultados do Cogfy e atualiza dataset.
+Busca resultados do Cogfy e atualiza PostgreSQL.
 
 ```yaml
 enrich-themes:
   needs: wait-cogfy
   runs-on: ubuntu-latest
   container:
-    image: ghcr.io/destaquesgovbr/scraper:latest
+    image: ghcr.io/destaquesgovbr/data-platform:latest
   steps:
     - name: Enrich with themes
       run: |
-        python src/enrichment_manager.py \
-          --start-date ${{ inputs.min-date || steps.dates.outputs.min }} \
-          --end-date ${{ inputs.max-date || steps.dates.outputs.max }}
+        data-platform enrich \
+          --start-date ${{ inputs.start-date || steps.dates.outputs.start }} \
+          --end-date ${{ inputs.end-date || steps.dates.outputs.end }}
       env:
-        HF_TOKEN: ${{ secrets.HF_TOKEN }}
+        POSTGRES_HOST: ${{ secrets.POSTGRES_HOST }}
+        POSTGRES_DB: ${{ secrets.POSTGRES_DB }}
+        POSTGRES_USER: ${{ secrets.POSTGRES_USER }}
+        POSTGRES_PASSWORD: ${{ secrets.POSTGRES_PASSWORD }}
         COGFY_API_KEY: ${{ secrets.COGFY_API_KEY }}
         COGFY_COLLECTION_ID: ${{ secrets.COGFY_COLLECTION_ID }}
 ```
 
 **Duração**: ~10-20 minutos
+
+### Job 6: `generate-embeddings`
+
+Gera embeddings para notícias sem vetores.
+
+```yaml
+generate-embeddings:
+  needs: enrich-themes
+  runs-on: ubuntu-latest
+  container:
+    image: ghcr.io/destaquesgovbr/data-platform:latest
+  steps:
+    - name: Generate embeddings
+      run: |
+        data-platform generate-embeddings \
+          --start-date ${{ inputs.start-date || steps.dates.outputs.start }}
+      env:
+        POSTGRES_HOST: ${{ secrets.POSTGRES_HOST }}
+        POSTGRES_DB: ${{ secrets.POSTGRES_DB }}
+        POSTGRES_USER: ${{ secrets.POSTGRES_USER }}
+        POSTGRES_PASSWORD: ${{ secrets.POSTGRES_PASSWORD }}
+        EMBEDDINGS_API_URL: ${{ secrets.EMBEDDINGS_API_URL }}
+```
+
+**Duração**: ~10-15 minutos
+
+### Job 7: `sync-typesense`
+
+Sincroniza dados do PostgreSQL para o Typesense.
+
+```yaml
+sync-typesense:
+  needs: generate-embeddings
+  runs-on: ubuntu-latest
+  container:
+    image: ghcr.io/destaquesgovbr/data-platform:latest
+  steps:
+    - name: Sync to Typesense
+      run: |
+        data-platform sync-typesense \
+          --start-date ${{ inputs.start-date || steps.dates.outputs.start }}
+      env:
+        POSTGRES_HOST: ${{ secrets.POSTGRES_HOST }}
+        POSTGRES_DB: ${{ secrets.POSTGRES_DB }}
+        POSTGRES_USER: ${{ secrets.POSTGRES_USER }}
+        POSTGRES_PASSWORD: ${{ secrets.POSTGRES_PASSWORD }}
+        TYPESENSE_HOST: ${{ secrets.TYPESENSE_HOST }}
+        TYPESENSE_API_KEY: ${{ secrets.TYPESENSE_API_KEY }}
+```
+
+**Duração**: ~5-10 minutos
 
 ---
 
@@ -172,35 +237,47 @@ enrich-themes:
 ```mermaid
 sequenceDiagram
     participant GH as GitHub Actions
-    participant SC as Scraper Container
+    participant DP as Data Platform Container
     participant GOV as Sites gov.br
     participant EBC as Sites EBC
-    participant HF as HuggingFace
+    participant PG as PostgreSQL
     participant CF as Cogfy
+    participant EMB as Embeddings API
+    participant TS as Typesense
 
     Note over GH: 4AM UTC - Trigger
 
-    GH->>SC: Job: scraper
-    SC->>GOV: Fetch ~160+ sites
-    GOV-->>SC: HTML pages
-    SC->>SC: Parse → Markdown
-    SC->>HF: Insert articles
+    GH->>DP: Job: scraper
+    DP->>GOV: Fetch ~160+ sites
+    GOV-->>DP: HTML pages
+    DP->>DP: Parse → Markdown
+    DP->>PG: Insert articles
 
-    GH->>SC: Job: ebc-scraper
-    SC->>EBC: Fetch EBC sites
-    EBC-->>SC: HTML pages
-    SC->>HF: Insert/Update articles
+    GH->>DP: Job: ebc-scraper
+    DP->>EBC: Fetch EBC sites
+    EBC-->>DP: HTML pages
+    DP->>PG: Insert/Update articles
 
-    GH->>SC: Job: upload-to-cogfy
-    SC->>HF: Load articles
-    SC->>CF: POST records (batch)
+    GH->>DP: Job: upload-to-cogfy
+    DP->>PG: Load articles
+    DP->>CF: POST records (batch)
 
     Note over GH: Wait 20 min
 
-    GH->>SC: Job: enrich-themes
-    SC->>CF: GET processed records
-    CF-->>SC: Themes + Summary
-    SC->>HF: Update with enrichment
+    GH->>DP: Job: enrich-themes
+    DP->>CF: GET processed records
+    CF-->>DP: Themes + Summary
+    DP->>PG: Update with enrichment
+
+    GH->>DP: Job: generate-embeddings
+    DP->>PG: Get news without embeddings
+    DP->>EMB: POST texts (batch)
+    EMB-->>DP: Vectors 768-dim
+    DP->>PG: Update with embeddings
+
+    GH->>DP: Job: sync-typesense
+    DP->>PG: Get news for indexing
+    DP->>TS: Upsert documents
 ```
 
 ---
@@ -209,17 +286,29 @@ sequenceDiagram
 
 | Secret | Descrição | Usado em |
 |--------|-----------|----------|
-| `HF_TOKEN` | Token HuggingFace (write) | Todos os jobs |
+| `POSTGRES_HOST` | Host do Cloud SQL | Todos os jobs |
+| `POSTGRES_DB` | Nome do banco | Todos os jobs |
+| `POSTGRES_USER` | Usuário do banco | Todos os jobs |
+| `POSTGRES_PASSWORD` | Senha do banco | Todos os jobs |
 | `COGFY_API_KEY` | API Key do Cogfy | upload, enrich |
 | `COGFY_COLLECTION_ID` | ID da collection Cogfy | upload, enrich |
+| `EMBEDDINGS_API_URL` | URL da API de embeddings | embeddings |
+| `TYPESENSE_HOST` | Host do Typesense | sync-typesense |
+| `TYPESENSE_API_KEY` | API Key do Typesense | sync-typesense |
 
 ### Configurar secrets
 
 ```bash
 # Via GitHub CLI
-gh secret set HF_TOKEN --body "hf_xxxxx"
+gh secret set POSTGRES_HOST --body "10.x.x.x"
+gh secret set POSTGRES_DB --body "destaquesgovbr"
+gh secret set POSTGRES_USER --body "admin"
+gh secret set POSTGRES_PASSWORD --body "xxxxx"
 gh secret set COGFY_API_KEY --body "sk-xxxxx"
 gh secret set COGFY_COLLECTION_ID --body "uuid-xxxxx"
+gh secret set EMBEDDINGS_API_URL --body "https://embeddings-xxx.run.app"
+gh secret set TYPESENSE_HOST --body "10.x.x.x"
+gh secret set TYPESENSE_API_KEY --body "xxxxx"
 ```
 
 ---
@@ -262,10 +351,15 @@ gh run view <run_id> --log
 - Enriquecimento não executa
 - Dados ficam sem classificação até próxima execução
 
-### Falha em enriquecimento
+### Falha em embeddings
 
-- Dataset mantém dados sem enriquecimento
-- Próxima execução pode recuperar
+- Notícias sem embeddings são marcadas
+- Próxima execução tenta novamente
+
+### Falha em sync Typesense
+
+- Portal continua funcionando com dados antigos
+- Próxima execução tenta novamente
 
 ---
 
@@ -275,8 +369,8 @@ gh run view <run_id> --log
 
 ```bash
 gh workflow run main-workflow.yaml \
-  -f min-date=2024-01-01 \
-  -f max-date=2024-01-31
+  -f start-date=2024-01-01 \
+  -f end-date=2024-01-31
 ```
 
 ### Para reprocessar
@@ -284,42 +378,8 @@ gh workflow run main-workflow.yaml \
 ```bash
 # Reprocessar últimos 7 dias
 gh workflow run main-workflow.yaml \
-  -f min-date=$(date -v-7d +%Y-%m-%d) \
-  -f max-date=$(date +%Y-%m-%d)
-```
-
----
-
-## Workflow Separado: Dispatch
-
-Existe também `scraper-dispatch.yaml` para execuções manuais isoladas:
-
-```yaml
-# scraper-dispatch.yaml
-on:
-  workflow_dispatch:
-    inputs:
-      min-date:
-        required: true
-      max-date:
-        required: true
-      job:
-        type: choice
-        options:
-          - scrape
-          - ebc-scrape
-          - upload-cogfy
-          - enrich
-```
-
-Uso:
-
-```bash
-# Apenas scraping
-gh workflow run scraper-dispatch.yaml \
-  -f min-date=2024-12-01 \
-  -f max-date=2024-12-03 \
-  -f job=scrape
+  -f start-date=$(date -v-7d +%Y-%m-%d) \
+  -f end-date=$(date +%Y-%m-%d)
 ```
 
 ---
@@ -333,13 +393,24 @@ gh workflow run scraper-dispatch.yaml \
 | upload-to-cogfy | 5-10 min |
 | wait-cogfy | 20 min (fixo) |
 | enrich-themes | 10-20 min |
-| **Total** | **~75-130 min** |
+| generate-embeddings | 10-15 min |
+| sync-typesense | 5-10 min |
+| **Total** | **~90-155 min** |
+
+---
+
+## Sync HuggingFace (Separado)
+
+O sync para o HuggingFace é feito via DAG no Cloud Composer, não faz parte deste workflow.
+
+→ Veja [Airflow DAGs](./airflow-dags.md) para detalhes.
 
 ---
 
 ## Links Relacionados
 
+- [Data Platform](../modulos/data-platform.md) - Repositório unificado
+- [PostgreSQL](../arquitetura/postgresql.md) - Fonte de verdade
 - [Fluxo de Dados](../arquitetura/fluxo-de-dados.md) - Visão geral do pipeline
-- [Módulo Scraper](../modulos/scraper.md) - Detalhes do scraper
 - [Integração Cogfy](../modulos/cogfy-integracao.md) - Classificação LLM
 - [Docker Builds](./docker-builds.md) - Build da imagem

@@ -1,84 +1,33 @@
-# Módulo: Typesense Local (typesense)
+# Módulo: Typesense Local
 
-> Ambiente de desenvolvimento local para busca full-text.
+> Ambiente de desenvolvimento local para busca full-text e vetorial.
 
-**Repositório**: [github.com/destaquesgovbr/typesense](https://github.com/destaquesgovbr/typesense)
+!!! info "Módulo Migrado"
+    Os scripts de sincronização com Typesense foram migrados para o repositório **data-platform**.
+    O repositório `typesense` foi arquivado.
+
+    **Novo repositório**: [github.com/destaquesgovbr/data-platform](https://github.com/destaquesgovbr/data-platform)
 
 ## Visão Geral
 
-O repositório `typesense` fornece:
-
-- **Docker Compose** para rodar Typesense localmente
-- **Scripts Python** para carregar dados do HuggingFace
-- **Configuração** da collection `news`
+O Typesense é usado para busca full-text e vetorial no portal. Em desenvolvimento local, você pode usar Docker Compose para rodar uma instância local.
 
 ```mermaid
 flowchart LR
-    HF[(HuggingFace)] -->|Download| SC[Scripts Python]
+    PG[(PostgreSQL)] -->|Sync| SC[data-platform CLI]
     SC -->|Upsert| TS[(Typesense Local)]
     TS -->|Busca| PO[Portal Dev]
 ```
 
 ---
 
-## Estrutura do Repositório
-
-```
-typesense/
-├── docker-compose.yml       # Typesense container
-├── python/
-│   ├── scripts/
-│   │   └── load_data.py     # Script de carga
-│   ├── requirements.txt     # Dependências Python
-│   └── config.py            # Configurações
-└── README.md
-```
-
----
-
 ## Quick Start
 
-### 1. Clonar repositório
+### 1. Subir Typesense com Docker
 
 ```bash
-git clone https://github.com/destaquesgovbr/typesense.git
-cd typesense
-```
-
-### 2. Subir Typesense
-
-```bash
-docker compose up -d
-```
-
-### 3. Verificar se está rodando
-
-```bash
-curl http://localhost:8108/health
-# Resposta: {"ok":true}
-```
-
-### 4. Carregar dados
-
-```bash
-cd python
-pip install -r requirements.txt
-python scripts/load_data.py --mode incremental --days 7
-```
-
-### 5. Testar busca
-
-```bash
-curl "http://localhost:8108/collections/news/documents/search?q=economia&query_by=title" \
-  -H "X-TYPESENSE-API-KEY: xyz"
-```
-
----
-
-## Docker Compose
-
-```yaml
-# docker-compose.yml
+# Criar docker-compose.yml
+cat > docker-compose.yml << 'EOF'
 version: '3.8'
 
 services:
@@ -96,65 +45,59 @@ services:
 
 volumes:
   typesense-data:
+EOF
+
+docker compose up -d
 ```
 
-### Comandos Docker
+### 2. Verificar se está rodando
 
 ```bash
-# Subir
-docker compose up -d
+curl http://localhost:8108/health
+# Resposta: {"ok":true}
+```
 
-# Ver logs
-docker compose logs -f typesense
+### 3. Carregar dados (via data-platform)
 
-# Parar
-docker compose down
+```bash
+# No diretório data-platform
+data-platform sync-typesense --start-date $(date -v-7d +%Y-%m-%d)
+```
 
-# Remover dados (reset completo)
-docker compose down -v
+### 4. Testar busca
+
+```bash
+curl "http://localhost:8108/collections/news/documents/search?q=economia&query_by=title" \
+  -H "X-TYPESENSE-API-KEY: xyz"
 ```
 
 ---
 
-## Script de Carga (`load_data.py`)
+## Sincronização com PostgreSQL
 
-### Modos de operação
+A sincronização agora lê do **PostgreSQL** (fonte de verdade) e escreve no Typesense.
 
-| Modo | Descrição | Uso |
-|------|-----------|-----|
-| `incremental` | Carrega últimos N dias | Desenvolvimento diário |
-| `full` | Carrega dataset completo | Reset ou primeira carga |
-
-### Exemplos
+### CLI do data-platform
 
 ```bash
-# Carregar últimos 7 dias
-python scripts/load_data.py --mode incremental --days 7
+# Sync incremental (últimos N dias)
+data-platform sync-typesense --start-date YYYY-MM-DD
 
-# Carregar últimos 30 dias
-python scripts/load_data.py --mode incremental --days 30
-
-# Carga completa (demora mais)
-python scripts/load_data.py --mode full
+# Sync completo (todos os registros)
+data-platform sync-typesense --full-sync
 ```
 
-### Funcionamento interno
+### Fluxo Interno
 
 ```python
-def load_incremental(days: int):
-    """Carrega dados dos últimos N dias."""
-    # 1. Conectar ao Typesense
-    # 2. Baixar dataset do HuggingFace
-    # 3. Filtrar por data
-    # 4. Upsert documentos
-    pass
-
-def load_full():
-    """Carga completa do dataset."""
-    # 1. Deletar collection existente
-    # 2. Criar collection com schema
-    # 3. Baixar dataset completo
-    # 4. Inserir todos os documentos
+# src/data_platform/jobs/typesense/sync_job.py
+def sync_typesense(start_date: date = None, full_sync: bool = False):
+    """Sincroniza PostgreSQL → Typesense."""
+    # 1. Conectar ao PostgreSQL
+    # 2. Conectar ao Typesense
+    # 3. Buscar notícias (com embeddings)
+    # 4. Converter para schema Typesense
+    # 5. Upsert em batches de 5000
     pass
 ```
 
@@ -162,35 +105,70 @@ def load_full():
 
 ## Schema da Collection
 
+O schema inclui campos para busca vetorial:
+
 ```python
 schema = {
     "name": "news",
     "fields": [
+        # Identificação
         {"name": "unique_id", "type": "string"},
         {"name": "agency", "type": "string", "facet": True},
+        {"name": "agency_name", "type": "string", "facet": True},
+
+        # Conteúdo
         {"name": "title", "type": "string"},
         {"name": "url", "type": "string"},
         {"name": "image", "type": "string", "optional": True},
         {"name": "content", "type": "string"},
+        {"name": "summary", "type": "string", "optional": True},
+
+        # Datas
         {"name": "published_at", "type": "int64", "sort": True},
+
+        # Classificação original
         {"name": "category", "type": "string", "optional": True, "facet": True},
         {"name": "tags", "type": "string[]", "optional": True},
 
-        # Campos de tema
-        {"name": "theme_1_level_1_code", "type": "string", "optional": True, "facet": True},
-        {"name": "theme_1_level_1_label", "type": "string", "optional": True, "facet": True},
-        {"name": "theme_1_level_2_code", "type": "string", "optional": True, "facet": True},
-        {"name": "theme_1_level_2_label", "type": "string", "optional": True},
-        {"name": "theme_1_level_3_code", "type": "string", "optional": True, "facet": True},
-        {"name": "theme_1_level_3_label", "type": "string", "optional": True},
+        # Temas (enriquecimento Cogfy)
+        {"name": "theme_l1_code", "type": "string", "optional": True, "facet": True},
+        {"name": "theme_l1_label", "type": "string", "optional": True, "facet": True},
+        {"name": "theme_l2_code", "type": "string", "optional": True, "facet": True},
+        {"name": "theme_l2_label", "type": "string", "optional": True},
+        {"name": "theme_l3_code", "type": "string", "optional": True, "facet": True},
+        {"name": "theme_l3_label", "type": "string", "optional": True},
         {"name": "most_specific_theme_code", "type": "string", "optional": True, "facet": True},
         {"name": "most_specific_theme_label", "type": "string", "optional": True},
 
-        # Resumo AI
-        {"name": "summary", "type": "string", "optional": True},
+        # Embedding para busca vetorial
+        {
+            "name": "content_embedding",
+            "type": "float[]",
+            "num_dim": 768,
+            "optional": True
+        },
     ],
     "default_sorting_field": "published_at"
 }
+```
+
+---
+
+## Busca Vetorial
+
+O Typesense em produção suporta busca semântica via embeddings:
+
+```bash
+# Busca vetorial (requer embedding da query)
+curl -X POST "http://localhost:8108/multi_search" \
+  -H "X-TYPESENSE-API-KEY: xyz" \
+  -d '{
+    "searches": [{
+      "collection": "news",
+      "q": "*",
+      "vector_query": "content_embedding:([0.1, 0.2, ...], k:10)"
+    }]
+  }'
 ```
 
 ---
@@ -236,14 +214,14 @@ per_page=10" \
   -H "X-TYPESENSE-API-KEY: xyz"
 ```
 
-### Busca por múltiplos valores
+### Busca por tema
 
 ```bash
 curl "http://localhost:8108/collections/news/documents/search?\
 q=*&\
 query_by=title&\
-filter_by=agency:[gestao,fazenda,saude]&\
-filter_by=theme_1_level_1_code:[01,03]" \
+filter_by=theme_l1_code:01&\
+sort_by=published_at:desc" \
   -H "X-TYPESENSE-API-KEY: xyz"
 ```
 
@@ -317,14 +295,7 @@ curl http://localhost:8108/collections/news \
 2. Recarregar dados:
 
 ```bash
-python scripts/load_data.py --mode incremental --days 7
-```
-
-### Dados desatualizados
-
-```bash
-# Recarregar últimos dias
-python scripts/load_data.py --mode incremental --days 30
+data-platform sync-typesense --start-date $(date -v-7d +%Y-%m-%d)
 ```
 
 ### Reset completo
@@ -337,7 +308,7 @@ docker compose down -v
 docker compose up -d
 
 # Recarregar dados
-python scripts/load_data.py --mode full
+data-platform sync-typesense --full-sync
 ```
 
 ---
@@ -350,7 +321,9 @@ python scripts/load_data.py --mode full
 | Porta | 8108 | 8108 |
 | API Key | xyz | Secret Manager |
 | Dados | Últimos N dias | Dataset completo |
+| Embeddings | Opcional | Incluídos |
 | Persistência | Volume Docker | Disco persistente |
+| Fonte de dados | PostgreSQL | PostgreSQL |
 
 ---
 
@@ -366,13 +339,24 @@ python scripts/load_data.py --mode full
 
 ```bash
 # Carregar menos dados para desenvolvimento
-python scripts/load_data.py --mode incremental --days 3
+data-platform sync-typesense --start-date $(date -v-3d +%Y-%m-%d)
 ```
+
+---
+
+## Arquivos Principais (data-platform)
+
+| Componente | Localização |
+|------------|-------------|
+| TypesenseClient | `src/data_platform/typesense/client.py` |
+| TypesenseIndexer | `src/data_platform/typesense/indexer.py` |
+| SyncJob | `src/data_platform/jobs/typesense/sync_job.py` |
 
 ---
 
 ## Links Relacionados
 
+- [Data Platform](data-platform.md) - Repositório unificado
+- [PostgreSQL](../arquitetura/postgresql.md) - Fonte de verdade
 - [Setup Frontend](../onboarding/setup-frontend.md) - Configuração do portal
-- [Workflow Typesense Data](../workflows/typesense-data.md) - Carga em produção
-- [Módulo Portal](./portal.md) - Uso do Typesense no portal
+- [Workflow Typesense Data](../workflows/typesense-data.md) - Sync em produção
