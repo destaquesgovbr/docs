@@ -44,9 +44,11 @@ nav:
   - Home: index.md
   - Arquitetura:
     - Visão Geral: arquitetura/visao-geral.md
+    - PostgreSQL: arquitetura/postgresql.md
     - Fluxo de Dados: arquitetura/fluxo-de-dados.md
     - Componentes: arquitetura/componentes-estruturantes.md
   - Módulos:
+    - Data Platform: modulos/data-platform.md
     - Scraper: modulos/scraper.md
     - Portal: modulos/portal.md
     - Cogfy/LLM: modulos/cogfy-integracao.md
@@ -59,6 +61,7 @@ nav:
     - Deploy Portal: workflows/portal-deploy.md
     - Docker Builds: workflows/docker-builds.md
     - Typesense Data: workflows/typesense-data.md
+    - Airflow DAGs: workflows/airflow-dags.md
   - Infraestrutura:
     - Arquitetura GCP: infraestrutura/arquitetura-gcp.md
     - Terraform: infraestrutura/terraform-guide.md

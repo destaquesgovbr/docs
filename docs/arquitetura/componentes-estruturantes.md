@@ -1,10 +1,11 @@
 # Componentes Estruturantes
 
-O DestaquesGovbr possui três componentes estruturantes que definem a organização dos dados:
+O DestaquesGovbr possui quatro componentes estruturantes que definem a organização dos dados:
 
 1. **Árvore Temática** - Classificação hierárquica de notícias
-2. **Catálogo de Órgãos** - Lista de 156 agências governamentais
-3. **Dataset HuggingFace** - Fonte de verdade dos dados
+2. **Catálogo de Órgãos** - Lista de 158 agências governamentais
+3. **PostgreSQL** - Fonte de verdade dos dados
+4. **HuggingFace** - Distribuição de dados abertos
 
 ## 1. Árvore Temática
 
@@ -54,14 +55,15 @@ Nível 1 (Tema)      → Nível 2 (Subtema)       → Nível 3 (Tópico)
 
 ### Arquivos
 
-A árvore temática está duplicada em dois repositórios (sincronização manual por enquanto):
+A árvore temática está armazenada no PostgreSQL e duplicada em repositórios (sincronização via pipeline):
 
-| Repositório | Arquivo | Formato |
-|-------------|---------|---------|
-| scraper | `src/enrichment/themes_tree.yaml` | YAML plano |
+| Local | Arquivo/Tabela | Formato |
+|-------|----------------|---------|
+| PostgreSQL | tabela `themes` | Normalizado (200+ registros) |
+| data-platform | `src/data_platform/enrichment/themes_tree.yaml` | YAML plano |
 | portal | `src/lib/themes.yaml` | YAML estruturado |
 
-#### Formato no Scraper (`themes_tree.yaml`)
+#### Formato no Data Platform (`themes_tree.yaml`)
 ```yaml
 01 - Economia e Finanças:
   01.01 - Política Econômica:
@@ -122,13 +124,14 @@ Cada órgão possui:
 
 ### Arquivos
 
-| Repositório | Arquivo | Conteúdo |
-|-------------|---------|----------|
-| agencies | `agencies.yaml` | Dados dos 156 órgãos |
+| Local | Arquivo/Tabela | Conteúdo |
+|-------|----------------|----------|
+| PostgreSQL | tabela `agencies` | Dados dos 158 órgãos (normalizado) |
+| agencies | `agencies.yaml` | Dados fonte dos órgãos |
 | agencies | `hierarchy.yaml` | Árvore hierárquica |
 | portal | `src/lib/agencies.yaml` | Cópia (sincronização manual) |
-| scraper | `src/scraper/agencies.yaml` | Mapeamento ID → Nome |
-| scraper | `src/scraper/site_urls.yaml` | URLs de raspagem |
+| data-platform | `src/data_platform/scrapers/agencies.yaml` | Mapeamento ID → Nome |
+| data-platform | `src/data_platform/scrapers/site_urls.yaml` | URLs de raspagem |
 
 ### Exemplo de Entrada
 
@@ -192,11 +195,32 @@ Automatizar sincronização:
 
 ---
 
-## 3. Dataset HuggingFace
+## 3. PostgreSQL (Fonte de Verdade)
 
 ### Visão Geral
 
-O dataset no HuggingFace é a **fonte de verdade** de todos os dados do sistema.
+O PostgreSQL (Cloud SQL) é a **fonte de verdade central** de todos os dados do sistema.
+
+**Instância**: `destaquesgovbr-postgres` (southamerica-east1)
+
+### Características
+
+| Característica | Valor |
+|----------------|-------|
+| Documentos | ~300.000+ |
+| Tabelas | 4 (agencies, themes, news, sync_log) |
+| Atualização | Diária (4AM UTC) |
+| Backup | Diário com PITR 7 dias |
+
+→ Veja detalhes completos em [postgresql.md](postgresql.md)
+
+---
+
+## 4. HuggingFace (Distribuição)
+
+### Visão Geral
+
+O dataset no HuggingFace é a **camada de distribuição** de dados abertos, sincronizada diariamente a partir do PostgreSQL.
 
 **URL**: [huggingface.co/datasets/nitaibezerra/govbrnews](https://huggingface.co/datasets/nitaibezerra/govbrnews)
 
@@ -205,8 +229,8 @@ O dataset no HuggingFace é a **fonte de verdade** de todos os dados do sistema.
 | Característica | Valor |
 |----------------|-------|
 | Documentos | ~300.000+ |
-| Atualização | Diária (4AM UTC) |
-| Formato | Parquet + CSV |
+| Sincronização | Diária (6AM UTC via Airflow) |
+| Formato | Parquet (shards incrementais) |
 | Versionamento | Automático pelo HF |
 
 ### Schema do Dataset
@@ -285,11 +309,10 @@ govbrnews/
 
 ### Uso no Sistema
 
-1. **Scraper**: Insere e atualiza registros
-2. **Typesense**: Indexa para busca full-text
-3. **Portal**: Consome via Typesense
-4. **Streamlit**: Análises e visualizações
-5. **Pesquisadores**: Download para análises externas
+1. **Comunidade**: Download para análises externas
+2. **Pesquisadores**: Estudos acadêmicos
+3. **Streamlit**: Visualizações públicas
+4. **Dados abertos**: Acesso transparente aos dados governamentais
 
 ### Dataset Reduzido
 
@@ -305,40 +328,50 @@ Existe também uma versão reduzida com apenas 4 colunas para análises rápidas
 graph TB
     subgraph "Componentes Estruturantes"
         AT[Árvore Temática<br/>25 temas × 3 níveis]
-        CO[Catálogo de Órgãos<br/>156 agências]
-        DS[Dataset HuggingFace<br/>~300k docs]
+        CO[Catálogo de Órgãos<br/>158 agências]
+        PG[(PostgreSQL<br/>Fonte de Verdade)]
+        HF[(HuggingFace<br/>Distribuição)]
     end
 
     subgraph "Uso no Sistema"
         SC[Scraper]
         CF[Cogfy]
-        PO[Portal]
+        EMB[Embeddings]
         TS[Typesense]
+        PO[Portal]
     end
 
     CO -->|URLs de raspagem| SC
     AT -->|Classificação| CF
-    SC -->|Insere dados| DS
-    CF -->|Enriquece| DS
-    DS -->|Indexa| TS
+    SC -->|Insere dados| PG
+    CF -->|Enriquece| PG
+    EMB -->|Vetores| PG
+    PG -->|Indexa| TS
+    PG -->|Sync diário| HF
     TS -->|Busca| PO
     AT -->|Filtros| PO
     CO -->|Filtros| PO
 ```
 
-## Sincronização Atual vs Futura
+## Sincronização
 
-### Atual (Manual)
+### Dados (Automatizado)
+```
+Scraper → PostgreSQL → Typesense (sync diário)
+                     → HuggingFace (DAG Airflow 6AM UTC)
+```
+
+### Componentes Estruturantes (Manual)
 ```
 agencies.yaml → Cópia manual → portal/agencies.yaml
-                            → scraper/agencies.yaml
-                            → scraper/site_urls.yaml
+                             → data-platform/agencies.yaml
 
 themes_tree.yaml → Cópia manual → portal/themes.yaml
+                                → PostgreSQL (via script)
 ```
 
-### Futuro (Automatizado)
+### Meta Futura
 ```
-agencies → GitHub Action → portal + scraper
-destaquesgovbr-themes   → GitHub Action → portal + scraper
+agencies repo → GitHub Action → portal + data-platform + PostgreSQL
+themes repo   → GitHub Action → portal + data-platform + PostgreSQL
 ```
