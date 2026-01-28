@@ -327,3 +327,110 @@ O Claude Code está configurado e integrado ao VS Code via AWS Bedrock. Para ini
 - **Se você usou o Método 1 (SSO):** Quando as credenciais expirarem, execute `aws sso login --profile cpqd-sso` no terminal
 - **Se você usou o Método 2 (Manual):** Você precisará obter novas credenciais no portal AWS e exportá-las novamente toda vez que expirarem
 - Recomendo usar o Método 1 (SSO) para maior praticidade e segurança
+
+---
+
+## Troubleshooting
+
+### Problema: Claude Code funciona no VS Code mas não no terminal
+
+**Sintoma:** O Claude Code funciona normalmente na extensão do VS Code, mas ao executar `claude` no terminal retorna erro de credenciais expiradas ou inválidas.
+
+**Causa:** Se você testou tanto o Método 1 (SSO) quanto o Método 2 (Credenciais Manuais), pode haver variáveis de ambiente conflitantes no seu `~/.bashrc` ou `~/.zshrc`. As variáveis `AWS_ACCESS_KEY_ID` e `AWS_SECRET_ACCESS_KEY` têm **precedência** sobre `AWS_PROFILE`, então mesmo com o perfil SSO configurado, o AWS CLI usará as credenciais hardcoded (que podem estar expiradas).
+
+**Solução:**
+
+1. Abra o arquivo de configuração do seu shell:
+
+```bash
+# Para Bash
+nano ~/.bashrc
+
+# Para Zsh
+nano ~/.zshrc
+```
+
+2. Procure e **remova** as seguintes linhas (se existirem):
+
+```bash
+export AWS_ACCESS_KEY_ID="..."
+export AWS_SECRET_ACCESS_KEY="..."
+export AWS_SESSION_TOKEN="..."
+```
+
+3. Certifique-se de que apenas as variáveis do SSO estejam configuradas:
+
+```bash
+# AWS Bedrock configuration for Claude Code (usando SSO)
+export AWS_PROFILE="cpqd-sso"
+export AWS_REGION="sa-east-1"
+export CLAUDE_CODE_USE_BEDROCK=1
+```
+
+4. Recarregue o arquivo de configuração:
+
+```bash
+source ~/.bashrc  # ou source ~/.zshrc
+```
+
+5. Limpe as variáveis antigas da sessão atual (se não abrir novo terminal):
+
+```bash
+unset AWS_ACCESS_KEY_ID AWS_SECRET_ACCESS_KEY AWS_SESSION_TOKEN
+```
+
+6. Teste novamente:
+
+```bash
+claude
+```
+
+---
+
+### Problema: Erro "The provided model identifier is invalid"
+
+**Sintoma:** Ao executar o Claude Code no terminal, aparece o erro:
+
+```
+API Error (us.anthropic.claude-sonnet-4-5-20250929-v1:0): 400 The provided model identifier is invalid.
+```
+
+**Causa:** O Claude Code está tentando usar um modelo com prefixo `us.` ao invés de `global.`. Isso acontece quando o modelo não está explicitamente configurado para o terminal.
+
+**Solução:**
+
+1. Adicione a variável `ANTHROPIC_MODEL` ao seu arquivo de configuração do shell:
+
+```bash
+# Para Bash
+echo 'export ANTHROPIC_MODEL="global.anthropic.claude-sonnet-4-5-20250929-v1:0"' >> ~/.bashrc
+source ~/.bashrc
+
+# Para Zsh
+echo 'export ANTHROPIC_MODEL="global.anthropic.claude-sonnet-4-5-20250929-v1:0"' >> ~/.zshrc
+source ~/.zshrc
+```
+
+2. Ou edite manualmente o arquivo e adicione a linha junto com as outras variáveis AWS:
+
+```bash
+# AWS Bedrock configuration for Claude Code (usando SSO)
+export AWS_PROFILE="cpqd-sso"
+export AWS_REGION="sa-east-1"
+export CLAUDE_CODE_USE_BEDROCK=1
+export ANTHROPIC_MODEL="global.anthropic.claude-sonnet-4-5-20250929-v1:0"
+```
+
+3. Teste novamente:
+
+```bash
+claude
+```
+
+**Modelos disponíveis:**
+
+| Modelo | Variável ANTHROPIC_MODEL |
+|--------|--------------------------|
+| Claude Sonnet 4.5 | `global.anthropic.claude-sonnet-4-5-20250929-v1:0` |
+| Claude Haiku 4.5 | `global.anthropic.claude-haiku-4-5-20251001-v1:0` |
+| Claude Opus 4.5 | `global.anthropic.claude-opus-4-5-20251101-v1:0` |
