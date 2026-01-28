@@ -3,7 +3,8 @@
 ## Passo 1: Instalar o AWS CLI
 
 Caso ainda não tenha o AWS CLI instalado, siga as instruções no link oficial:
-- https://docs.aws.amazon.com/cli/latest/userguide/getting-started-install.html
+
+<https://docs.aws.amazon.com/cli/latest/userguide/getting-started-install.html>
 
 Para verificar se está instalado, execute:
 
@@ -109,7 +110,7 @@ O navegador abrirá novamente para você fazer login e as credenciais serão ren
 
 #### 2.2.1 Obter as Credenciais
 
-1. Acesse o portal https://aws-inspire.awsapps.com/start
+1. Acesse o portal <https://aws-inspire.awsapps.com/start>
 2. Faça login com sua conta CPQD
 3. Clique no ícone de **setinha apontada para a direita** (→) antes do cubo amarelo escrito **"aws_inspire_m7"**
 4. Uma aba será aberta com 2 links
@@ -162,7 +163,8 @@ Com as credenciais configuradas, você já pode testar o Claude Code via termina
 ### 3.1 Instalar o Claude Code (se necessário)
 
 Caso ainda não tenha o Claude Code instalado, siga as instruções no link:
-- https://code.claude.com/docs/en/overview
+
+- <https://code.claude.com/docs/en/overview>
 
 ### 3.2 Configurar Variáveis de Ambiente para o Terminal
 
