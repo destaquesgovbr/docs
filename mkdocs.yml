@@ -71,6 +71,7 @@ nav:
     - Roteiro: onboarding/roteiro-onboarding.md
     - Git Fundamentos: onboarding/git-fundamentos.md
     - GitHub Colaboração: onboarding/github-colaboracao.md
+    - Setup Claude Code: onboarding/setup-claude-code.md
     - Trilha Backend:
       - Setup Backend: onboarding/setup-backend.md
       - Apache Airflow: onboarding/airflow-tutorial.md
