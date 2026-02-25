@@ -170,23 +170,11 @@ python -c "from src.data_platform.managers.postgres_manager import PostgresManag
 
 ---
 
-## 6. Executar o Scraper Localmente
+## 6. Scraper (Repo Separado)
 
-### Scraping de um período específico
-
-```bash
-# Raspar notícias dos últimos 7 dias
-data-platform scrape --start-date $(date -v-7d +%Y-%m-%d) --end-date $(date +%Y-%m-%d)
-
-# Raspar período específico
-data-platform scrape --start-date 2024-12-01 --end-date 2024-12-03
-```
-
-### Scraping EBC
-
-```bash
-data-platform scrape-ebc --start-date 2024-12-01 --end-date 2024-12-03 --allow-update
-```
+!!! note "Scraper Standalone"
+    O scraping agora é feito pelo repositório separado [destaquesgovbr/scraper](https://github.com/destaquesgovbr/scraper), via API FastAPI + DAGs Airflow.
+    Veja [Módulo Scraper](../modulos/scraper.md) para setup local.
 
 ---
 
@@ -295,12 +283,6 @@ docker run --env-file .env data-platform data-platform --help
 ```bash
 # Ver ajuda
 data-platform --help
-
-# Scraping gov.br
-data-platform scrape --start-date YYYY-MM-DD --end-date YYYY-MM-DD
-
-# Scraping EBC
-data-platform scrape-ebc --start-date YYYY-MM-DD --end-date YYYY-MM-DD --allow-update
 
 # Upload para Cogfy
 data-platform upload-cogfy --start-date YYYY-MM-DD --end-date YYYY-MM-DD

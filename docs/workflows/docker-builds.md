@@ -8,14 +8,15 @@ O projeto usa Docker para containerização de dois serviços principais:
 
 | Serviço | Imagem    | Registry                  |
 | ------- | --------- | ------------------------- |
-| Scraper | `scraper` | GitHub Container Registry |
+| Scraper API | `scraper` | GCP Artifact Registry |
 | Portal  | `portal`  | GCP Artifact Registry     |
 
 ```mermaid
 flowchart LR
-    subgraph "Scraper"
-        A[Push tag] --> B[Build]
-        B --> C[GHCR]
+    subgraph "Scraper API"
+        A[Push main] --> B[Build]
+        B --> F1[Artifact Registry]
+        F1 --> G1[Cloud Run]
     end
 
     subgraph "Portal"
@@ -27,114 +28,42 @@ flowchart LR
 
 ---
 
-## Build do Scraper
+## Build do Scraper API
 
-**Arquivo**: `scraper/.github/workflows/docker-build.yaml`
+**Arquivo**: `scraper/.github/workflows/scraper-api-deploy.yaml`
+
+O workflow faz build da imagem Docker e deploy automático no Cloud Run em push para `main`.
 
 ### Trigger
 
 ```yaml
 on:
   push:
-    tags:
-      - "v*" # Apenas tags de versão
-  workflow_dispatch: # Manual
-```
-
-### Workflow
-
-```yaml
-name: Build Docker Image
-
-on:
-  push:
-    tags:
-      - "v*"
+    branches: [main]
+    paths:
+      - 'src/**'
+      - 'docker/**'
+      - 'pyproject.toml'
   workflow_dispatch:
-
-jobs:
-  build:
-    runs-on: ubuntu-latest
-    permissions:
-      contents: read
-      packages: write
-
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v4
-
-      - name: Login to GHCR
-        uses: docker/login-action@v3
-        with:
-          registry: ghcr.io
-          username: ${{ github.actor }}
-          password: ${{ secrets.GITHUB_TOKEN }}
-
-      - name: Extract metadata
-        id: meta
-        uses: docker/metadata-action@v5
-        with:
-          images: ghcr.io/${{ github.repository }}
-          tags: |
-            type=semver,pattern={{version}}
-            type=semver,pattern={{major}}.{{minor}}
-            type=raw,value=latest
-
-      - name: Build and push
-        uses: docker/build-push-action@v5
-        with:
-          context: .
-          push: true
-          tags: ${{ steps.meta.outputs.tags }}
-          labels: ${{ steps.meta.outputs.labels }}
 ```
 
-### Dockerfile do Scraper
+### Pipeline
 
-```dockerfile
-FROM python:3.12-slim
+1. Build da imagem Docker
+2. Push para GCP Artifact Registry
+3. Deploy no Cloud Run (`destaquesgovbr-scraper-api`)
 
-WORKDIR /app
+### Dockerfile
 
-# Instalar dependências do sistema
-RUN apt-get update && apt-get install -y \
-    git \
-    && rm -rf /var/lib/apt/lists/*
-
-# Instalar Poetry
-RUN pip install poetry
-
-# Copiar arquivos de dependência
-COPY pyproject.toml poetry.lock ./
-
-# Instalar dependências
-RUN poetry config virtualenvs.create false \
-    && poetry install --no-dev --no-interaction --no-ansi
-
-# Copiar código
-COPY src/ ./src/
-
-# Comando padrão
-CMD ["python", "src/main.py", "--help"]
-```
-
-### Tags geradas
-
-Para tag `v1.2.3`:
-
-- `ghcr.io/destaquesgovbr/scraper:1.2.3`
-- `ghcr.io/destaquesgovbr/scraper:1.2`
-- `ghcr.io/destaquesgovbr/scraper:latest`
+Localizado em `scraper/docker/Dockerfile`.
 
 ### Execução
 
 ```bash
-# Via tag (dispara automático)
-git tag v1.2.3
-git push origin v1.2.3
+# Deploy automático em push para main
 
 # Manual
-gh workflow run docker-build.yaml
+gh workflow run scraper-api-deploy.yaml -R destaquesgovbr/scraper
 ```
 
 ---
@@ -212,27 +141,6 @@ CMD ["node", "server.js"]
 
 ---
 
-## GitHub Container Registry (GHCR)
-
-### Autenticação
-
-```bash
-# Login via CLI
-echo $GITHUB_TOKEN | docker login ghcr.io -u USERNAME --password-stdin
-```
-
-### Pull de imagem
-
-```bash
-docker pull ghcr.io/destaquesgovbr/scraper:latest
-```
-
-### Permissões
-
-O workflow usa `GITHUB_TOKEN` automático com permissão `packages: write`.
-
----
-
 ## GCP Artifact Registry
 
 ### Autenticação
@@ -252,16 +160,16 @@ docker push us-east1-docker.pkg.dev/PROJECT_ID/destaquesgovbr/portal:TAG
 
 ## Build Local
 
-### Scraper
+### Scraper API
 
 ```bash
 cd scraper
 
 # Build
-docker build -t scraper .
+docker build -f docker/Dockerfile -t scraper-api .
 
 # Executar
-docker run --env-file .env scraper python src/main.py --help
+docker run --env-file .env -p 8080:8080 scraper-api
 ```
 
 ### Portal

@@ -7,9 +7,8 @@ Repositório centralizado para toda a infraestrutura de dados do DestaquesGovBr.
 
 ## Visão Geral
 
-O **data-platform** unifica toda a lógica de dados que anteriormente estava distribuída em múltiplos repositórios (`scraper`, `typesense`). Ele é responsável por:
+O **data-platform** é responsável por enriquecimento, embeddings e armazenamento de dados do DestaquesGovBr. A coleta (scraping) é feita pelo repo standalone [scraper](https://github.com/destaquesgovbr/scraper).
 
-- **Coleta**: Scrapers para gov.br e EBC
 - **Armazenamento**: Gerenciamento do PostgreSQL (fonte de verdade) e HuggingFace (distribuição)
 - **Enriquecimento**: Integração com Cogfy para classificação temática e sumários
 - **Embeddings**: Geração de vetores para busca semântica
@@ -19,9 +18,9 @@ O **data-platform** unifica toda a lógica de dados que anteriormente estava dis
 
 ```mermaid
 graph TB
-    subgraph "Coleta"
-        S1[Scraper Gov.br]
-        S2[Scraper EBC]
+    subgraph "Coleta (repo scraper)"
+        S[Scraper API<br/>Cloud Run]
+        DAG_S[DAGs Airflow<br/>~158 agências + EBC]
     end
 
     subgraph "Armazenamento"
@@ -29,17 +28,17 @@ graph TB
         HF[(HuggingFace<br/>Dados Abertos)]
     end
 
-    subgraph "Processamento"
+    subgraph "Processamento (data-platform)"
         COG[Cogfy<br/>Enriquecimento]
         EMB[Embeddings API<br/>Vetores 768-dim]
     end
 
-    subgraph "Indexação"
+    subgraph "Indexação (data-platform)"
         TS[Typesense<br/>Busca]
     end
 
-    S1 --> PG
-    S2 --> PG
+    DAG_S -->|HTTP POST| S
+    S -->|INSERT| PG
     PG --> COG
     COG --> PG
     PG --> EMB
@@ -56,10 +55,7 @@ data-platform/
 │   ├── managers/               # Gerenciadores de storage
 │   │   ├── postgres_manager.py # Acesso ao PostgreSQL
 │   │   ├── dataset_manager.py  # Acesso ao HuggingFace
-│   │   └── storage_adapter.py  # Abstração dual-write
-│   ├── scrapers/               # Scrapers de notícias
-│   │   ├── scrape_manager.py   # Gov.br
-│   │   └── ebc_scrape_manager.py
+│   │   └── storage_adapter.py
 │   ├── cogfy/                  # Integração Cogfy
 │   │   ├── cogfy_manager.py
 │   │   ├── upload_manager.py
@@ -69,8 +65,9 @@ data-platform/
 │   │   ├── collection.py
 │   │   └── indexer.py
 │   ├── jobs/                   # Jobs de processamento
+│   │   ├── enrichment/
+│   │   ├── embeddings/
 │   │   ├── typesense/sync_job.py
-│   │   ├── embeddings/embedding_generator.py
 │   │   └── hf_sync/
 │   ├── models/                 # Modelos Pydantic
 │   │   └── news.py
@@ -83,16 +80,6 @@ data-platform/
 ```
 
 ## CLI - Comandos Disponíveis
-
-### Scraping
-
-```bash
-# Raspar sites gov.br
-data-platform scrape --start-date 2025-01-01 --end-date 2025-01-31
-
-# Raspar sites EBC (Agência Brasil, TV Brasil)
-data-platform scrape-ebc --start-date 2025-01-01
-```
 
 ### Enriquecimento
 
@@ -132,43 +119,6 @@ data-platform typesense-delete --confirm
 ```bash
 # Sincronizar PostgreSQL → HuggingFace
 data-platform sync-hf --start-date 2025-01-01
-```
-
-## Storage Adapter
-
-O **StorageAdapter** é a camada de abstração que permite transição gradual entre backends de armazenamento.
-
-### Modos de Operação
-
-| Modo | Descrição |
-|------|-----------|
-| `POSTGRES` | Escreve apenas no PostgreSQL |
-| `HUGGINGFACE` | Escreve apenas no HuggingFace (legado) |
-| `DUAL_WRITE` | Escreve em ambos para transição segura |
-
-### Configuração
-
-```bash
-# Variáveis de ambiente
-STORAGE_BACKEND=postgres          # postgres | huggingface | dual_write
-STORAGE_READ_FROM=postgres        # De onde ler os dados
-```
-
-### Uso no Código
-
-```python
-from data_platform.managers.storage_adapter import StorageAdapter, StorageBackend
-
-adapter = StorageAdapter(
-    backend=StorageBackend.DUAL_WRITE,
-    read_from=StorageBackend.POSTGRES
-)
-
-# Insert transparente - escreve em ambos
-inserted = adapter.insert(news_list, allow_update=False)
-
-# Read - sempre do backend configurado em read_from
-news = adapter.get(filters={"agency_key": "mec"}, limit=100)
 ```
 
 ## PostgresManager
@@ -226,17 +176,13 @@ COGFY_COLLECTION_ID=xxx
 # Embeddings
 EMBEDDINGS_API_URL=https://embeddings-api-xxx.run.app
 EMBEDDINGS_API_KEY=xxx
-
-# Storage
-STORAGE_BACKEND=postgres
-STORAGE_READ_FROM=postgres
 ```
 
 ## Workflows GitHub Actions
 
 | Workflow | Trigger | Descrição |
 |----------|---------|-----------|
-| `main-workflow.yaml` | Diário (4AM UTC) | Pipeline completo: scrape → enrich → embed → sync |
+| `main-workflow.yaml` | Diário (4AM UTC) | Pipeline de enrichment: upload-cogfy → enrich → embed → sync |
 | `typesense-maintenance-sync.yaml` | Diário (10AM UTC) | Sync incremental Typesense |
 | `composer-deploy-dags.yaml` | Push | Deploy de DAGs no Airflow |
 
