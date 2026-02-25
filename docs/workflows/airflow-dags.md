@@ -1,6 +1,6 @@
 # Airflow DAGs (Cloud Composer)
 
-O projeto utiliza **Cloud Composer 3** (Apache Airflow gerenciado) para orquestração de pipelines de dados, especialmente a sincronização entre PostgreSQL e HuggingFace.
+O projeto utiliza **Cloud Composer 3** (Apache Airflow gerenciado) para orquestração de pipelines de dados: scraping de notícias (repo `scraper`) e sincronização entre PostgreSQL e HuggingFace (repo `data-platform`).
 
 !!! info "Cloud Composer"
     **Ambiente**: `destaquesgovbr-composer`
@@ -18,9 +18,14 @@ graph TB
         TRIGGER[Triggerer]
     end
 
-    subgraph "DAGs"
+    subgraph "DAGs (data-platform)"
         DAG1[sync_postgres_to_huggingface]
         DAG2[test_postgres_connection]
+    end
+
+    subgraph "DAGs (scraper)"
+        DAG3[~158x scrape_agency]
+        DAG4[scrape_ebc]
     end
 
     subgraph "Recursos GCP"
@@ -37,12 +42,65 @@ graph TB
     SCHED --> WORKER
     WORKER --> DAG1
     WORKER --> DAG2
+    WORKER --> DAG3
+    WORKER --> DAG4
     DAG1 --> PG
     DAG1 --> HF
+    DAG3 -->|HTTP POST| CR[Cloud Run<br/>Scraper API]
+    DAG4 -->|HTTP POST| CR
+    CR --> PG
     SM --> WORKER
 ```
 
+## Organização de DAGs no Bucket
+
+O Composer armazena DAGs de múltiplos repos em subdiretórios do mesmo bucket:
+
+```
+gs://{COMPOSER_BUCKET}/dags/
+├── data-platform/                    # DAGs do repo data-platform
+│   ├── sync_postgres_to_huggingface.py
+│   └── test_postgres_connection.py
+└── scraper/                          # DAGs do repo scraper
+    ├── scrape_agencies.py            # ~158 DAGs dinâmicas
+    ├── scrape_ebc.py
+    └── config/
+        └── site_urls.yaml
+```
+
+Cada repo tem seu próprio workflow `composer-deploy-dags.yaml` que faz `gsutil rsync` para seu subdiretório.
+
 ## DAGs Disponíveis
+
+### DAGs do Scraper (repo `scraper`)
+
+#### `scrape_{agency_key}` (~158 DAGs dinâmicas)
+
+Cada agência gov.br gera uma DAG de scraping independente.
+
+| Configuração | Valor |
+|--------------|-------|
+| **Schedule** | `*/15 * * * *` (a cada 15 min) |
+| **Catchup** | Desabilitado |
+| **Retries** | 2 (com backoff de 5 min) |
+| **Timeout** | 15 min |
+
+Cada DAG faz HTTP POST para a Scraper API no Cloud Run (`POST /scrape/agencies` com a agência específica).
+
+#### `scrape_ebc`
+
+DAG para scraping dos sites EBC (Agência Brasil, TV Brasil).
+
+| Configuração | Valor |
+|--------------|-------|
+| **Schedule** | `*/15 * * * *` (a cada 15 min) |
+| **Retries** | 2 (com backoff de 5 min) |
+
+Faz HTTP POST para `POST /scrape/ebc` no Cloud Run.
+
+→ Veja [Módulo Scraper](../modulos/scraper.md) para detalhes da API e do repo.
+
+### DAGs do Data Platform (repo `data-platform`)
 
 ### `sync_postgres_to_huggingface`
 
@@ -172,7 +230,7 @@ apache-airflow-providers-postgres>=5.10.2
 apache-airflow-providers-google>=10.14.0
 sqlalchemy>=1.4.52
 requests>=2.31.0
-pandas>=2.0.0
+pyyaml>=6.0
 ```
 
 ### Environment Variables
@@ -219,22 +277,16 @@ As connections são gerenciadas via **Secret Manager**:
 
 ### Via GitHub Actions
 
-O workflow `composer-deploy-dags.yaml` faz deploy automático em push:
+Cada repo tem seu próprio workflow `composer-deploy-dags.yaml` que sincroniza para o subdiretório correspondente:
 
-```yaml
-# .github/workflows/composer-deploy-dags.yaml
-on:
-  push:
-    paths:
-      - 'src/data_platform/dags/**'
+**Repo `data-platform`**:
+```bash
+gsutil -m rsync -r -d src/data_platform/dags/ gs://{BUCKET}/dags/data-platform/
+```
 
-jobs:
-  deploy:
-    steps:
-      - name: Upload DAGs to GCS
-        run: |
-          gsutil -m cp -r src/data_platform/dags/* \
-            gs://${{ env.COMPOSER_BUCKET }}/dags/
+**Repo `scraper`**:
+```bash
+gsutil -m rsync -r -d dags/ gs://{BUCKET}/dags/scraper/
 ```
 
 ### Manual via gcloud
@@ -245,8 +297,11 @@ BUCKET=$(gcloud composer environments describe destaquesgovbr-composer \
     --location us-central1 \
     --format="value(config.dagGcsPrefix)")
 
-# Upload das DAGs
-gsutil -m cp -r src/data_platform/dags/* $BUCKET/
+# Upload das DAGs do data-platform
+gsutil -m rsync -r -d src/data_platform/dags/ $BUCKET/data-platform/
+
+# Upload das DAGs do scraper
+gsutil -m rsync -r -d dags/ $BUCKET/scraper/
 ```
 
 ## Monitoramento
