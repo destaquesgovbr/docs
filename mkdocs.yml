@@ -5,6 +5,9 @@ repo_url: https://github.com/destaquesgovbr/docs
 repo_name: destaquesgovbr/docs
 docs_dir: docs
 
+extra_css:
+  - stylesheets/blog.css
+
 theme:
   name: material
   language: pt-BR
@@ -25,6 +28,9 @@ theme:
 plugins:
   - search:
       lang: pt
+  - blog:
+      blog_dir: blog
+      post_excerpt_separator: "<!-- more -->"
 
 markdown_extensions:
   - admonition
@@ -99,6 +105,7 @@ nav:
     - Setup Dev VM: onboarding/setup-devvm.md
     - Primeiro PR: onboarding/primeiro-pr.md
     - Troubleshooting: onboarding/troubleshooting.md
+  - Blog: blog/index.md
   - Sobre:
     - Contribuir: CONTRIBUTING.md
     - Engenharia de Prompt: plano/PLANO_IMPLEMENTACAO.md
