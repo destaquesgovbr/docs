@@ -250,7 +250,7 @@ Cole as seguintes configurações no arquivo `settings.json`:
 
 ```json
 {
-    "claudeCode.selectedModel": "global.anthropic.claude-sonnet-4-5-20250929-v1:0",
+    "claudeCode.selectedModel": "global.anthropic.claude-sonnet-4-6",
     "claudeCode.environmentVariables": [
         {
             "name": "AWS_PROFILE",
@@ -274,7 +274,7 @@ Cole as seguintes configurações no arquivo `settings.json`:
 
 ```json
 {
-    "claudeCode.selectedModel": "global.anthropic.claude-sonnet-4-5-20250929-v1:0",
+    "claudeCode.selectedModel": "global.anthropic.claude-sonnet-4-6",
     "claudeCode.environmentVariables": [
         {
             "name": "AWS_PROFILE",
@@ -304,11 +304,13 @@ aws configure list-profiles
 
 Você pode alterar o modelo conforme sua necessidade:
 
-| Modelo | ID |
-|--------|-----|
-| Claude Sonnet 4.5 | `global.anthropic.claude-sonnet-4-5-20250929-v1:0` |
-| Claude Haiku 4.5 | `global.anthropic.claude-haiku-4-5-20251001-v1:0` |
-| Claude Opus 4.5 | `global.anthropic.claude-opus-4-5-20251101-v1:0` |
+| Modelo | ID | Recomendação |
+|--------|-----|--------------|
+| Claude Opus 4.6 | `global.anthropic.claude-opus-4-6-v1` | Mais capaz |
+| Claude Sonnet 4.6 | `global.anthropic.claude-sonnet-4-6` | Melhor custo-benefício (Recomendado) |
+| Claude Sonnet 4.5 | `global.anthropic.claude-sonnet-4-5-20250929-v1:0` | Versão anterior |
+| Claude Opus 4.5 | `global.anthropic.claude-opus-4-5-20251101-v1:0` | Versão anterior |
+| Claude Haiku 4.5 | `global.anthropic.claude-haiku-4-5-20251001-v1:0` | Mais rápido e econômico |
 
 ### 4.5 Reiniciar o VS Code
 
@@ -391,13 +393,19 @@ claude
 
 ### Problema: Erro "The provided model identifier is invalid"
 
-**Sintoma:** Ao executar o Claude Code no terminal, aparece o erro:
+**Sintoma:** Ao executar o Claude Code no terminal, aparece erros como:
 
 ```
-API Error (us.anthropic.claude-sonnet-4-5-20250929-v1:0): 400 The provided model identifier is invalid.
+API Error (us.anthropic.claude-sonnet-4-6): 400 The provided model identifier is invalid.
 ```
 
-**Causa:** O Claude Code está tentando usar um modelo com prefixo `us.` ao invés de `global.`. Isso acontece quando o modelo não está explicitamente configurado para o terminal.
+ou
+
+```
+API Error (anthropic.claude-sonnet-4-6): 400 The provided model identifier is invalid.
+```
+
+**Causa:** O Claude Code está tentando usar um modelo sem o prefixo `global.` correto. Os modelos Claude 4.5/4.6 no AWS Bedrock usam **inference profiles** que requerem o prefixo `global.`
 
 **Solução:**
 
@@ -405,11 +413,11 @@ API Error (us.anthropic.claude-sonnet-4-5-20250929-v1:0): 400 The provided model
 
 ```bash
 # Para Bash
-echo 'export ANTHROPIC_MODEL="global.anthropic.claude-sonnet-4-5-20250929-v1:0"' >> ~/.bashrc
+echo 'export ANTHROPIC_MODEL="global.anthropic.claude-sonnet-4-6"' >> ~/.bashrc
 source ~/.bashrc
 
 # Para Zsh
-echo 'export ANTHROPIC_MODEL="global.anthropic.claude-sonnet-4-5-20250929-v1:0"' >> ~/.zshrc
+echo 'export ANTHROPIC_MODEL="global.anthropic.claude-sonnet-4-6"' >> ~/.zshrc
 source ~/.zshrc
 ```
 
@@ -420,7 +428,7 @@ source ~/.zshrc
 export AWS_PROFILE="cpqd-sso"
 export AWS_REGION="sa-east-1"
 export CLAUDE_CODE_USE_BEDROCK=1
-export ANTHROPIC_MODEL="global.anthropic.claude-sonnet-4-5-20250929-v1:0"
+export ANTHROPIC_MODEL="global.anthropic.claude-sonnet-4-6"
 ```
 
 3. Teste novamente:
@@ -433,6 +441,8 @@ claude
 
 | Modelo | Variável ANTHROPIC_MODEL |
 |--------|--------------------------|
+| Claude Opus 4.6 (mais capaz) | `global.anthropic.claude-opus-4-6-v1` |
+| Claude Sonnet 4.6 (recomendado) | `global.anthropic.claude-sonnet-4-6` |
 | Claude Sonnet 4.5 | `global.anthropic.claude-sonnet-4-5-20250929-v1:0` |
-| Claude Haiku 4.5 | `global.anthropic.claude-haiku-4-5-20251001-v1:0` |
 | Claude Opus 4.5 | `global.anthropic.claude-opus-4-5-20251101-v1:0` |
+| Claude Haiku 4.5 (mais rápido) | `global.anthropic.claude-haiku-4-5-20251001-v1:0` |
