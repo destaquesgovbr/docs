@@ -50,7 +50,6 @@ nav:
   - Home: index.md
   - Arquitetura:
     - Visão Geral: arquitetura/visao-geral.md
-    - Pipeline Event-Driven: arquitetura/pubsub-workers.md
     - PostgreSQL: arquitetura/postgresql.md
     - Fluxo de Dados: arquitetura/fluxo-de-dados.md
     - Componentes: arquitetura/componentes-estruturantes.md
