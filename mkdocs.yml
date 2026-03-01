@@ -54,6 +54,9 @@ nav:
     - PostgreSQL: arquitetura/postgresql.md
     - Fluxo de Dados: arquitetura/fluxo-de-dados.md
     - Componentes: arquitetura/componentes-estruturantes.md
+    - ADRs:
+      - Índice: arquitetura/adrs/index.md
+      - "ADR-001: Arquitetura de Dados Medallion": arquitetura/adrs/adr-001-arquitetura-dados-medallion.md
   - Módulos:
     - Data Platform: modulos/data-platform.md
     - Scraper: modulos/scraper.md
