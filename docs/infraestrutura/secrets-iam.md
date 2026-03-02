@@ -39,6 +39,11 @@ flowchart TB
 | Secret | Descrição | Usado por |
 |--------|-----------|-----------|
 | `typesense-api-key` | API Key do Typesense | Portal, Workflows |
+| `umami-database-url` | Connection string PostgreSQL do Umami | Cloud Run `destaquesgovbr-umami` |
+| `umami-app-secret` | Chave de criptografia de sessões do Umami | Cloud Run `destaquesgovbr-umami` |
+| `growthbook-mongodb-uri` | Connection string MongoDB Atlas do GrowthBook | Cloud Run `destaquesgovbr-growthbook`, `-api` |
+| `growthbook-encryption-key` | Chave de criptografia do GrowthBook | Cloud Run `destaquesgovbr-growthbook`, `-api` |
+| `growthbook-jwt-secret` | Chave JWT do GrowthBook | Cloud Run `destaquesgovbr-growthbook`, `-api` |
 
 ### Criar Secret
 
@@ -106,7 +111,9 @@ env {
 |-----------------|-----|
 | `github-actions@PROJECT.iam.gserviceaccount.com` | Deploy via GitHub |
 | `typesense-server@PROJECT.iam.gserviceaccount.com` | VM do Typesense |
-| `portal-runner@PROJECT.iam.gserviceaccount.com` | Cloud Run |
+| `portal-runner@PROJECT.iam.gserviceaccount.com` | Cloud Run Portal |
+| `destaquesgovbr-umami@PROJECT.iam.gserviceaccount.com` | Cloud Run Umami |
+| `destaquesgovbr-growthbook@PROJECT.iam.gserviceaccount.com` | Cloud Run GrowthBook |
 
 ### Criar Service Account
 
@@ -264,6 +271,10 @@ gh secret set WIF_SERVICE_ACCOUNT --body "github-actions@project.iam.gserviceacc
 | `TYPESENSE_HOST` | IP interno do Typesense |
 | `TYPESENSE_PORT` | Porta (8108) |
 | `TYPESENSE_API_KEY` | API Key do Typesense |
+| `NEXT_PUBLIC_UMAMI_WEBSITE_ID` | Website ID do Umami |
+| `NEXT_PUBLIC_UMAMI_SCRIPT_URL` | URL do script.js do Umami |
+| `NEXT_PUBLIC_GROWTHBOOK_API_HOST` | URL da API GrowthBook |
+| `NEXT_PUBLIC_GROWTHBOOK_CLIENT_KEY` | Client Key do SDK GrowthBook |
 
 #### `scraper`
 

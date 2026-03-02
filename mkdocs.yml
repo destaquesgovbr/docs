@@ -65,6 +65,8 @@ nav:
     - Árvore Temática: modulos/arvore-tematica.md
     - Órgãos: modulos/agencies.md
     - Typesense: modulos/typesense-local.md
+    - Umami Analytics: modulos/umami.md
+    - GrowthBook: modulos/growthbook.md
     - Streamlit: modulos/spaces-streamlit.md
   - Workflows:
     - Pipeline Scraper: workflows/scraper-pipeline.md
