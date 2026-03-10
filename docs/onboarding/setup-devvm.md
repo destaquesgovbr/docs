@@ -139,8 +139,8 @@ cd ~/projects
 ### Clonar repositórios
 
 ```bash
-# Clone o scraper
-git clone https://github.com/destaquesgovbr/scraper.git
+# Clone o data-platform
+git clone https://github.com/destaquesgovbr/data-platform.git
 
 # Clone o portal
 git clone https://github.com/destaquesgovbr/portal.git

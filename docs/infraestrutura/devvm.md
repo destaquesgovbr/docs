@@ -196,7 +196,7 @@ mkdir -p /mnt/data/projects
 cd /mnt/data/projects
 
 # Clonar repositórios
-git clone https://github.com/destaquesgovbr/scraper.git
+git clone https://github.com/destaquesgovbr/data-platform.git
 ```
 
 !!! warning "Importante"

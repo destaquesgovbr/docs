@@ -8,7 +8,7 @@ O **DestaquesGovbr** é uma plataforma integrada de notícias e informações do
 
 - **Centraliza** ~160+ portais governamentais em uma plataforma única
 - **Classifica** automaticamente notícias usando AI/LLM em 25 temas e 3 níveis hierárquicos
-- **Disponibiliza** dados abertos no HuggingFace (~300k+ notícias)
+- **Armazena** dados em PostgreSQL (fonte de verdade) e distribui via HuggingFace (~300k+ notícias)
 - **Oferece** portal web moderno com busca semântica
 
 ## Quick Start
@@ -22,15 +22,47 @@ O **DestaquesGovbr** é uma plataforma integrada de notícias e informações do
 ### Roteiro Completo de Onboarding
 → Veja [onboarding/roteiro-onboarding.md](onboarding/roteiro-onboarding.md)
 
+---
+
+## Dev VM: Seu Ambiente no GCP
+
+Cada desenvolvedor pode ter uma **VM dedicada no GCP** para desenvolvimento de código:
+
+```mermaid
+flowchart LR
+    Dev[Seu Computador] -->|SSH via IAP| VM[Dev VM]
+    VSCode[VSCode Remote] -->|SSH| VM
+    VM -->|Git| GH[GitHub]
+```
+
+**Benefícios:**
+
+- 💻 **Ambiente padronizado** - mesma configuração para toda equipe
+- 💾 **Disco persistente** de 50GB em `/mnt/data` para seus projetos
+- 🛡️ **Seguro** - sem IP público, acesso apenas via IAP
+- 💰 **Econômico** - auto-shutdown às 19h
+
+**Para criar sua Dev VM:**
+
+1. Clone o repo [infra](https://github.com/destaquesgovbr/infra)
+2. Adicione sua configuração em `terraform/terraform.tfvars`
+3. Abra um PR e aguarde o merge
+
+→ Guia completo: [infraestrutura/devvm.md](infraestrutura/devvm.md)
+
 ## Arquitetura
 
 ```mermaid
 flowchart LR
     A[160+ Sites gov.br] -->|Raspagem| B[Scraper]
-    B -->|Enriquecimento| C[Cogfy/LLM]
-    C -->|Armazenamento| D[(HuggingFace)]
-    D -->|Indexação| E[(Typesense)]
-    E -->|Busca| F[Portal Next.js]
+    B -->|Armazenamento| C[(PostgreSQL)]
+    C -->|Enriquecimento| D[Cogfy/LLM]
+    D --> C
+    C -->|Embeddings| E[Embeddings API]
+    E --> C
+    C -->|Indexação| F[(Typesense)]
+    F -->|Busca| G[Portal Next.js]
+    C -->|Sync diário| H[(HuggingFace)]
 ```
 
 → Veja detalhes em [arquitetura/visao-geral.md](arquitetura/visao-geral.md)
@@ -39,11 +71,11 @@ flowchart LR
 
 | Repositório | Descrição | Tecnologia |
 |-------------|-----------|------------|
-| [scraper](https://github.com/destaquesgovbr/scraper) | Scraper + Pipeline de dados | Python/Poetry |
+| [data-platform](https://github.com/destaquesgovbr/data-platform) | Pipeline de dados (scraper, sync, enrichment) | Python/Poetry |
 | [portal](https://github.com/destaquesgovbr/portal) | Portal web principal | Next.js 15 |
 | [infra](https://github.com/destaquesgovbr/infra) | Infraestrutura como código | Terraform/GCP |
-| [typesense](https://github.com/destaquesgovbr/typesense) | Typesense para dev local | Docker |
 | [agencies](https://github.com/destaquesgovbr/agencies) | Dados dos órgãos | YAML |
+| [themes](https://github.com/destaquesgovbr/themes) | Taxonomia temática | YAML |
 
 ## Estrutura da Documentação
 

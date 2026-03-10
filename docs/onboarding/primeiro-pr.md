@@ -16,7 +16,7 @@ Certifique-se de que você:
 
 ### Onde procurar
 
-- [Issues do Scraper](https://github.com/destaquesgovbr/scraper/issues)
+- [Issues do Data Platform](https://github.com/destaquesgovbr/data-platform/issues)
 - [Issues do Portal](https://github.com/destaquesgovbr/portal/issues)
 
 ### Labels para iniciantes
