@@ -140,21 +140,28 @@ class MarkdownProcessor:
         self.renderer = renderer
 
     def remove_emojis(self, text: str) -> str:
-        """Remove emojis e ícones do texto, mas preserva box-drawing characters"""
+        """Remove emojis e ícones do texto, mas preserva box-drawing characters e status icons"""
         # Padrão que captura a maioria dos emojis Unicode
-        # NOTA: Quebrado em ranges para EXCLUIR U+2500-U+257F (box-drawing)
+        # NOTA: Quebrado em ranges para EXCLUIR:
+        #   - U+2500-U+257F (box-drawing characters)
+        #   - U+2705 (✅ WHITE HEAVY CHECK MARK - usado em tabelas de status)
+        #   - U+274C (❌ CROSS MARK - usado em tabelas de status)
         emoji_pattern = re.compile(
             "["
             "\U0001F600-\U0001F64F"  # emoticons
             "\U0001F300-\U0001F5FF"  # symbols & pictographs
             "\U0001F680-\U0001F6FF"  # transport & map symbols
             "\U0001F1E0-\U0001F1FF"  # flags (iOS)
-            "\U00002702-\U000027B0"  # dingbats
+            "\U00002702-\U000027B0"  # dingbats (range original)
             "\U000024C2-\U000024FF"  # enclosed characters (antes de box-drawing)
             # PULAR U+2500-U+257F (box-drawing characters - preservar!)
             "\U00002580-\U000025FF"  # block elements
             "\u2600-\u26FF"          # miscellaneous symbols
-            "\u2700-\u27BF"          # dingbats
+            "\u2700-\u2704"          # dingbats (antes do ✅)
+            # PULAR U+2705 (✅ - preservar!)
+            "\u2706-\u274B"          # dingbats (entre ✅ e ❌)
+            # PULAR U+274C (❌ - preservar!)
+            "\u274D-\u27BF"          # dingbats (depois do ❌)
             "\U0001F251-\U0001F251"  # enclosed characters (final)
             "\U0001F900-\U0001F9FF"  # supplemental symbols
             "\U0001FA00-\U0001FA6F"  # extended symbols
@@ -185,10 +192,7 @@ class MarkdownProcessor:
         return '\n'.join(fixed_lines)
 
     def process(self, md_content: str, img_relative_path: str) -> str:
-        """Substitui blocos Mermaid por imagens e remove emojis"""
-        # Remove emojis primeiro
-        md_content = self.remove_emojis(md_content)
-
+        """Substitui blocos Mermaid por imagens"""
         # Corrige listas após ':'
         md_content = self.fix_lists_after_colon(md_content)
 
@@ -264,8 +268,31 @@ class DOCXConverter:
         tcPr.append(tcBorders)
 
     def customize_tables(self, doc):
-        """Customiza tabelas: cabeçalho com borda preta, linhas com borda cinza"""
+        """Customiza tabelas: cabeçalho com borda preta, linhas com borda cinza, largura 100%"""
         for table in doc.tables:
+            # Configurar tabela para ocupar 100% da largura disponível
+            table.autofit = False
+            table.allow_autofit = False
+
+            # Configurar largura da tabela para 100%
+            tbl = table._element
+            tblPr = tbl.tblPr
+            if tblPr is None:
+                tblPr = OxmlElement('w:tblPr')
+                tbl.insert(0, tblPr)
+
+            # Remover configuração de largura fixa se existir
+            tblW = tblPr.find(qn('w:tblW'))
+            if tblW is not None:
+                tblPr.remove(tblW)
+
+            # Definir largura como 100% (5000 = 100% em unidades do Word)
+            tblW = OxmlElement('w:tblW')
+            tblW.set(qn('w:w'), '5000')
+            tblW.set(qn('w:type'), 'pct')  # Percentual
+            tblPr.append(tblW)
+
+            # Customizar bordas das células
             for row_idx, row in enumerate(table.rows):
                 # Primeira linha = cabeçalho (borda preta grossa)
                 is_header = (row_idx == 0)
@@ -348,6 +375,19 @@ class DOCXConverter:
                         except:
                             # Se não existir, criar estilo básico de lista
                             pass
+
+    def set_margins(self, doc, left=0.5, right=0.5, top=0.5, bottom=0.5):
+        """
+        Define margens do documento
+        Valores em polegadas (inches)
+        """
+        sections = doc.sections
+        for section in sections:
+            section.left_margin = Inches(left)
+            section.right_margin = Inches(right)
+            section.top_margin = Inches(top)
+            section.bottom_margin = Inches(bottom)
+        print(f"  [OK] Margens configuradas: {left}in (esq/dir), {top}in (sup/inf)")
 
     def remove_all_bookmarks(self, doc):
         """Remove todos os bookmarks do documento (criados pelo Pandoc)"""
@@ -464,6 +504,9 @@ class DOCXConverter:
         """Customiza estilos do DOCX após conversão"""
         doc = Document(str(docx_path))
 
+        # Configurar margens (0.5 polegadas em todos os lados)
+        self.set_margins(doc, left=0.5, right=0.5, top=0.5, bottom=0.5)
+
         # Customizar estilos de fonte
         styles = doc.styles
 
@@ -495,7 +538,7 @@ class DOCXConverter:
             if style_name in styles:
                 style = styles[style_name]
                 style.font.name = 'Courier New'
-                style.font.size = Pt(10)
+                style.font.size = Pt(11)
 
         # Estilos de blocos de código - Courier New (fonte monoespaçada)
         # NOTA: NÃO incluir 'Compact' aqui (Pandoc usa para listas, não código)
@@ -505,7 +548,7 @@ class DOCXConverter:
             if style_name in styles:
                 style = styles[style_name]
                 style.font.name = 'Courier New'
-                style.font.size = Pt(10)
+                style.font.size = Pt(11)
 
         # Estilos de lista - Arial (Pandoc usa 'Compact' para listas)
         list_styles = ['Compact', 'List Paragraph', 'List', 'List Bullet', 'List Number']
