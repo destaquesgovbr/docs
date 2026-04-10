@@ -2755,179 +2755,180 @@ O projeto serve como **case study** de migração bem-sucedida de arquitetura mo
 
 Lista completa dos **231 órgãos/veículos governamentais** com suas respectivas URLs de notícias utilizadas no processo de scraping:
 
-### **A.1.1 - Portais Gov.br (228 órgãos)**
+### **A.1.1 - Portais Gov.br (228 órgãos: 215 ativos, 13 inativos)**
 
-| Código | Órgão | URL de Notícias |
-|--------|-------|-----------------|
-| abc | Agência Brasileira de Cooperação | https://www.gov.br/abc/pt-br/assuntos/noticias |
-| abcd | Agência Brasileira de Cooperação e Desenvolvimento | https://www.gov.br/abcd/pt-br/noticias |
-| abin | Agência Brasileira de Inteligência | https://www.gov.br/abin/pt-br/centrais-de-conteudo/noticias |
-| acessoainformacao | Acesso à Informação | https://www.gov.br/acessoainformacao/pt-br/noticias |
-| aeb | Agência Espacial Brasileira | https://www.gov.br/aeb/pt-br/assuntos/noticias |
-| agricultura | Ministério da Agricultura | https://www.gov.br/agricultura/pt-br/assuntos/noticias |
-| agu | Advocacia-Geral da União | https://www.gov.br/agu/pt-br/comunicacao/noticias |
-| aids | Programa Nacional de DST/AIDS | https://www.gov.br/aids/pt-br/assuntos/noticias |
-| ana | Agência Nacional de Águas | https://www.gov.br/ana/pt-br/assuntos/noticias-e-eventos/noticias |
-| anac | Agência Nacional de Aviação Civil | https://www.gov.br/anac/pt-br/noticias/ultimas-noticias-1 |
-| anatel | Agência Nacional de Telecomunicações | https://www.gov.br/anatel/pt-br/assuntos/noticias |
-| ancine | Agência Nacional do Cinema | https://www.gov.br/ancine/pt-br/assuntos/noticias |
-| aneel | Agência Nacional de Energia Elétrica | https://www.gov.br/aneel/pt-br/assuntos/noticias |
-| anm | Agência Nacional de Mineração | https://www.gov.br/anm/pt-br/assuntos/noticias/ultimas-noticias |
-| anp | Agência Nacional do Petróleo | https://www.gov.br/anp/pt-br/canais_atendimento/imprensa/noticias-comunicados |
-| anpd | Autoridade Nacional de Proteção de Dados | https://www.gov.br/anpd/pt-br/assuntos/noticias |
-| ans | Agência Nacional de Saúde Suplementar | https://www.gov.br/ans/pt-br/assuntos/noticias |
-| antaq | Agência Nacional de Transportes Aquaviários | https://www.gov.br/antaq/pt-br/noticias |
-| antt | Agência Nacional de Transportes Terrestres | https://www.gov.br/antt/pt-br/assuntos/ultimas-noticias |
-| anvisa | Agência Nacional de Vigilância Sanitária | https://www.gov.br/anvisa/pt-br/assuntos/noticias-anvisa |
-| arquivonacional | Arquivo Nacional | https://www.gov.br/arquivonacional/pt-br/canais_atendimento/imprensa/copy_of_noticias |
-| bn | Biblioteca Nacional | https://www.gov.br/bn/pt-br/central-de-conteudos/noticias |
-| cade | Conselho Administrativo de Defesa Econômica | https://www.gov.br/cade/pt-br/assuntos/noticias |
-| capes | Coordenação de Aperfeiçoamento de Pessoal | https://www.gov.br/capes/pt-br/assuntos/noticias |
-| casacivil | Casa Civil | https://www.gov.br/casacivil/pt-br/assuntos/noticias |
-| casaruibarbosa | Fundação Casa de Rui Barbosa | https://www.gov.br/casaruibarbosa/pt-br/centrais-de-conteudo/noticias/2025 |
-| caslode | Comando de Logística e Mobilização | https://www.gov.br/caslode/pt-br/noticias |
-| cbpf | Centro Brasileiro de Pesquisas Físicas | https://www.gov.br/cbpf/pt-br/assuntos/noticias |
-| cbtu | Companhia Brasileira de Trens Urbanos | https://www.gov.br/cbtu/pt-br/assuntos/noticias |
-| cdtn | Centro de Desenvolvimento da Tecnologia Nuclear | https://www.gov.br/cdtn/pt-br/centrais-de-conteudo/noticias |
-| cemaden | Centro Nacional de Monitoramento de Desastres | https://www.gov.br/cemaden/pt-br/assuntos/noticias-cemaden/ultimas-noticias |
-| censipam | Centro Gestor do Sistema de Proteção da Amazônia | https://www.gov.br/censipam/pt-br/central-de-conteudos/noticias |
-| cetem | Centro de Tecnologia Mineral | https://www.gov.br/cetem/pt-br/noticias |
-| cetene | Centro de Tecnologias Estratégicas do Nordeste | https://www.gov.br/cetene/pt-br/assuntos/noticias |
-| cgu | Controladoria-Geral da União | https://www.gov.br/cgu/pt-br/assuntos/noticias/ultimas-noticias |
-| cidades | Ministério das Cidades | https://www.gov.br/cidades/pt-br/assuntos/noticias-1 |
-| cisc | Conselho Interministerial de Segurança Cibernética | https://www.gov.br/pt-br/noticias |
-| cnen | Comissão Nacional de Energia Nuclear | https://www.gov.br/cnen/pt-br/assunto/ultimas-noticias |
-| cnpq | Conselho Nacional de Desenvolvimento Científico | https://www.gov.br/cnpq/pt-br/assuntos/noticias |
-| coaf | Conselho de Controle de Atividades Financeiras | https://www.gov.br/coaf/pt-br/assuntos/noticias/ultimas-noticias |
-| compras | Portal de Compras Governamentais | https://www.gov.br/compras/pt-br/acesso-a-informacao/noticias |
-| conarq | Conselho Nacional de Arquivos | https://www.gov.br/conarq/pt-br/assuntos/noticias |
-| conitec | Comissão Nacional de Incorporação de Tecnologias | https://www.gov.br/conitec/pt-br/assuntos/noticias |
-| conselho-nacional-de-saude | Conselho Nacional de Saúde | https://www.gov.br/conselho-nacional-de-saude/pt-br/assuntos/noticias |
-| corregedorias | Corregedorias | https://www.gov.br/corregedorias/pt-br/aconteceu-aqui/noticias |
-| crcnne | Centro Regional de Ciências Nucleares do Nordeste | https://www.gov.br/crcnne/pt-br/assuntos/noticias |
-| ctav | Centro de Tecnologia Agropecuária e Alimentar | https://www.gov.br/ctav/pt-br/noticias |
-| cti | Centro de Tecnologia da Informação Renato Archer | https://www.gov.br/cti/pt-br/assuntos/noticias |
-| ctir | Centro de Tecnologias para Energias Renováveis | https://www.gov.br/ctir/pt-br/assuntos/noticias/2025 |
-| cultura | Ministério da Cultura | https://www.gov.br/cultura/pt-br/assuntos/noticias |
-| culturaviva | Cultura Viva | https://www.gov.br/culturaviva/pt-br/acesso-a-informacao/noticias |
-| cvm | Comissão de Valores Mobiliários | https://www.gov.br/cvm/pt-br/assuntos/noticias |
-| defesa | Ministério da Defesa | https://www.gov.br/defesa/pt-br/centrais-de-conteudo/noticias |
-| dnit | Departamento Nacional de Infraestrutura de Transportes | https://www.gov.br/dnit/pt-br/assuntos/noticias/ |
-| dnocs | Departamento Nacional de Obras Contra as Secas | https://www.gov.br/dnocs/pt-br/assuntos/noticias |
-| ebserh | Empresa Brasileira de Serviços Hospitalares | https://www.gov.br/ebserh/pt-br/comunicacao/noticias |
-| empresas-e-negocios | Empresas e Negócios | https://www.gov.br/empresas-e-negocios/pt-br/empreendedor/mais-noticias |
-| esd | Escola de Sargentos das Armas | https://www.gov.br/esd/pt-br/central-de-conteudo/noticias |
-| esg | Escola Superior de Guerra | https://www.gov.br/esg/pt-br/centrais-de-conteudo/noticias |
-| esocial | eSocial | https://www.gov.br/esocial/pt-br/noticias |
-| esporte | Ministério do Esporte | https://www.gov.br/esporte/pt-br/noticias-e-conteudos/esporte |
-| fazenda | Ministério da Fazenda | https://www.gov.br/fazenda/pt-br/assuntos/noticias |
-| florestal | Serviço Florestal Brasileiro | https://www.gov.br/florestal/pt-br/assuntos/noticias |
-| fnde | Fundo Nacional de Desenvolvimento da Educação | https://www.gov.br/fnde/pt-br/assuntos/noticias |
-| funag | Fundação Alexandre de Gusmão | https://www.gov.br/funag/pt-br/centrais-de-conteudo/noticias |
-| funai | Fundação Nacional dos Povos Indígenas | https://www.gov.br/funai/pt-br/assuntos/noticias/2025 |
-| funarte | Fundação Nacional de Artes | https://www.gov.br/funarte/pt-br/assuntos/noticias/todas-noticias |
-| fundacentro | Fundação Jorge Duprat Figueiredo | https://www.gov.br/fundacentro/pt-br/comunicacao/noticias/noticias/ultimas-noticias |
-| fundaj | Fundação Joaquim Nabuco | https://www.gov.br/fundaj/pt-br/centrais-de-conteudo/noticias-1 |
-| gestao | Ministério da Gestão e da Inovação | https://www.gov.br/gestao/pt-br/assuntos/noticias/noticias |
-| governodigital | Governo Digital | https://www.gov.br/governodigital/pt-br/noticias |
-| gsi | Gabinete de Segurança Institucional | https://www.gov.br/gsi/pt-br/centrais-de-conteudo/noticias/2025 |
-| hfa | Hospital das Forças Armadas | https://www.gov.br/hfa/pt-br/noticias |
-| ibama | Instituto Brasileiro do Meio Ambiente | https://www.gov.br/ibama/pt-br/assuntos/noticias/2025 |
-| ibc | Instituto Benjamin Constant | https://www.gov.br/ibc/pt-br/assuntos/noticias |
-| ibde | Instituto Brasileiro de Direito Empresarial | https://www.gov.br/ibde/pt-br/assuntos/noticias |
-| ibict | Instituto Brasileiro de Informação em C&T | https://www.gov.br/ibict/pt-br/colecoes/colecao-de-todas-as-noticias-do-site |
-| icmbio | Instituto Chico Mendes de Conservação da Biodiversidade | https://www.gov.br/icmbio/pt-br/assuntos/noticias/ultimas-noticias |
-| iec | Instituto Evandro Chagas | https://www.gov.br/iec/pt-br/assuntos/noticias |
-| ien | Instituto de Engenharia Nuclear | https://www.gov.br/ien/pt-br/assuntos/noticias |
-| igualdaderacial | Ministério da Igualdade Racial | https://www.gov.br/igualdaderacial/pt-br/assuntos/copy2_of_noticias |
-| imprensanacional | Imprensa Nacional | https://www.gov.br/imprensanacional/pt-br/assuntos/noticias |
-| inca | Instituto Nacional de Câncer | https://www.gov.br/inca/pt-br/assuntos/noticias |
-| incra | Instituto Nacional de Colonização e Reforma Agrária | https://www.gov.br/incra/pt-br/assuntos/noticias |
-| inep | Instituto Nacional de Estudos e Pesquisas | https://www.gov.br/inep/pt-br/assuntos/noticias |
-| ines | Instituto Nacional de Educação de Surdos | https://www.gov.br/ines/pt-br/central-de-conteudos/noticias |
-| inma | Instituto Nacional da Mata Atlântica | https://www.gov.br/inma/pt-br/assuntos/noticias |
-| inmetro | Instituto Nacional de Metrologia | https://www.gov.br/inmetro/pt-br/centrais-de-conteudo/noticias |
-| inpa | Instituto Nacional de Pesquisas da Amazônia | https://www.gov.br/inpa/pt-br/assuntos/noticias |
-| inpe | Instituto Nacional de Pesquisas Espaciais | https://www.gov.br/inpe/pt-br/assuntos/ultimas-noticias |
-| inpi | Instituto Nacional da Propriedade Industrial | https://www.gov.br/inpi/pt-br/central-de-conteudo/noticias |
-| inpp | Instituto Nacional de Pesquisas da Pan-Amazônia | https://www.gov.br/inpp/pt-br/noticias |
-| insa | Instituto Nacional do Semiárido | https://www.gov.br/insa/pt-br/assuntos/noticias |
-| inss | Instituto Nacional do Seguro Social | https://www.gov.br/inss/pt-br/noticias/ultimas-noticias |
-| int | Instituto Nacional de Tecnologia | https://www.gov.br/int/pt-br/assuntos/noticias |
-| investidor | Portal do Investidor | https://www.gov.br/pt-br/noticias |
-| iphan | Instituto do Patrimônio Histórico e Artístico | https://www.gov.br/iphan/pt-br/assuntos/noticias |
-| ird | Instituto Rio Doce | https://www.gov.br/ird/pt-br/assuntos/noticias |
-| iti | Instituto Nacional de Tecnologia da Informação | https://www.gov.br/iti/pt-br/assuntos/noticias/indice-de-noticias/ |
-| jbrj | Jardim Botânico do Rio de Janeiro | https://www.gov.br/jbrj/pt-br/assuntos/noticias |
-| lapoc | Laboratório de Pesquisa em Oncologia Clínica | https://www.gov.br/lapoc/pt-br/assuntos/noticias |
-| lna | Laboratório Nacional de Astrofísica | https://www.gov.br/lna/pt-br/assuntos/noticias |
-| lncc | Laboratório Nacional de Computação Científica | https://www.gov.br/lncc/pt-br/assuntos/noticias/ultimas-noticias-1 |
-| mast | Museu de Astronomia e Ciências Afins | https://www.gov.br/mast/pt-br/assuntos/noticias |
-| mcom | Ministério das Comunicações | https://www.gov.br/mcom/pt-br/noticias |
-| mcti | Ministério da Ciência, Tecnologia e Inovação | https://www.gov.br/mcti/pt-br/acompanhe-o-mcti/noticias/ultimas-noticias |
-| mda | Ministério do Desenvolvimento Agrário | https://www.gov.br/mda/pt-br/noticias |
-| mdh | Ministério dos Direitos Humanos | https://www.gov.br/mdh/pt-br/assuntos/noticias |
-| mdic | Ministério do Desenvolvimento, Indústria e Comércio | https://www.gov.br/mdic/pt-br/assuntos/noticias |
-| mdr | Ministério do Desenvolvimento Regional | https://www.gov.br/mdr/pt-br/noticias |
-| mds | Ministério do Desenvolvimento Social | https://www.gov.br/mds/pt-br/noticias-e-conteudos/desenvolvimento-social/noticias-desenvolvimento-social |
-| mec | Ministério da Educação | https://www.gov.br/mec/pt-br/assuntos/noticias |
-| memoriasreveladas | Memórias Reveladas | https://www.gov.br/memoriasreveladas/pt-br/centrais-de-conteudo/destaques |
-| memp | Ministério de Empreendedorismo | https://www.gov.br/memp/pt-br/assuntos/noticias |
-| mj | Ministério da Justiça | https://www.gov.br/mj/pt-br/assuntos/noticias |
-| mma | Ministério do Meio Ambiente | https://www.gov.br/mma/pt-br/assuntos/noticias/ultimas-noticias |
-| mme | Ministério de Minas e Energia | https://www.gov.br/mme/pt-br/assuntos/noticias |
-| mpa | Ministério da Pesca e Aquicultura | https://www.gov.br/mpa/pt-br/assuntos/noticias |
-| mre | Ministério das Relações Exteriores | https://www.gov.br/mre/pt-br/assuntos/portal-consular/alertas%20e%20noticias/noticias |
-| mulheres | Ministério das Mulheres | https://www.gov.br/mulheres/pt-br/central-de-conteudos/noticias |
-| museudoindio | Museu do Índio | https://www.gov.br/museudoindio/pt-br/assuntos/noticias |
-| museugoeldi | Museu Paraense Emílio Goeldi | https://www.gov.br/museugoeldi/pt-br/arquivos/noticias |
-| museus | Instituto Brasileiro de Museus | https://www.gov.br/museus/pt-br/assuntos/noticias |
-| nfse | Nota Fiscal de Serviços Eletrônica | https://www.gov.br/nfse/pt-br/noticias |
-| observatorio | Observatório Nacional | https://www.gov.br/observatorio/pt-br/assuntos/noticias |
-| ouvidorias | Ouvidorias | https://www.gov.br/ouvidorias/pt-br/assuntos/noticias |
-| palmares | Fundação Cultural Palmares | https://www.gov.br/palmares/pt-br/assuntos/noticias |
-| patrimonio | Secretaria do Patrimônio da União | https://www.gov.br/patrimonio/pt-br/central-de-conteudo/noticias |
-| pf | Polícia Federal | https://www.gov.br/pf/pt-br/assuntos/noticias/noticias-destaque |
-| pgfn | Procuradoria-Geral da Fazenda Nacional | https://www.gov.br/pgfn/pt-br/assuntos/noticias |
-| planalto | Presidência da República | https://www.gov.br/planalto/pt-br/acompanhe-o-planalto/noticias |
-| planejamento | Ministério do Planejamento | https://www.gov.br/planejamento/pt-br/assuntos/noticias |
-| pncp | Portal Nacional de Contratações Públicas | https://www.gov.br/pncp/pt-br/central-de-conteudo/noticias |
-| portos-e-aeroportos | Portos e Aeroportos | https://www.gov.br/portos-e-aeroportos/pt-br/assuntos/noticias |
-| povosindigenas | Povos Indígenas | https://www.gov.br/povosindigenas/pt-br/assuntos/noticias |
-| previc | Superintendência Nacional de Previdência Complementar | https://www.gov.br/previc/pt-br/noticias |
-| previdencia | Ministério da Previdência Social | https://www.gov.br/previdencia/pt-br/noticias |
-| prf | Polícia Rodoviária Federal | https://www.gov.br/prf/pt-br/noticias/nacionais |
-| produtividade-e-comercio-exterior | Produtividade e Comércio Exterior | https://www.gov.br/pt-br/noticias |
-| propriedade-intelectual | Propriedade Intelectual | https://www.gov.br/propriedade-intelectual/pt-br/assuntos/noticias |
-| receitafederal | Receita Federal | https://www.gov.br/receitafederal/pt-br/assuntos/noticias |
-| reconstrucaors | Reconstrução Rio Grande do Sul | https://www.gov.br/reconstrucaors/pt-br/acompanhe-a-reconstrucao/noticias |
-| saude | Ministério da Saúde | https://www.gov.br/saude/pt-br/assuntos/noticias |
-| secom | Secretaria de Comunicação Social | https://www.gov.br/secom/pt-br/assuntos/noticias |
-| secretariageral | Secretaria-Geral da Presidência | https://www.gov.br/secretariageral/pt-br/noticias |
-| semanaenef | Semana ENEF | https://www.gov.br/semanaenef/pt-br/noticias |
-| senappen | Secretaria Nacional de Políticas Penais | https://www.gov.br/senappen/pt-br/assuntos/noticias |
-| servicoscompartilhados | Serviços Compartilhados | https://www.gov.br/servicoscompartilhados/pt-br/acesso-a-informacao/noticias |
-| servidor | Portal do Servidor | https://www.gov.br/servidor/pt-br/assuntos/noticias |
-| siscomex | Siscomex | https://www.gov.br/siscomex/pt-br/noticias |
-| sri | Secretaria de Relações Institucionais | https://www.gov.br/sri/pt-br/noticias |
-| sudam | Superintendência do Desenvolvimento da Amazônia | https://www.gov.br/sudam/pt-br/noticias-1 |
-| sudeco | Superintendência do Desenvolvimento do Centro-Oeste | https://www.gov.br/sudeco/pt-br/assuntos/noticias |
-| sudene | Superintendência do Desenvolvimento do Nordeste | https://www.gov.br/sudene/pt-br/assuntos/noticias |
-| suframa | Superintendência da Zona Franca de Manaus | https://www.gov.br/suframa/pt-br/assuntos/noticias |
-| susep | Superintendência de Seguros Privados | https://www.gov.br/susep/pt-br/central-de-conteudos/noticias |
-| tesouronacional | Tesouro Nacional | https://www.gov.br/tesouronacional/pt-br/noticias |
-| trabalho-e-emprego | Ministério do Trabalho e Emprego | https://www.gov.br/trabalho-e-emprego/pt-br/noticias-e-conteudo |
-| transferegov | TransfereGov | https://www.gov.br/transferegov/pt-br/noticias/noticias/2025 |
-| transportes | Ministério dos Transportes | https://www.gov.br/transportes/pt-br/assuntos/noticias |
-| turismo | Ministério do Turismo | https://www.gov.br/turismo/pt-br/assuntos/noticias |
+| Código | Órgão | URL de Notícias | Status |
+|--------|-------|-----------------|--------|
+| abc | Agência Brasileira de Cooperação | https://www.gov.br/abc/pt-br/assuntos/noticias | Ativo |
+| abcd | Agência Brasileira de Cooperação e Desenvolvimento | https://www.gov.br/abcd/pt-br/noticias | Ativo |
+| abin | Agência Brasileira de Inteligência | https://www.gov.br/abin/pt-br/centrais-de-conteudo/noticias | Ativo |
+| acessoainformacao | Acesso à Informação | https://www.gov.br/acessoainformacao/pt-br/noticias | Ativo |
+| aeb | Agência Espacial Brasileira | https://www.gov.br/aeb/pt-br/assuntos/noticias | Ativo |
+| agricultura | Ministério da Agricultura | https://www.gov.br/agricultura/pt-br/assuntos/noticias | Ativo |
+| agu | Advocacia-Geral da União | https://www.gov.br/agu/pt-br/comunicacao/noticias | Ativo |
+| aids | Programa Nacional de DST/AIDS | https://www.gov.br/aids/pt-br/assuntos/noticias | Ativo |
+| ana | Agência Nacional de Águas | https://www.gov.br/ana/pt-br/assuntos/noticias-e-eventos/noticias | Ativo |
+| anac | Agência Nacional de Aviação Civil | https://www.gov.br/anac/pt-br/noticias/ultimas-noticias-1 | Ativo |
+| anatel | Agência Nacional de Telecomunicações | https://www.gov.br/anatel/pt-br/assuntos/noticias | Ativo |
+| ancine | Agência Nacional do Cinema | https://www.gov.br/ancine/pt-br/assuntos/noticias | Ativo |
+| aneel | Agência Nacional de Energia Elétrica | https://www.gov.br/aneel/pt-br/assuntos/noticias | Ativo |
+| anm | Agência Nacional de Mineração | https://www.gov.br/anm/pt-br/assuntos/noticias/ultimas-noticias | Ativo |
+| anp | Agência Nacional do Petróleo | https://www.gov.br/anp/pt-br/canais_atendimento/imprensa/noticias-comunicados | Ativo |
+| anpd | Autoridade Nacional de Proteção de Dados | https://www.gov.br/anpd/pt-br/assuntos/noticias | Ativo |
+| ans | Agência Nacional de Saúde Suplementar | https://www.gov.br/ans/pt-br/assuntos/noticias | Ativo |
+| antaq | Agência Nacional de Transportes Aquaviários | https://www.gov.br/antaq/pt-br/noticias | Ativo |
+| antt | Agência Nacional de Transportes Terrestres | https://www.gov.br/antt/pt-br/assuntos/ultimas-noticias | Ativo |
+| anvisa | Agência Nacional de Vigilância Sanitária | https://www.gov.br/anvisa/pt-br/assuntos/noticias-anvisa | Ativo |
+| arquivonacional | Arquivo Nacional | https://www.gov.br/arquivonacional/pt-br/canais_atendimento/imprensa/copy_of_noticias | Ativo |
+| bn | Biblioteca Nacional | https://www.gov.br/bn/pt-br/central-de-conteudos/noticias | Ativo |
+| cade | Conselho Administrativo de Defesa Econômica | https://www.gov.br/cade/pt-br/assuntos/noticias | Ativo |
+| capes | Coordenação de Aperfeiçoamento de Pessoal | https://www.gov.br/capes/pt-br/assuntos/noticias | Ativo |
+| casacivil | Casa Civil | https://www.gov.br/casacivil/pt-br/assuntos/noticias | Ativo |
+| casaruibarbosa | Fundação Casa de Rui Barbosa | https://www.gov.br/casaruibarbosa/pt-br/centrais-de-conteudo/noticias/2025 | Ativo |
+| caslode | Comando de Logística e Mobilização | https://www.gov.br/caslode/pt-br/noticias | Ativo |
+| cbpf | Centro Brasileiro de Pesquisas Físicas | https://www.gov.br/cbpf/pt-br/assuntos/noticias | Ativo |
+| cbtu | Companhia Brasileira de Trens Urbanos | https://www.gov.br/cbtu/pt-br/assuntos/noticias | Ativo |
+| cdtn | Centro de Desenvolvimento da Tecnologia Nuclear | https://www.gov.br/cdtn/pt-br/centrais-de-conteudo/noticias | Ativo |
+| cemaden | Centro Nacional de Monitoramento de Desastres | https://www.gov.br/cemaden/pt-br/assuntos/noticias-cemaden/ultimas-noticias | Ativo |
+| censipam | Centro Gestor do Sistema de Proteção da Amazônia | https://www.gov.br/censipam/pt-br/central-de-conteudos/noticias | Ativo |
+| cetem | Centro de Tecnologia Mineral | https://www.gov.br/cetem/pt-br/noticias | Ativo |
+| cetene | Centro de Tecnologias Estratégicas do Nordeste | https://www.gov.br/cetene/pt-br/assuntos/noticias | Ativo |
+| cgu | Controladoria-Geral da União | https://www.gov.br/cgu/pt-br/assuntos/noticias/ultimas-noticias | Ativo |
+| cidades | Ministério das Cidades | https://www.gov.br/cidades/pt-br/assuntos/noticias-1 | Ativo |
+| cisc | Conselho Interministerial de Segurança Cibernética | https://www.gov.br/pt-br/noticias | Inativo |
+| cnen | Comissão Nacional de Energia Nuclear | https://www.gov.br/cnen/pt-br/assunto/ultimas-noticias | Ativo |
+| cnpq | Conselho Nacional de Desenvolvimento Científico | https://www.gov.br/cnpq/pt-br/assuntos/noticias | Ativo |
+| coaf | Conselho de Controle de Atividades Financeiras | https://www.gov.br/coaf/pt-br/assuntos/noticias/ultimas-noticias | Ativo |
+| compras | Portal de Compras Governamentais | https://www.gov.br/compras/pt-br/acesso-a-informacao/noticias | Ativo |
+| conarq | Conselho Nacional de Arquivos | https://www.gov.br/conarq/pt-br/assuntos/noticias | Ativo |
+| conitec | Comissão Nacional de Incorporação de Tecnologias | https://www.gov.br/conitec/pt-br/assuntos/noticias | Ativo |
+| conselho-nacional-de-saude | Conselho Nacional de Saúde | https://www.gov.br/conselho-nacional-de-saude/pt-br/assuntos/noticias | Ativo |
+| corregedorias | Corregedorias | https://www.gov.br/corregedorias/pt-br/aconteceu-aqui/noticias | Ativo |
+| crcnne | Centro Regional de Ciências Nucleares do Nordeste | https://www.gov.br/crcnne/pt-br/assuntos/noticias | Ativo |
+| ctav | Centro de Tecnologia Agropecuária e Alimentar | https://www.gov.br/ctav/pt-br/noticias | Inativo |
+| cti | Centro de Tecnologia da Informação Renato Archer | https://www.gov.br/cti/pt-br/assuntos/noticias | Ativo |
+| ctir | Centro de Tecnologias para Energias Renováveis | https://www.gov.br/ctir/pt-br/assuntos/noticias/2025 | Ativo |
+| cultura | Ministério da Cultura | https://www.gov.br/cultura/pt-br/assuntos/noticias | Ativo |
+| culturaviva | Cultura Viva | https://www.gov.br/culturaviva/pt-br/acesso-a-informacao/noticias | Ativo |
+| cvm | Comissão de Valores Mobiliários | https://www.gov.br/cvm/pt-br/assuntos/noticias | Ativo |
+| defesa | Ministério da Defesa | https://www.gov.br/defesa/pt-br/centrais-de-conteudo/noticias | Ativo |
+| dnit | Departamento Nacional de Infraestrutura de Transportes | https://www.gov.br/dnit/pt-br/assuntos/noticias/ | Ativo |
+| dnocs | Departamento Nacional de Obras Contra as Secas | https://www.gov.br/dnocs/pt-br/assuntos/noticias | Ativo |
+| ebserh | Empresa Brasileira de Serviços Hospitalares | https://www.gov.br/ebserh/pt-br/comunicacao/noticias | Ativo |
+| empresas-e-negocios | Empresas e Negócios | https://www.gov.br/empresas-e-negocios/pt-br/empreendedor/mais-noticias | Ativo |
+| esd | Escola de Sargentos das Armas | https://www.gov.br/esd/pt-br/central-de-conteudo/noticias | Ativo |
+| esg | Escola Superior de Guerra | https://www.gov.br/esg/pt-br/centrais-de-conteudo/noticias | Inativo |
+| esocial | eSocial | https://www.gov.br/esocial/pt-br/noticias | Ativo |
+| esporte | Ministério do Esporte | https://www.gov.br/esporte/pt-br/noticias-e-conteudos/esporte | Inativo |
+| fazenda | Ministério da Fazenda | https://www.gov.br/fazenda/pt-br/assuntos/noticias | Ativo |
+| florestal | Serviço Florestal Brasileiro | https://www.gov.br/florestal/pt-br/assuntos/noticias | Ativo |
+| fnde | Fundo Nacional de Desenvolvimento da Educação | https://www.gov.br/fnde/pt-br/assuntos/noticias | Ativo |
+| funag | Fundação Alexandre de Gusmão | https://www.gov.br/funag/pt-br/centrais-de-conteudo/noticias | Ativo |
+| funai | Fundação Nacional dos Povos Indígenas | https://www.gov.br/funai/pt-br/assuntos/noticias/2025 | Ativo |
+| funarte | Fundação Nacional de Artes | https://www.gov.br/funarte/pt-br/assuntos/noticias/todas-noticias | Ativo |
+| fundacentro | Fundação Jorge Duprat Figueiredo | https://www.gov.br/fundacentro/pt-br/comunicacao/noticias/noticias/ultimas-noticias | Ativo |
+| fundaj | Fundação Joaquim Nabuco | https://www.gov.br/fundaj/pt-br/centrais-de-conteudo/noticias-1 | Ativo |
+| gestao | Ministério da Gestão e da Inovação | https://www.gov.br/gestao/pt-br/assuntos/noticias/noticias | Ativo |
+| governodigital | Governo Digital | https://www.gov.br/governodigital/pt-br/noticias | Ativo |
+| gsi | Gabinete de Segurança Institucional | https://www.gov.br/gsi/pt-br/centrais-de-conteudo/noticias/2025 | Ativo |
+| hfa | Hospital das Forças Armadas | https://www.gov.br/hfa/pt-br/noticias | Inativo |
+| ibama | Instituto Brasileiro do Meio Ambiente | https://www.gov.br/ibama/pt-br/assuntos/noticias/2025 | Ativo |
+| ibc | Instituto Benjamin Constant | https://www.gov.br/ibc/pt-br/assuntos/noticias | Ativo |
+| ibde | Instituto Brasileiro de Direito Empresarial | https://www.gov.br/ibde/pt-br/assuntos/noticias | Inativo |
+| ibict | Instituto Brasileiro de Informação em C&T | https://www.gov.br/ibict/pt-br/colecoes/colecao-de-todas-as-noticias-do-site | Ativo |
+| icmbio | Instituto Chico Mendes de Conservação da Biodiversidade | https://www.gov.br/icmbio/pt-br/assuntos/noticias/ultimas-noticias | Ativo |
+| iec | Instituto Evandro Chagas | https://www.gov.br/iec/pt-br/assuntos/noticias | Ativo |
+| ien | Instituto de Engenharia Nuclear | https://www.gov.br/ien/pt-br/assuntos/noticias | Ativo |
+| igualdaderacial | Ministério da Igualdade Racial | https://www.gov.br/igualdaderacial/pt-br/assuntos/copy2_of_noticias | Ativo |
+| imprensanacional | Imprensa Nacional | https://www.gov.br/imprensanacional/pt-br/assuntos/noticias | Inativo |
+| inca | Instituto Nacional de Câncer | https://www.gov.br/inca/pt-br/assuntos/noticias | Ativo |
+| incra | Instituto Nacional de Colonização e Reforma Agrária | https://www.gov.br/incra/pt-br/assuntos/noticias | Ativo |
+| inep | Instituto Nacional de Estudos e Pesquisas | https://www.gov.br/inep/pt-br/assuntos/noticias | Ativo |
+| ines | Instituto Nacional de Educação de Surdos | https://www.gov.br/ines/pt-br/central-de-conteudos/noticias | Ativo |
+| inma | Instituto Nacional da Mata Atlântica | https://www.gov.br/inma/pt-br/assuntos/noticias | Ativo |
+| inmetro | Instituto Nacional de Metrologia | https://www.gov.br/inmetro/pt-br/centrais-de-conteudo/noticias | Ativo |
+| inpa | Instituto Nacional de Pesquisas da Amazônia | https://www.gov.br/inpa/pt-br/assuntos/noticias | Ativo |
+| inpe | Instituto Nacional de Pesquisas Espaciais | https://www.gov.br/inpe/pt-br/assuntos/ultimas-noticias | Ativo |
+| inpi | Instituto Nacional da Propriedade Industrial | https://www.gov.br/inpi/pt-br/central-de-conteudo/noticias | Ativo |
+| inpp | Instituto Nacional de Pesquisas da Pan-Amazônia | https://www.gov.br/inpp/pt-br/noticias | Ativo |
+| insa | Instituto Nacional do Semiárido | https://www.gov.br/insa/pt-br/assuntos/noticias | Ativo |
+| inss | Instituto Nacional do Seguro Social | https://www.gov.br/inss/pt-br/noticias/ultimas-noticias | Ativo |
+| int | Instituto Nacional de Tecnologia | https://www.gov.br/int/pt-br/assuntos/noticias | Ativo |
+| investidor | Portal do Investidor | https://www.gov.br/pt-br/noticias | Inativo |
+| iphan | Instituto do Patrimônio Histórico e Artístico | https://www.gov.br/iphan/pt-br/assuntos/noticias | Ativo |
+| ird | Instituto Rio Doce | https://www.gov.br/ird/pt-br/assuntos/noticias | Ativo |
+| iti | Instituto Nacional de Tecnologia da Informação | https://www.gov.br/iti/pt-br/assuntos/noticias/indice-de-noticias/ | Ativo |
+| jbrj | Jardim Botânico do Rio de Janeiro | https://www.gov.br/jbrj/pt-br/assuntos/noticias | Ativo |
+| lapoc | Laboratório de Pesquisa em Oncologia Clínica | https://www.gov.br/lapoc/pt-br/assuntos/noticias | Ativo |
+| lna | Laboratório Nacional de Astrofísica | https://www.gov.br/lna/pt-br/assuntos/noticias | Ativo |
+| lncc | Laboratório Nacional de Computação Científica | https://www.gov.br/lncc/pt-br/assuntos/noticias/ultimas-noticias-1 | Ativo |
+| mast | Museu de Astronomia e Ciências Afins | https://www.gov.br/mast/pt-br/assuntos/noticias | Ativo |
+| mcom | Ministério das Comunicações | https://www.gov.br/mcom/pt-br/noticias | Ativo |
+| mcti | Ministério da Ciência, Tecnologia e Inovação | https://www.gov.br/mcti/pt-br/acompanhe-o-mcti/noticias/ultimas-noticias | Ativo |
+| mda | Ministério do Desenvolvimento Agrário | https://www.gov.br/mda/pt-br/noticias | Ativo |
+| mdh | Ministério dos Direitos Humanos | https://www.gov.br/mdh/pt-br/assuntos/noticias | Ativo |
+| mdic | Ministério do Desenvolvimento, Indústria e Comércio | https://www.gov.br/mdic/pt-br/assuntos/noticias | Ativo |
+| mdr | Ministério do Desenvolvimento Regional | https://www.gov.br/mdr/pt-br/noticias | Ativo |
+| mds | Ministério do Desenvolvimento Social | https://www.gov.br/mds/pt-br/noticias-e-conteudos/desenvolvimento-social/noticias-desenvolvimento-social | Ativo |
+| mec | Ministério da Educação | https://www.gov.br/mec/pt-br/assuntos/noticias | Ativo |
+| memoriasreveladas | Memórias Reveladas | https://www.gov.br/memoriasreveladas/pt-br/centrais-de-conteudo/destaques | Ativo |
+| memp | Ministério de Empreendedorismo | https://www.gov.br/memp/pt-br/assuntos/noticias | Inativo |
+| mj | Ministério da Justiça | https://www.gov.br/mj/pt-br/assuntos/noticias | Ativo |
+| mma | Ministério do Meio Ambiente | https://www.gov.br/mma/pt-br/assuntos/noticias/ultimas-noticias | Ativo |
+| mme | Ministério de Minas e Energia | https://www.gov.br/mme/pt-br/assuntos/noticias | Ativo |
+| mpa | Ministério da Pesca e Aquicultura | https://www.gov.br/mpa/pt-br/assuntos/noticias | Ativo |
+| mre | Ministério das Relações Exteriores | https://www.gov.br/mre/pt-br/assuntos/portal-consular/alertas%20e%20noticias/noticias | Ativo |
+| mulheres | Ministério das Mulheres | https://www.gov.br/mulheres/pt-br/central-de-conteudos/noticias | Ativo |
+| museudoindio | Museu do Índio | https://www.gov.br/museudoindio/pt-br/assuntos/noticias | Ativo |
+| museugoeldi | Museu Paraense Emílio Goeldi | https://www.gov.br/museugoeldi/pt-br/arquivos/noticias | Ativo |
+| museus | Instituto Brasileiro de Museus | https://www.gov.br/museus/pt-br/assuntos/noticias | Ativo |
+| nfse | Nota Fiscal de Serviços Eletrônica | https://www.gov.br/nfse/pt-br/noticias | Ativo |
+| observatorio | Observatório Nacional | https://www.gov.br/observatorio/pt-br/assuntos/noticias | Ativo |
+| ouvidorias | Ouvidorias | https://www.gov.br/ouvidorias/pt-br/assuntos/noticias | Ativo |
+| palmares | Fundação Cultural Palmares | https://www.gov.br/palmares/pt-br/assuntos/noticias | Ativo |
+| patrimonio | Secretaria do Patrimônio da União | https://www.gov.br/patrimonio/pt-br/central-de-conteudo/noticias | Ativo |
+| pf | Polícia Federal | https://www.gov.br/pf/pt-br/assuntos/noticias/noticias-destaque | Ativo |
+| pgfn | Procuradoria-Geral da Fazenda Nacional | https://www.gov.br/pgfn/pt-br/assuntos/noticias | Ativo |
+| planalto | Presidência da República | https://www.gov.br/planalto/pt-br/acompanhe-o-planalto/noticias | Ativo |
+| planejamento | Ministério do Planejamento | https://www.gov.br/planejamento/pt-br/assuntos/noticias | Ativo |
+| pncp | Portal Nacional de Contratações Públicas | https://www.gov.br/pncp/pt-br/central-de-conteudo/noticias | Ativo |
+| portos-e-aeroportos | Portos e Aeroportos | https://www.gov.br/portos-e-aeroportos/pt-br/assuntos/noticias | Ativo |
+| povosindigenas | Povos Indígenas | https://www.gov.br/povosindigenas/pt-br/assuntos/noticias | Inativo |
+| previc | Superintendência Nacional de Previdência Complementar | https://www.gov.br/previc/pt-br/noticias | Ativo |
+| previdencia | Ministério da Previdência Social | https://www.gov.br/previdencia/pt-br/noticias | Ativo |
+| prf | Polícia Rodoviária Federal | https://www.gov.br/prf/pt-br/noticias/nacionais | Ativo |
+| produtividade-e-comercio-exterior | Produtividade e Comércio Exterior | https://www.gov.br/pt-br/noticias | Inativo |
+| propriedade-intelectual | Propriedade Intelectual | https://www.gov.br/propriedade-intelectual/pt-br/assuntos/noticias | Ativo |
+| receitafederal | Receita Federal | https://www.gov.br/receitafederal/pt-br/assuntos/noticias | Ativo |
+| reconstrucaors | Reconstrução Rio Grande do Sul | https://www.gov.br/reconstrucaors/pt-br/acompanhe-a-reconstrucao/noticias | Inativo |
+| saude | Ministério da Saúde | https://www.gov.br/saude/pt-br/assuntos/noticias | Ativo |
+| secom | Secretaria de Comunicação Social | https://www.gov.br/secom/pt-br/assuntos/noticias | Ativo |
+| secretariageral | Secretaria-Geral da Presidência | https://www.gov.br/secretariageral/pt-br/noticias | Ativo |
+| semanaenef | Semana ENEF | https://www.gov.br/semanaenef/pt-br/noticias | Ativo |
+| senappen | Secretaria Nacional de Políticas Penais | https://www.gov.br/senappen/pt-br/assuntos/noticias | Ativo |
+| servicoscompartilhados | Serviços Compartilhados | https://www.gov.br/servicoscompartilhados/pt-br/acesso-a-informacao/noticias | Ativo |
+| servidor | Portal do Servidor | https://www.gov.br/servidor/pt-br/assuntos/noticias | Ativo |
+| siscomex | Siscomex | https://www.gov.br/siscomex/pt-br/noticias | Inativo |
+| sri | Secretaria de Relações Institucionais | https://www.gov.br/sri/pt-br/noticias | Ativo |
+| sudam | Superintendência do Desenvolvimento da Amazônia | https://www.gov.br/sudam/pt-br/noticias-1 | Ativo |
+| sudeco | Superintendência do Desenvolvimento do Centro-Oeste | https://www.gov.br/sudeco/pt-br/assuntos/noticias | Ativo |
+| sudene | Superintendência do Desenvolvimento do Nordeste | https://www.gov.br/sudene/pt-br/assuntos/noticias | Ativo |
+| suframa | Superintendência da Zona Franca de Manaus | https://www.gov.br/suframa/pt-br/assuntos/noticias | Ativo |
+| susep | Superintendência de Seguros Privados | https://www.gov.br/susep/pt-br/central-de-conteudos/noticias | Ativo |
+| tesouronacional | Tesouro Nacional | https://www.gov.br/tesouronacional/pt-br/noticias | Ativo |
+| trabalho-e-emprego | Ministério do Trabalho e Emprego | https://www.gov.br/trabalho-e-emprego/pt-br/noticias-e-conteudo | Ativo |
+| transferegov | TransfereGov | https://www.gov.br/transferegov/pt-br/noticias/noticias/2025 | Ativo |
+| transportes | Ministério dos Transportes | https://www.gov.br/transportes/pt-br/assuntos/noticias | Ativo |
+| turismo | Ministério do Turismo | https://www.gov.br/turismo/pt-br/assuntos/noticias | Ativo |
 
 **Fonte**: Arquivo `site_urls.yaml` do repositório [scraper](https://github.com/destaquesgovbr/scraper/blob/main/src/govbr_scraper/scrapers/config/site_urls.yaml)
 
 **Notas**:
-- 19 órgãos desativados temporariamente ou permanentemente devido a: URLs genéricas, sites Volto/SPA requerendo JavaScript, páginas retornando 404
+- **13 órgãos inativos** devido a: URLs genéricas (cisc, investidor, produtividade-e-comercio-exterior), sites Volto/SPA requerendo JavaScript (ctav, esg, esporte, hfa, memp, povosindigenas, reconstrucaors), página 404 (imprensanacional), outros (ibde, siscomex)
+- **215 órgãos ativos** em monitoramento contínuo
 - Lista atualizada em março de 2026
 
-### **A.1.2 - Veículos EBC (3 agências)**
+### **A.1.2 - Veículos EBC (3 agências: 2 ativos, 1 inativo)**
 
 | Código | Veículo | URL de Notícias | Status |
 |--------|---------|-----------------|--------|
