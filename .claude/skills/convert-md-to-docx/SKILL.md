@@ -23,7 +23,7 @@ Quando este skill for invocado:
 
 ## Comportamento
 
-- **Com arquivo**: `/convert-md-to-docx Relatório-26-03-24.md` → converte o arquivo especificado
+- **Com arquivo**: `/convert-md-to-docx {arquivo.md}` → converte o arquivo especificado
 - **Com --all**: `/convert-md-to-docx --all` → converte todos os .md em docs/docs/relatorios/
 - **Sem argumentos**: `/convert-md-to-docx` → lista arquivos disponíveis e pergunta ao usuário qual converter
 
