@@ -15,7 +15,13 @@ Quando este skill for invocado:
 
 2. **Se receber nome de arquivo**: Execute `python scripts/convert_to_docx_with_template.py docs/relatorios/{arquivo.md}`
 
-3. **Se NÃO receber argumentos**:
+3. **Se receber `--merge` ou `--100%`**: Execute o fluxo de 2 etapas para 100% de preservação:
+   - Use AskUserQuestion para perguntar qual arquivo converter (se não especificado)
+   - **Passo 1**: Execute `python scripts/convert_md_to_docx.py docs/relatorios/{arquivo.md}` (conversão limpa, sem template)
+   - **Passo 2**: Execute `python scripts/merge_docx_with_docxcompose.py "docs/relatorios/templates/Template Relatório-Técnico-DestaquesGovbr Tema 7.docx" "docs/relatorios/output/{arquivo}.docx" "docs/relatorios/output/{arquivo}-FINAL.docx"` (merge com 100% preservação)
+   - Informe ao usuário que o arquivo final está em `{arquivo}-FINAL.docx`
+
+4. **Se NÃO receber argumentos**:
    - Use Glob para listar arquivos .md em `docs/relatorios/*.md`
    - Mostre a lista formatada ao usuário com índices numerados
    - Use AskUserQuestion para perguntar qual arquivo converter (incluir opção "Todos")
@@ -23,15 +29,20 @@ Quando este skill for invocado:
 
 ## Comportamento
 
-- **Com arquivo**: `/convert-md-to-template_docx {arquivo.md}` → converte o arquivo especificado
-- **Com --all**: `/convert-md-to-template_docx --all` → converte todos os .md em docs/relatorios/
+- **Com arquivo**: `/convert-md-to-template_docx {arquivo.md}` → converte o arquivo especificado (~95% preservação)
+- **Com --all**: `/convert-md-to-template_docx --all` → converte todos os .md em docs/relatorios/ (~95% preservação)
+- **Com --merge ou --100%**: `/convert-md-to-template_docx --merge {arquivo.md}` → conversão em 2 etapas (100% preservação)
 - **Sem argumentos**: `/convert-md-to-template_docx` → lista arquivos disponíveis e pergunta ao usuário qual converter
 
 ## Uso
 
 ```bash
-# Converter arquivo específico
+# Converter arquivo específico (~95% preservação)
 /convert-md-to-template_docx Relatório-Técnico-DestaquesGovbr-Requisitos-Ingestão-26-03-24.md
+
+# Converter com 100% de preservação (fluxo 2 etapas com docxcompose)
+/convert-md-to-template_docx --merge Relatório-Técnico-DestaquesGovbr-Requisitos-Ingestão-26-03-24.md
+/convert-md-to-template_docx --100% Relatório-Técnico-DestaquesGovbr-Requisitos-Ingestão-26-03-24.md
 
 # Converter todos os relatórios
 /convert-md-to-template_docx --all
