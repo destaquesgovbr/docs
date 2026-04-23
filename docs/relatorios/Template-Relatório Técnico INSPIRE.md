@@ -1,6 +1,6 @@
 Data: [TODO: prencher a data no formato DD/MM/YYYY]
 
-PROMPT: <!-- INCLUIR NESTE CAMPO O PROMPOT SOLICITADO-->
+PROMPT: <!-- INCLUIR NESTE CAMPO O PROMPT SOLICITADO-->
 
 Eleborado por: xxxxxx
 
