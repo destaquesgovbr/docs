@@ -1711,17 +1711,19 @@ resource.type="cloud_run_revision"
 jsonPayload.bedrock_tokens>2000
 ```
 
-### **3.8.4 Alertas Configurados**
+### **3.8.4 Alertas e Monitoramento**
 
-| Alerta | Condição | Canal | Severidade | Ação |
-|--------|----------|-------|-----------|------|
-| **Pipeline stalled** | oldest_unacked_message_age > 600s | Slack + Email | High | Investigar worker |
-| **High DLQ rate** | dead_letter_message_count > 10 | Slack | High | Revisar logs DLQ |
-| **Worker errors** | error_count > 10/min | Slack | Medium | Verificar Cloud Run |
-| **Bedrock throttle** | throttle_count > 5/min | Slack | Medium | Aumentar rate limit |
-| **Low enrichment rate** | enrichment_rate < 80% | Email | Medium | Analisar qualidade |
-| **Typesense down** | Health check falha | PagerDuty | High | Restart serviço |
-| **Database connections** | Pool > 80% | Email | Medium | Investigar queries |
+**Status atual**: O sistema utiliza Google Cloud Monitoring para coleta de métricas e visualização em dashboards. Os alertas são configurados via Cloud Monitoring para condições críticas.
+
+**Métricas monitoradas**:
+- `oldest_unacked_message_age`: Idade da mensagem mais antiga não processada (alerta se > 600s)
+- `dead_letter_message_count`: Número de mensagens na DLQ (alerta se > 10)
+- `error_count`: Taxa de erros nos workers (alerta se > 10/min)
+- `enrichment_rate`: Taxa de sucesso no enriquecimento (alerta se < 80%)
+- Cloud Run health checks para todos os workers
+- PostgreSQL connection pool utilization (alerta se > 80%)
+
+**Canais de notificação**: Atualmente configurado via email. Para roadmap de melhorias, ver seção 5.4.
 
 # **4 Resultados**
 
@@ -1874,6 +1876,14 @@ O sistema processa diariamente **~500-1000 notícias** de **~160 portais gov.br*
 
 ### **Curto Prazo (1-3 meses)**
 
+- [ ] **Sistema de Alertas Centralizado**: Implementar integração com Slack/PagerDuty para notificações proativas
+  - Alertas de pipeline stalled (oldest_unacked_message_age > 600s)
+  - Alertas de DLQ rate alto (dead_letter_message_count > 10)
+  - Alertas de erros em workers (error_count > 10/min)
+  - Alertas de throttling Bedrock (throttle_count > 5/min)
+  - Alertas de baixa taxa de enriquecimento (enrichment_rate < 80%)
+  - Alertas de Typesense down (health check falha)
+  - Alertas de alta utilização de conexões DB (pool > 80%)
 - [ ] **Integrar Analytics ActivityPub**: Rastrear impressões, likes, replies no Gold layer
 - [ ] **Backfill Bronze**: Exportar dados históricos (~300k docs) para GCS
 - [ ] **Dashboards Grafana**: Visualização de métricas em tempo real
