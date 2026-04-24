@@ -137,6 +137,7 @@ Os arquivos gerados ficam em:
 - **Largura**: 100% da página
 
 ### Outros
+- **Hyperlinks**: Preservados (externos e internos)
 - **Links internos**: Funcionais (âncoras entre seções)
 - **TOC (Sumário)**: Título convertido para "Sumário"
 - **Emojis**: Removidos automaticamente (exceto ✅ ❌ em tabelas)
@@ -175,7 +176,8 @@ Usa `convert_md_to_docx.py`:
    - Gera DOCX limpo com todo conteúdo formatado (sem template)
 
 3. **Aplica customizações**:
-   - Remove bookmarks e hyperlinks dos títulos
+   - Remove bookmarks automáticos do Pandoc
+   - **Preserva hyperlinks** (externos e internos)
    - Configura margens, estilos, tabelas, código
 
 ### Passo 2: Merge com Template usando docxcompose
