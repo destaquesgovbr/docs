@@ -88,25 +88,25 @@ O cenário atual caracteriza-se por:
 ```mermaid
 flowchart TB
     subgraph DATASET["Dataset GovBrNews"]
-        A[310.000 Documentos]
-        B[160 Órgãos]
-        C[25 Temas Principais]
-        D[3 Níveis Hierárquicos]
+        A["310 mil Documentos"]
+        B["160 Órgãos"]
+        C["25 Temas Principais"]
+        D["3 Níveis Hierárquicos"]
     end
 
     subgraph ORGAOS["Órgãos por Tipo"]
-        E[Ministérios: 20]
-        F[Autarquias: 80]
-        G[Secretarias: 40]
-        H[EBC: 10 canais]
+        E["Ministérios: 20"]
+        F["Autarquias: 80"]
+        G["Secretarias: 40"]
+        H["EBC: 10 canais"]
     end
 
     subgraph TEMAS["Distribuição Temática"]
-        I[Economia: 18%]
-        J[Saúde: 16%]
-        K[Governo: 14%]
-        L[Infraestrutura: 12%]
-        M[Outros: 40%]
+        I["Economia: 18%"]
+        J["Saúde: 16%"]
+        K["Governo: 14%"]
+        L["Infraestrutura: 12%"]
+        M["Outros: 40%"]
     end
 
     DATASET --> ORGAOS
