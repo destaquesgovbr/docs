@@ -335,34 +335,38 @@ class DOCXCustomizer:
         if bookmark_count > 0:
             print(f"  [OK] Removidos {bookmark_count} bookmarks")
 
-    def remove_hyperlinks_from_headings(self, doc):
-        """Remove hyperlinks dos títulos (headings)"""
-        removed_count = 0
-
-        for paragraph in doc.paragraphs:
-            # Verificar se é um heading
-            if paragraph.style and paragraph.style.name.startswith('Heading'):
-                # Procurar hyperlinks
-                for element in list(paragraph._element):
-                    if element.tag == qn('w:hyperlink'):
-                        # Extrair o texto dos runs dentro do hyperlink
-                        text_runs = []
-                        for run_elem in element.findall(qn('w:r')):
-                            text_runs.append(run_elem)
-
-                        # Remover o hyperlink e inserir os runs diretamente
-                        parent = element.getparent()
-                        index = list(parent).index(element)
-                        parent.remove(element)
-
-                        # Reinserir os runs na mesma posição
-                        for run_elem in reversed(text_runs):
-                            parent.insert(index, run_elem)
-
-                        removed_count += 1
-
-        if removed_count > 0:
-            print(f"  [OK] Removidos {removed_count} hyperlinks de titulos")
+    # DESABILITADO: Esta função removia hyperlinks de títulos, mas isso também
+    # remove hyperlinks externos importantes (GitHub, docs, datasets).
+    # Pandoc preserva hyperlinks corretamente, então não precisamos removê-los.
+    #
+    # def remove_hyperlinks_from_headings(self, doc):
+    #     """Remove hyperlinks dos títulos (headings)"""
+    #     removed_count = 0
+    #
+    #     for paragraph in doc.paragraphs:
+    #         # Verificar se é um heading
+    #         if paragraph.style and paragraph.style.name.startswith('Heading'):
+    #             # Procurar hyperlinks
+    #             for element in list(paragraph._element):
+    #                 if element.tag == qn('w:hyperlink'):
+    #                     # Extrair o texto dos runs dentro do hyperlink
+    #                     text_runs = []
+    #                     for run_elem in element.findall(qn('w:r')):
+    #                         text_runs.append(run_elem)
+    #
+    #                     # Remover o hyperlink e inserir os runs diretamente
+    #                     parent = element.getparent()
+    #                     index = list(parent).index(element)
+    #                     parent.remove(element)
+    #
+    #                     # Reinserir os runs na mesma posição
+    #                     for run_elem in reversed(text_runs):
+    #                         parent.insert(index, run_elem)
+    #
+    #                     removed_count += 1
+    #
+    #     if removed_count > 0:
+    #         print(f"  [OK] Removidos {removed_count} hyperlinks de titulos")
 
     def fix_toc(self, doc):
         """Substitui 'Table of Contents' por 'Sumário'"""
@@ -451,8 +455,8 @@ class DOCXCustomizer:
         # Remover todos os bookmarks
         self.remove_all_bookmarks(doc)
 
-        # Remover hyperlinks dos títulos
-        self.remove_hyperlinks_from_headings(doc)
+        # DESABILITADO: Preservar hyperlinks externos (GitHub, docs, datasets)
+        # self.remove_hyperlinks_from_headings(doc)
 
         print(f"  [OK] Customizacoes aplicadas (estilos + tabelas + codigo + listas + TOC)")
 
