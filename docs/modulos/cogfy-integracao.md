@@ -1,6 +1,24 @@
-# Módulo: Integração Cogfy
+# Módulo: Integração Cogfy [HISTÓRICO]
 
-> Classificação temática e sumarização via LLM.
+> **⚠️ DESCONTINUADO**: Este documento descreve a integração com Cogfy, substituída por AWS Bedrock em 27/02/2026.  
+> **Ver**: [News Enrichment Worker](./news-enrichment-worker.md) e [Onboarding Enriquecimento LLM](../onboarding/ds/enriquecimento-llm.md) para implementação atual.
+
+---
+
+## Status
+
+| Item | Status |
+|------|--------|
+| **Período de uso** | Até 27/02/2026 |
+| **Substituído por** | AWS Bedrock (Claude 3 Haiku) |
+| **Motivo** | Fornecedor descontinuado + custo alto + latência alta |
+| **Ganhos com migração** | Latência ↓99.97% (45min → 15s), Custo ↓40% |
+
+---
+
+## Contexto Histórico
+
+> Classificação temática e sumarização via LLM (SaaS Cogfy - descontinuado).
 
 ## Visão Geral
 
