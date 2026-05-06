@@ -5,14 +5,16 @@ Repositório centralizado para toda a infraestrutura de dados do DestaquesGovBr.
 !!! info "Repositório"
     **GitHub**: [destaquesgovbr/data-platform](https://github.com/destaquesgovbr/data-platform)
 
+!!! note "Arquitetura Atualizada (27/02/2026)"
+    Pipeline migrado para **event-driven** com AWS Bedrock. Cogfy descontinuado.
+
 ## Visão Geral
 
-O **data-platform** é responsável por enriquecimento, embeddings e armazenamento de dados do DestaquesGovBr. A coleta (scraping) é feita pelo repo standalone [scraper](https://github.com/destaquesgovbr/scraper).
+O **data-platform** é responsável por armazenamento, workers de processamento event-driven e sincronização de dados do DestaquesGovBr. A coleta (scraping) é feita pelo repo standalone [scraper](https://github.com/destaquesgovbr/scraper).
 
 - **Armazenamento**: Gerenciamento do PostgreSQL (fonte de verdade) e HuggingFace (distribuição)
-- **Enriquecimento**: Integração com Cogfy para classificação temática e sumários
-- **Embeddings**: Geração de vetores para busca semântica
-- **Indexação**: Sincronização com Typesense
+- **Workers Event-Driven**: Enrichment (AWS Bedrock), Embeddings e Typesense Sync via Pub/Sub
+- **Batch Jobs**: Sincronização HuggingFace e exports via DAGs Airflow
 
 ## Arquitetura
 
@@ -23,27 +25,42 @@ graph TB
         DAG_S[DAGs Airflow<br/>~158 agências + EBC]
     end
 
+    subgraph "Event Mesh (Pub/Sub)"
+        PS1{{dgb.news.scraped}}
+        PS2{{dgb.news.enriched}}
+        PS3{{dgb.news.embedded}}
+    end
+
     subgraph "Armazenamento"
         PG[(PostgreSQL<br/>Fonte de Verdade)]
         HF[(HuggingFace<br/>Dados Abertos)]
     end
 
-    subgraph "Processamento (data-platform)"
-        COG[Cogfy<br/>Enriquecimento]
-        EMB[Embeddings API<br/>Vetores 768-dim]
+    subgraph "Workers Event-Driven (data-science + embeddings repos)"
+        EW[Enrichment Worker<br/>Cloud Run]
+        BEDROCK[AWS Bedrock<br/>Claude 3 Haiku]
+        EAPI[Embeddings Worker<br/>Cloud Run]
+        TSW[Typesense Sync<br/>Worker Cloud Run]
     end
 
-    subgraph "Indexação (data-platform)"
+    subgraph "Indexação"
         TS[Typesense<br/>Busca]
     end
 
     DAG_S -->|HTTP POST| S
-    S -->|INSERT| PG
-    PG --> COG
-    COG --> PG
-    PG --> EMB
-    EMB --> PG
-    PG --> TS
+    S -->|INSERT + publish| PG
+    S -->|publish| PS1
+    PS1 -->|push| EW
+    EW -->|LLM| BEDROCK
+    EW -->|UPDATE + publish| PG
+    EW -->|publish| PS2
+    PS2 -->|push| EAPI
+    EAPI -->|UPDATE + publish| PG
+    EAPI -->|publish| PS3
+    PS2 -->|push| TSW
+    PS3 -->|push| TSW
+    TSW -->|fetch + upsert| TS
+    TSW <-->|read| PG
     PG -->|DAG Airflow| HF
 ```
 
@@ -81,43 +98,42 @@ data-platform/
 
 ## CLI - Comandos Disponíveis
 
-### Enriquecimento
+!!! warning "Comandos Descontinuados"
+    Comandos `upload-cogfy` e `enrich` foram removidos após migração para AWS Bedrock (27/02/2026). Processamento agora é event-driven via workers.
+
+### Reprocessamento Manual
 
 ```bash
-# Upload para Cogfy
-data-platform upload-cogfy --start-date 2025-01-01
+# Reprocessar artigos sem enriquecimento
+# (republicar eventos no Pub/Sub via gcloud CLI)
+gcloud pubsub topics publish dgb.news.scraped \
+  --message='{"unique_id":"abc123"}' \
+  --attribute=agency_key=educacao
 
-# Buscar enriquecimento do Cogfy
-data-platform enrich --start-date 2025-01-01 --force
-```
-
-### Embeddings
-
-```bash
-# Gerar embeddings para notícias
-data-platform generate-embeddings --start-date 2025-01-01
+# Reprocessar embeddings
+# (republicar eventos no Pub/Sub)
+gcloud pubsub topics publish dgb.news.enriched \
+  --message='{"unique_id":"abc123"}'
 ```
 
 ### Typesense
 
 ```bash
-# Sincronizar PostgreSQL → Typesense
-data-platform sync-typesense --start-date 2025-01-01
-
-# Sincronização completa (full reload)
-data-platform sync-typesense --full-sync
-
 # Listar collections
 data-platform typesense-list
 
 # Deletar collection
 data-platform typesense-delete --confirm
+
+# Full reload (via script interno do Typesense Sync Worker)
+# Não mais via CLI do data-platform
 ```
 
 ### HuggingFace
 
 ```bash
 # Sincronizar PostgreSQL → HuggingFace
+# (rodado via DAG Airflow, não CLI)
 data-platform sync-hf --start-date 2025-01-01
 ```
 
@@ -169,22 +185,29 @@ TYPESENSE_HOST=34.39.186.38
 TYPESENSE_PORT=8108
 TYPESENSE_API_KEY=xxx
 
-# Cogfy
-COGFY_API_KEY=xxx
-COGFY_COLLECTION_ID=xxx
+# AWS Bedrock (Enrichment Worker - repo data-science)
+AWS_ACCESS_KEY_ID=xxx
+AWS_SECRET_ACCESS_KEY=xxx
+AWS_REGION=us-east-1
+BEDROCK_MODEL_ID=anthropic.claude-3-haiku-20240307-v1:0
 
-# Embeddings
-EMBEDDINGS_API_URL=https://embeddings-api-xxx.run.app
-EMBEDDINGS_API_KEY=xxx
+# Pub/Sub (Workers)
+GCP_PROJECT_ID=destaquesgovbr
+PUBSUB_TOPIC_SCRAPED=dgb.news.scraped
+PUBSUB_TOPIC_ENRICHED=dgb.news.enriched
+PUBSUB_TOPIC_EMBEDDED=dgb.news.embedded
 ```
 
 ## Workflows GitHub Actions
 
-| Workflow | Trigger | Descrição |
-|----------|---------|-----------|
-| `main-workflow.yaml` | Diário (4AM UTC) | Pipeline de enrichment: upload-cogfy → enrich → embed → sync |
-| `typesense-maintenance-sync.yaml` | Diário (10AM UTC) | Sync incremental Typesense |
-| `composer-deploy-dags.yaml` | Push | Deploy de DAGs no Airflow |
+!!! note "Workflows Atualizados (27/02/2026)"
+    Workflow `main-workflow.yaml` descontinuado. Processamento agora é event-driven via Cloud Run workers.
+
+| Workflow | Trigger | Descrição | Status |
+|----------|---------|-----------|--------|
+| `main-workflow.yaml` | ~~Diário (4AM UTC)~~ | ~~Pipeline de enrichment~~ | Descontinuado |
+| `composer-deploy-dags.yaml` | Push | Deploy de DAGs no Airflow | Ativo |
+| `workers-deploy.yaml` | Push | Deploy de workers Cloud Run | Ativo |
 
 ## Instalação e Desenvolvimento
 

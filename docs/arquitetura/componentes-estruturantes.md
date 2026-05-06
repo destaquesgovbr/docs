@@ -92,7 +92,7 @@ themes:
 
 ### Uso no Sistema
 
-1. **Classificação (Cogfy)**: O LLM classifica cada notícia nos 3 níveis
+1. **Classificação (Enrichment Worker)**: AWS Bedrock (Claude 3 Haiku) classifica cada notícia nos 3 níveis
 2. **Filtros (Portal)**: Usuários filtram por tema no portal
 3. **Navegação**: Páginas dedicadas por tema (`/temas/[themeLabel]`)
 4. **Análise**: Agregação de notícias por tema no dashboard
@@ -274,19 +274,19 @@ O dataset no HuggingFace é a **camada de distribuição** de dados abertos, sin
 | `category` | string | Scraper | Categoria do site |
 | `tags` | list | Scraper | Tags/keywords |
 
-**Enriquecimento AI (Cogfy/LLM):**
+**Enriquecimento AI (AWS Bedrock):**
 
 | Campo | Tipo | Origem | Descrição |
 |-------|------|--------|-----------|
-| `theme_1_level_1_code` | string | Cogfy | Código tema L1 (ex: "01") |
-| `theme_1_level_1_label` | string | Cogfy | Label tema L1 (ex: "Economia e Finanças") |
-| `theme_1_level_2_code` | string | Cogfy | Código tema L2 (ex: "01.01") |
-| `theme_1_level_2_label` | string | Cogfy | Label tema L2 |
-| `theme_1_level_3_code` | string | Cogfy | Código tema L3 (ex: "01.01.01") |
-| `theme_1_level_3_label` | string | Cogfy | Label tema L3 |
-| `most_specific_theme_code` | string | Enrichment | Tema mais específico disponível |
-| `most_specific_theme_label` | string | Enrichment | Label mais específico |
-| `summary` | string | Cogfy | Resumo gerado por AI |
+| `theme_1_level_1_code` | string | Enrichment Worker | Código tema L1 (ex: "01") |
+| `theme_1_level_1_label` | string | Enrichment Worker | Label tema L1 (ex: "Economia e Finanças") |
+| `theme_1_level_2_code` | string | Enrichment Worker | Código tema L2 (ex: "01.01") |
+| `theme_1_level_2_label` | string | Enrichment Worker | Label tema L2 |
+| `theme_1_level_3_code` | string | Enrichment Worker | Código tema L3 (ex: "01.01.01") |
+| `theme_1_level_3_label` | string | Enrichment Worker | Label tema L3 |
+| `most_specific_theme_code` | string | Enrichment Worker | Tema mais específico disponível |
+| `most_specific_theme_label` | string | Enrichment Worker | Label mais específico |
+| `summary` | string | Enrichment Worker | Resumo gerado por AWS Bedrock (Claude 3 Haiku) |
 
 ### Arquivos Gerados
 
@@ -333,20 +333,21 @@ graph TB
         HF[(HuggingFace<br/>Distribuição)]
     end
 
-    subgraph "Uso no Sistema"
+    subgraph "Uso no Sistema (Event-Driven)"
         SC[Scraper]
-        CF[Cogfy]
-        EMB[Embeddings]
+        EW[Enrichment Worker<br/>AWS Bedrock]
+        EMB[Embeddings Worker]
+        TSW[Typesense Sync Worker]
         TS[Typesense]
         PO[Portal]
     end
 
     CO -->|URLs de raspagem| SC
-    AT -->|Classificação| CF
-    SC -->|Insere dados| PG
-    CF -->|Enriquece| PG
-    EMB -->|Vetores| PG
-    PG -->|Indexa| TS
+    AT -->|Prompt para classificação| EW
+    SC -->|INSERT + Pub/Sub| PG
+    EW -->|UPDATE temas + summary| PG
+    EMB -->|UPDATE embeddings| PG
+    TSW -->|fetch + upsert| TS
     PG -->|Sync diário| HF
     TS -->|Busca| PO
     AT -->|Filtros| PO

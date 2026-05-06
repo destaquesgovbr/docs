@@ -1,29 +1,45 @@
 # Workflow: Pipeline de Coleta e Enriquecimento
 
-> Pipeline completo de coleta de notícias (scraper) e enriquecimento (data-platform).
+> Pipeline completo de coleta de notícias (scraper) e enriquecimento event-driven.
+
+!!! note "Arquitetura Atualizada (27/02/2026)"
+    Pipeline migrado para **event-driven** com AWS Bedrock. Cogfy e GitHub Actions batch descontinuados.
 
 ## Visão Geral
 
-O pipeline é dividido em dois estágios independentes, em repositórios separados:
+O pipeline é baseado em **arquitetura event-driven** com Cloud Pub/Sub:
 
-1. **Scraping** (repo `scraper`): Via Airflow DAGs, a cada 15 minutos
-2. **Enrichment** (repo `data-platform`): Via GitHub Actions, diário às 4AM UTC
+1. **Scraping** (repo `scraper`): Via Airflow DAGs, a cada 15 minutos → publica eventos
+2. **Enrichment** (repo `data-science`): Via Enrichment Worker (Cloud Run) → event-driven
+3. **Embeddings** (repo `embeddings`): Via Embeddings Worker (Cloud Run) → event-driven
+4. **Indexação**: Via Typesense Sync Worker (Cloud Run) → event-driven
 
 ```mermaid
 flowchart LR
     subgraph "Scraping (Airflow, a cada 15min)"
         DAG[~158 DAGs] -->|HTTP POST| API[Scraper API<br/>Cloud Run]
-        API --> PG[(PostgreSQL)]
+        API -->|INSERT + publish| PG[(PostgreSQL)]
+        API -->|publish| PS1{{dgb.news.scraped}}
     end
 
-    subgraph "Enrichment (GitHub Actions, diário)"
-        UC[upload-cogfy] --> W[wait-cogfy]
-        W --> EN[enrich-themes]
-        EN --> EMB[generate-embeddings]
-        EMB --> TS[sync-typesense]
+    subgraph "Event-Driven Processing (~15s total)"
+        PS1 -->|push| EW[Enrichment Worker]
+        EW -->|AWS Bedrock| EW
+        EW -->|UPDATE + publish| PG
+        EW -->|publish| PS2{{dgb.news.enriched}}
+        
+        PS2 -->|push| EAPI[Embeddings Worker]
+        EAPI -->|UPDATE + publish| PG
+        EAPI -->|publish| PS3{{dgb.news.embedded}}
+        
+        PS2 -->|push| TSW[Typesense Sync]
+        PS3 -->|push| TSW
+        TSW -->|upsert| TS[Typesense]
     end
 
-    PG -.->|lê dados novos| UC
+    style PS1 fill:#f3e5f5
+    style PS2 fill:#f3e5f5
+    style PS3 fill:#f3e5f5
 ```
 
 ---
@@ -63,39 +79,26 @@ flowchart LR
 
 ---
 
-## Estágio 2: Enrichment Pipeline (GitHub Actions)
+## Estágio 2: Enrichment Event-Driven (Cloud Run Workers)
 
-**Repositório**: [destaquesgovbr/data-platform](https://github.com/destaquesgovbr/data-platform)
-
-**Arquivo**: `data-platform/.github/workflows/main-workflow.yaml`
+**Repositórios**:
+- [destaquesgovbr/data-science](https://github.com/destaquesgovbr/data-science) - Enrichment Worker
+- [destaquesgovbr/embeddings](https://github.com/destaquesgovbr/embeddings) - Embeddings Worker
+- [destaquesgovbr/data-platform](https://github.com/destaquesgovbr/data-platform) - Typesense Sync Worker
 
 ### Trigger
 
-```yaml
-on:
-  schedule:
-    - cron: '0 4 * * *'  # 4AM UTC diário
-  workflow_dispatch:
-    inputs:
-      start_date:
-        description: 'Start date (YYYY-MM-DD)'
-      end_date:
-        description: 'End date (YYYY-MM-DD)'
-      cogfy_wait_minutes:
-        description: 'Minutes to wait for Cogfy (default: 20)'
-```
+**Event-driven**: Push subscriptions do Cloud Pub/Sub chamam endpoints HTTP dos workers
 
-### Jobs
+### Workers
 
-| # | Job | Descrição | Duração |
-|---|-----|-----------|---------|
-| 1 | `upload-to-cogfy` | Envia notícias novas para classificação no Cogfy | ~5-10 min |
-| 2 | `wait-cogfy` | Aguarda processamento no Cogfy | 20 min (fixo) |
-| 3 | `enrich-themes` | Busca temas e sumários do Cogfy, atualiza PostgreSQL | ~10-20 min |
-| 4 | `generate-embeddings` | Gera vetores 768-dim via Embeddings API (Cloud Run) | ~10-15 min |
-| 5 | `sync-typesense` | Sincroniza dados enriquecidos para o Typesense | ~5-10 min |
+| # | Worker | Trigger | Descrição | Latência |
+|---|--------|---------|-----------|----------|
+| 1 | **Enrichment Worker** | Topic: `dgb.news.scraped` | Classifica via AWS Bedrock (Claude 3 Haiku): temas L1/L2/L3 + resumo + sentiment + entities | ~5s |
+| 2 | **Embeddings Worker** | Topic: `dgb.news.enriched` | Gera vetores 768-dim via modelo local `paraphrase-multilingual-mpnet-base-v2` | ~5s |
+| 3 | **Typesense Sync Worker** | Topics: `dgb.news.enriched` + `dgb.news.embedded` | Sincroniza documentos enriquecidos para Typesense (upsert idempotente) | ~5s |
 
-**Duração total**: ~50-75 minutos
+**Latência total**: ~15 segundos (scraping → indexação)
 
 ---
 
@@ -107,9 +110,13 @@ sequenceDiagram
     participant API as Scraper API (Cloud Run)
     participant GOV as Sites gov.br / EBC
     participant PG as PostgreSQL
-    participant GH as GitHub Actions
-    participant CF as Cogfy
-    participant EMB as Embeddings API
+    participant PS1 as Pub/Sub: scraped
+    participant EW as Enrichment Worker
+    participant Bedrock as AWS Bedrock (Claude 3 Haiku)
+    participant PS2 as Pub/Sub: enriched
+    participant EAPI as Embeddings Worker
+    participant PS3 as Pub/Sub: embedded
+    participant TSW as Typesense Sync Worker
     participant TS as Typesense
 
     Note over AF: A cada 15 min
@@ -119,50 +126,70 @@ sequenceDiagram
     GOV-->>API: HTML pages
     API->>API: Parse → Markdown
     API->>PG: INSERT articles
+    API->>PS1: publish scraped event
 
-    Note over GH: 4AM UTC - Trigger diário
+    Note over PS1: Event-driven processing (~15s total)
 
-    GH->>PG: Load new articles
-    GH->>CF: POST records (batch)
+    PS1->>EW: push notification (unique_id)
+    EW->>PG: fetch article
+    EW->>Bedrock: classify (themes + summary + sentiment + entities)
+    Bedrock-->>EW: JSON response
+    EW->>PG: UPDATE themes + features
+    EW->>PS2: publish enriched event
 
-    Note over GH: Wait 20 min
+    PS2->>EAPI: push notification (unique_id)
+    EAPI->>PG: fetch title + summary
+    EAPI->>EAPI: generate embedding 768-dim
+    EAPI->>PG: UPDATE content_embedding
+    EAPI->>PS3: publish embedded event
 
-    GH->>CF: GET processed records
-    CF-->>GH: Themes + Summary
-    GH->>PG: UPDATE with enrichment
+    PS2->>TSW: push notification (enriched)
+    PS3->>TSW: push notification (embedded)
+    TSW->>PG: fetch full document
+    TSW->>TS: upsert document
 
-    GH->>PG: Get news without embeddings
-    GH->>EMB: POST texts (batch)
-    EMB-->>GH: Vectors 768-dim
-    GH->>PG: UPDATE with embeddings
-
-    GH->>PG: Get news for indexing
-    GH->>TS: Upsert documents
+    Note over API,TS: Latência total: ~15 segundos
 ```
 
 ---
 
 ## Secrets Necessárias
 
-### Repo `data-platform` (enrichment)
+### Repo `data-science` (Enrichment Worker)
 
-| Secret | Descrição | Usado em |
-|--------|-----------|----------|
-| `POSTGRES_HOST` | Host do Cloud SQL | Todos os jobs |
-| `POSTGRES_DB` | Nome do banco | Todos os jobs |
-| `POSTGRES_USER` | Usuário do banco | Todos os jobs |
-| `POSTGRES_PASSWORD` | Senha do banco | Todos os jobs |
-| `COGFY_API_KEY` | API Key do Cogfy | upload, enrich |
-| `COGFY_COLLECTION_ID` | ID da collection Cogfy | upload, enrich |
-| `EMBEDDINGS_API_URL` | URL da API de embeddings | embeddings |
-| `TYPESENSE_HOST` | Host do Typesense | sync-typesense |
-| `TYPESENSE_API_KEY` | API Key do Typesense | sync-typesense |
+| Secret | Descrição |
+|--------|-----------|
+| `DATABASE_URL` | Connection string PostgreSQL |
+| `AWS_ACCESS_KEY_ID` | AWS credentials para Bedrock |
+| `AWS_SECRET_ACCESS_KEY` | AWS credentials para Bedrock |
+| `AWS_REGION` | Região AWS (us-east-1) |
+| `BEDROCK_MODEL_ID` | ID do modelo (anthropic.claude-3-haiku-20240307-v1:0) |
+| `GCP_PROJECT_ID` | Projeto GCP para Pub/Sub |
+| `PUBSUB_TOPIC_ENRICHED` | Nome do topic enriched |
+
+### Repo `embeddings` (Embeddings Worker)
+
+| Secret | Descrição |
+|--------|-----------|
+| `DATABASE_URL` | Connection string PostgreSQL |
+| `GCP_PROJECT_ID` | Projeto GCP para Pub/Sub |
+| `PUBSUB_TOPIC_EMBEDDED` | Nome do topic embedded |
+
+### Repo `data-platform` (Typesense Sync Worker)
+
+| Secret | Descrição |
+|--------|-----------|
+| `DATABASE_URL` | Connection string PostgreSQL |
+| `TYPESENSE_HOST` | Host do Typesense |
+| `TYPESENSE_API_KEY` | API Key do Typesense |
 
 ### Repo `scraper`
 
 | Secret | Descrição |
 |--------|-----------|
 | `DATABASE_URL` | Connection string PostgreSQL |
+| `GCP_PROJECT_ID` | Projeto GCP para Pub/Sub |
+| `PUBSUB_TOPIC_SCRAPED` | Nome do topic scraped |
 | GCP SA credentials | Para deploy no Cloud Run e Composer |
 
 ---
@@ -178,14 +205,25 @@ gcloud composer environments describe destaquesgovbr-composer \
     --format="value(config.airflowUri)"
 ```
 
-### Enrichment (GitHub Actions)
+### Workers Event-Driven (Cloud Run + Pub/Sub)
 
 ```bash
-# Listar execuções recentes
-gh run list --workflow=main-workflow.yaml -R destaquesgovbr/data-platform
+# Logs do Enrichment Worker
+gcloud logging read "resource.type=cloud_run_revision AND resource.labels.service_name=enrichment-worker" --limit 50
 
-# Ver detalhes de uma execução
-gh run view <run_id> -R destaquesgovbr/data-platform
+# Logs do Embeddings Worker
+gcloud logging read "resource.type=cloud_run_revision AND resource.labels.service_name=embeddings-worker" --limit 50
+
+# Logs do Typesense Sync Worker
+gcloud logging read "resource.type=cloud_run_revision AND resource.labels.service_name=typesense-sync-worker" --limit 50
+
+# Métricas de Pub/Sub (backlog de mensagens)
+gcloud monitoring dashboards list --filter="displayName:Pub/Sub"
+
+# Dead-Letter Queue (mensagens falhadas)
+gcloud pubsub subscriptions pull dgb.news.scraped-dlq --limit=10
+gcloud pubsub subscriptions pull dgb.news.enriched-dlq --limit=10
+gcloud pubsub subscriptions pull dgb.news.embedded-dlq --limit=10
 ```
 
 ---
