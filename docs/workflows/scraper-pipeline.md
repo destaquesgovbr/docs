@@ -77,6 +77,83 @@ flowchart LR
 | API | Cloud Run | `scraper-api-deploy.yaml` |
 | DAGs | Composer bucket `{bucket}/scraper/` | `composer-deploy-dags.yaml` |
 
+### Config Sync: site_urls.yaml (Dual YAML)
+
+**Problema**: O arquivo `site_urls.yaml` existe em **dois locais** que devem ser mantidos sincronizados:
+
+1. **`src/govbr_scraper/scrapers/config/site_urls.yaml`** (fonte) - Usado pela API Cloud Run
+2. **`dags/config/site_urls.yaml`** (cópia) - Usado pelas DAGs Airflow
+
+**Por que dois arquivos?**
+- DAGs do Airflow são autocontidas e não importam código Python da API
+- API Cloud Run empacota o arquivo de `src/` na imagem Docker
+- Mantém separação de responsabilidades entre orquestração (DAGs) e execução (API)
+
+**Como modificar configuração de agências**:
+
+```bash
+# 1. Sempre edite o arquivo fonte
+vim src/govbr_scraper/scrapers/config/site_urls.yaml
+
+# 2. Copie manualmente para o arquivo das DAGs
+cp src/govbr_scraper/scrapers/config/site_urls.yaml dags/config/site_urls.yaml
+
+# 3. Commit ambos os arquivos
+git add src/govbr_scraper/scrapers/config/site_urls.yaml dags/config/site_urls.yaml
+git commit -m "feat: adiciona nova agência XYZ"
+
+# 4. Abra PR - CI validará sincronização
+```
+
+**Validação CI**:
+
+O teste `test_config_sync.py` valida que os arquivos estão idênticos:
+
+```python
+def test_site_urls_yaml_files_are_in_sync():
+    """Valida que os dois arquivos site_urls.yaml estão sincronizados."""
+    source = "src/govbr_scraper/scrapers/config/site_urls.yaml"
+    copy = "dags/config/site_urls.yaml"
+    
+    with open(source) as f1, open(copy) as f2:
+        source_content = f1.read()
+        copy_content = f2.read()
+    
+    assert source_content == copy_content, \
+        f"Files out of sync! Run: cp {source} {copy}"
+```
+
+**PRs com arquivos dessincronizados são bloqueados pelo CI**.
+
+**Estrutura do YAML**:
+
+```yaml
+agencies:
+  mec:
+    url: https://www.gov.br/mec/pt-br/assuntos/noticias
+    active: true
+  
+  saude:
+    url: https://www.gov.br/saude/pt-br/assuntos/noticias
+    active: true
+  
+  disabled_agency:
+    url: https://www.example.gov.br/noticias
+    active: false
+    disabled_reason: "Site descontinuado"
+    disabled_date: "2025-12-01"
+```
+
+**Campos**:
+- `url` (obrigatório): URL da página de notícias
+- `active` (opcional, default: `true`): Se `false`, não gera DAG no Airflow
+- `disabled_reason` (opcional): Motivo da desativação
+- `disabled_date` (opcional): Data da desativação
+
+**Migração futura**: Esta configuração pode migrar para PostgreSQL, eliminando a necessidade de sincronização manual.
+
+→ Documentação completa: [scraper/dags/config/README.md](https://github.com/destaquesgovbr/scraper/blob/main/dags/config/README.md)
+
 ---
 
 ## Estágio 2: Enrichment Event-Driven (Cloud Run Workers)
