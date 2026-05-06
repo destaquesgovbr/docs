@@ -14,6 +14,7 @@ O portal é a interface principal do DestaquesGovbr, oferecendo:
 - **Filtros** por órgão, tema e data
 - **Navegação** por temas e órgãos
 - **Páginas individuais** de notícias
+- **Feeds RSS/Atom/JSON** com filtros dinâmicos
 
 ```mermaid
 flowchart LR
@@ -21,6 +22,8 @@ flowchart LR
     P --> T[(Typesense)]
     T --> HF[(HuggingFace)]
     P --> CF[Configurações YAML]
+    P --> F[Feeds API<br/>RSS/Atom/JSON]
+    F --> T
 ```
 
 ---
@@ -57,15 +60,25 @@ portal/
 │   │   ├── noticias/
 │   │   │   └── [id]/                # Página de notícia
 │   │   │       └── page.tsx
+│   │   ├── feeds/
+│   │   │   └── page.tsx             # Página de descoberta de feeds
+│   │   ├── feed.xml/route.ts        # RSS 2.0 API route
+│   │   ├── feed.atom/route.ts       # Atom 1.0 API route
+│   │   ├── feed.json/route.ts       # JSON Feed 1.1 API route
 │   │   └── api/                     # API Routes
 │   ├── components/
 │   │   ├── ui/                      # Componentes shadcn/ui
 │   │   ├── search/                  # Busca e filtros
 │   │   ├── news/                    # Cards e listas de notícias
 │   │   ├── layout/                  # Header, Footer, Nav
-│   │   └── filters/                 # Filtros de busca
+│   │   ├── filters/                 # Filtros de busca
+│   │   └── common/
+│   │       └── FeedLink.tsx         # Link RSS contextual
 │   ├── lib/
 │   │   ├── typesense-client.ts      # Cliente Typesense
+│   │   ├── feed.ts                  # Lógica core de feeds (parsing, validação, serialização)
+│   │   ├── feed-handler.ts          # Handler HTTP compartilhado (ETag, cache)
+│   │   ├── markdown-to-html.ts      # Conversor markdown → HTML para feeds
 │   │   ├── themes.yaml              # Árvore temática
 │   │   ├── agencies.yaml            # Catálogo de órgãos
 │   │   ├── prioritization.yaml      # Config de priorização
@@ -73,6 +86,9 @@ portal/
 │   ├── hooks/                       # React hooks customizados
 │   └── types/                       # Definições TypeScript
 ├── public/                          # Assets estáticos
+├── docs/
+│   ├── FEEDS_API.md                 # Documentação completa da API de feeds
+│   └── FEEDS_ARCHITECTURE.md        # Arquitetura técnica dos feeds
 ├── .github/workflows/
 │   └── deploy-production.yml        # Deploy Cloud Run
 ├── package.json
@@ -110,6 +126,28 @@ portal/
 - Conteúdo completo
 - Metadados (data, órgão, tema)
 - Notícias relacionadas
+
+### Página de Feeds (`/feeds`)
+
+- **Construtor interativo**: Multi-select de órgãos e temas, gera URLs dos 3 formatos (RSS/Atom/JSON) em tempo real
+- **Feeds por Ministério**: Grid com links diretos RSS/Atom para cada ministério
+- **Feeds por Tema**: Grid com links diretos RSS/Atom para cada tema de nível 1
+- **Instruções**: Guia passo a passo para usar os feeds em leitores RSS
+
+### Feeds API
+
+- **`/feed.xml`**: RSS 2.0
+- **`/feed.atom`**: Atom 1.0
+- **`/feed.json`**: JSON Feed 1.1
+
+**Parâmetros suportados**:
+- `agencias` - Filtrar por órgãos (ex: `agencias=mre,saude`)
+- `temas` - Filtrar por temas (ex: `temas=01,03`)
+- `tag` - Filtrar por tag exata
+- `q` - Busca textual em título e conteúdo
+- `limit` - Quantidade de itens (default: 20, máx: 50)
+
+→ Documentação completa em [portal/docs/FEEDS_API.md](https://github.com/destaquesgovbr/portal/blob/main/docs/FEEDS_API.md)
 
 ---
 
@@ -448,6 +486,81 @@ gcloud run deploy portal \
   --image gcr.io/PROJECT_ID/portal \
   --region us-east1
 ```
+
+---
+
+## Feeds RSS/Atom/JSON
+
+### Características
+
+- ✅ **3 formatos padrão**: RSS 2.0, Atom 1.0, JSON Feed 1.1
+- ✅ **Filtros dinâmicos**: Por órgão, tema, tag e busca textual
+- ✅ **Construtor interativo**: Página `/feeds` com multi-select de órgãos/temas
+- ✅ **Links contextuais**: Feeds automáticos em páginas de busca, tema e órgão
+- ✅ **Autodiscovery**: Tags `<link rel="alternate">` no `<head>`
+- ✅ **Caching otimizado**: `Cache-Control` com 10min + ETag para 304 Not Modified
+- ✅ **Markdown → HTML**: Conversão server-side com mesmo pipeline do portal
+
+### Endpoints
+
+```
+GET /feed.xml?agencias=mre,saude&temas=01&q=reforma&limit=30
+GET /feed.atom?agencias=gestao&temas=03
+GET /feed.json?temas=01,20&limit=50
+```
+
+### Implementação
+
+**Arquitetura**:
+```
+Route Handler (/feed.xml/route.ts)
+    ↓
+handleFeedRequest() (feed-handler.ts)
+    ↓
+parseFeedParams() → validateFeedParams() → buildFeed()
+    ↓
+queryArticlesForFeed() → Typesense
+    ↓
+markdownToHtml() → serializeFeed(format)
+    ↓
+computeETag() → Response (200 ou 304)
+```
+
+**Validação**:
+- `agencias`: Verifica existência em `agencies.yaml`
+- `temas`: Verifica existência em `themes.yaml`
+- `q`: Máximo 200 caracteres
+- `limit`: Entre 1-50
+
+**Caching**:
+- `Cache-Control: public, s-maxage=600, stale-while-revalidate=60`
+- `ETag`: MD5 do body
+- `If-None-Match` → 304 Not Modified
+
+**Título dinâmico**:
+```
+/feed.xml → "Destaques GOV.BR"
+/feed.xml?agencias=mre → "Destaques GOV.BR — Ministério das Relações Exteriores"
+/feed.xml?temas=03 → "Destaques GOV.BR — Saúde"
+/feed.xml?q=reforma → "Destaques GOV.BR — Busca: reforma"
+```
+
+### Testes
+
+**Cobertura**: 43 testes unitários (32 em `feed.test.ts` + 11 em `markdown-to-html.test.ts`)
+
+**Áreas testadas**:
+- Parsing e validação de parâmetros
+- Query Typesense com filtros combinados
+- Serialização nos 3 formatos
+- Conversão markdown → HTML
+- ETag computation e 304 responses
+- Tratamento de erros (400, 500)
+
+### Documentação Adicional
+
+→ **API completa**: [portal/docs/FEEDS_API.md](https://github.com/destaquesgovbr/portal/blob/main/docs/FEEDS_API.md) (198 linhas)  
+→ **Arquitetura técnica**: [portal/docs/FEEDS_ARCHITECTURE.md](https://github.com/destaquesgovbr/portal/blob/main/docs/FEEDS_ARCHITECTURE.md)
 
 ---
 
