@@ -1,6 +1,6 @@
 # Airflow DAGs (Cloud Composer)
 
-O projeto utiliza **Cloud Composer 3** (Apache Airflow gerenciado) para orquestração de pipelines de dados: scraping de notícias (repo `scraper`) e sincronização entre PostgreSQL e HuggingFace (repo `data-platform`).
+O projeto utiliza **Cloud Composer 3** (Apache Airflow gerenciado) para orquestração de pipelines de dados: scraping de notícias (repo `scraper`), sincronização entre PostgreSQL e HuggingFace (repo `data-platform`), e reconciliação de eventos (repo `data-science`).
 
 !!! info "Cloud Composer"
     **Ambiente**: `destaquesgovbr-composer`
@@ -23,6 +23,11 @@ graph TB
         DAG2[test_postgres_connection]
     end
 
+    subgraph "DAGs (data-science)"
+        DAG5[reconciliation_dlq]
+        DAG6[replay_bronze_events]
+    end
+
     subgraph "DAGs (scraper)"
         DAG3[~158x scrape_agency]
         DAG4[scrape_ebc]
@@ -32,6 +37,8 @@ graph TB
         PG[(PostgreSQL<br/>Cloud SQL)]
         SM[Secret Manager]
         GCS[GCS Bucket<br/>DAGs]
+        BRONZE[(GCS Bronze<br/>Parquet)]
+        PUBSUB[Pub/Sub Topics]
     end
 
     subgraph "Externos"
@@ -44,10 +51,16 @@ graph TB
     WORKER --> DAG2
     WORKER --> DAG3
     WORKER --> DAG4
+    WORKER --> DAG5
+    WORKER --> DAG6
     DAG1 --> PG
     DAG1 --> HF
     DAG3 -->|HTTP POST| CR[Cloud Run<br/>Scraper API]
     DAG4 -->|HTTP POST| CR
+    DAG5 -->|Pub/Sub Pull| PUBSUB
+    DAG5 -->|Republish| PUBSUB
+    DAG6 -->|BigQuery Query| BRONZE
+    DAG6 -->|Republish| PUBSUB
     CR --> PG
     SM --> WORKER
 ```
@@ -61,6 +74,9 @@ gs://{COMPOSER_BUCKET}/dags/
 ├── data-platform/                    # DAGs do repo data-platform
 │   ├── sync_postgres_to_huggingface.py
 │   └── test_postgres_connection.py
+├── data-science/                     # DAGs do repo data-science
+│   ├── reconciliation_dlq.py
+│   └── replay_bronze_events.py
 └── scraper/                          # DAGs do repo scraper
     ├── scrape_agencies.py            # ~158 DAGs dinâmicas
     ├── scrape_ebc.py
@@ -100,9 +116,100 @@ Faz HTTP POST para `POST /scrape/ebc` no Cloud Run.
 
 → Veja [Módulo Scraper](../modulos/scraper.md) para detalhes da API e do repo.
 
+### DAGs do Data Science (repo `data-science`)
+
+#### `reconciliation_dlq`
+
+Reconcilia mensagens na Dead-Letter Queue após correção de bugs.
+
+| Configuração | Valor |
+|--------------|-------|
+| **Schedule** | Manual (`None`) |
+| **Catchup** | Desabilitado |
+| **Retries** | 1 (com backoff de 5 min) |
+| **Tags** | `reconciliation`, `pubsub`, `dlq` |
+
+#### Fluxo de Execução
+
+```mermaid
+sequenceDiagram
+    participant A as Airflow
+    participant DLQ as DLQ Subscription
+    participant TOPIC as Main Topic
+    participant WORKER as Enrichment Worker
+
+    A->>DLQ: Pull messages (limit=1000)
+    DLQ-->>A: Messages batch
+    
+    loop For each message
+        A->>A: Decode base64 payload
+        A->>TOPIC: Republish to main topic
+    end
+    
+    TOPIC->>WORKER: Process (retry with fix)
+    WORKER-->>TOPIC: Success (200)
+```
+
+**Uso**: Trigger manual após correção de bugs no worker para reprocessar mensagens falhadas.
+
+→ Veja [Dead-Letter Queue Guide](./pub-sub-deadletter.md) para detalhes de DLQ management.
+
+#### `replay_bronze_events`
+
+Reprocessa eventos da Bronze Layer (GCS Parquet) para Silver Layer (PostgreSQL).
+
+| Configuração | Valor |
+|--------------|-------|
+| **Schedule** | Manual (`None`) |
+| **Catchup** | Desabilitado |
+| **Retries** | 2 (com backoff exponencial) |
+| **Tags** | `replay`, `bronze`, `recovery` |
+| **Parameters** | `start_date`, `end_date`, `topic` |
+
+#### Fluxo de Execução
+
+```mermaid
+sequenceDiagram
+    participant A as Airflow
+    participant BQ as BigQuery
+    participant BRONZE as GCS Bronze Layer
+    participant TOPIC as Pub/Sub Topic
+    participant WORKER as Worker
+
+    A->>BQ: Query external table<br/>(date range filter)
+    BQ->>BRONZE: Read Parquet files
+    BRONZE-->>BQ: Events batch
+    BQ-->>A: Rows (e.g., 5000)
+    
+    loop Batch of 100 events
+        A->>TOPIC: Publish events
+    end
+    
+    TOPIC->>WORKER: Process batch
+    WORKER-->>TOPIC: Success
+```
+
+**Cenários de Uso**:
+
+1. **Perda de dados na Silver Layer**: Reprocessar eventos de um período específico
+2. **Correção de lógica de enriquecimento**: Reprocessar com nova versão do worker
+3. **Backfill**: Processar dados históricos com novos workers
+
+**Exemplo de Trigger**:
+
+```python
+# Via Airflow CLI
+airflow dags trigger replay_bronze_events \
+  --conf '{"start_date": "2026-05-01", "end_date": "2026-05-05", "topic": "dgb.news.scraped"}'
+```
+
+→ Veja [Bronze Layer GCS](../modulos/bronze-layer-gcs.md) para detalhes da arquitetura Bronze.
+
+---
+
 ### DAGs do Data Platform (repo `data-platform`)
 
-### `sync_postgres_to_huggingface`
+#### `sync_postgres_to_huggingface`
 
 Sincroniza notícias do PostgreSQL para o HuggingFace diariamente.
 
@@ -180,7 +287,7 @@ HF_COLUMNS = [
 | `nitaibezerra/govbrnews` | Todas (24) | Análise completa |
 | `nitaibezerra/govbrnews-reduced` | 4 (published_at, agency, title, url) | Listagens rápidas |
 
-### `test_postgres_connection`
+#### `test_postgres_connection`
 
 DAG de teste para verificar conectividade com o PostgreSQL.
 
@@ -228,6 +335,8 @@ DAG de teste para verificar conectividade com o PostgreSQL.
 psycopg2-binary>=2.9.9
 apache-airflow-providers-postgres>=5.10.2
 apache-airflow-providers-google>=10.14.0
+google-cloud-pubsub>=2.18.0
+google-cloud-bigquery>=3.11.0
 sqlalchemy>=1.4.52
 requests>=2.31.0
 pyyaml>=6.0
@@ -236,11 +345,25 @@ pyyaml>=6.0
 ### Environment Variables
 
 ```bash
+# PostgreSQL
 POSTGRES_HOST=10.x.x.x  # IP privado Cloud SQL
 POSTGRES_PORT=5432
 POSTGRES_DB=govbrnews
-GCP_PROJECT_ID=inspire-7-finep
+
+# GCP
+GCP_PROJECT_ID=destaques-govbr
 GCP_REGION=southamerica-east1
+
+# Pub/Sub Topics (Event-Driven)
+PUBSUB_TOPIC_SCRAPED=dgb.news.scraped
+PUBSUB_TOPIC_ENRICHED=dgb.news.enriched
+PUBSUB_TOPIC_EMBEDDED=dgb.news.embedded
+
+# Bronze Layer (Medallion)
+GCS_BRONZE_BUCKET=destaques-govbr-bronze
+BIGQUERY_BRONZE_DATASET=bronze
+
+# External
 TYPESENSE_HOST=34.39.186.38
 ```
 
@@ -252,6 +375,8 @@ As connections são gerenciadas via **Secret Manager**:
 |--------------|------|--------|
 | `postgres_default` | Postgres | `airflow-connections-postgres_default` |
 | `huggingface_default` | Generic | `airflow-connections-huggingface_default` |
+| `gcp_pubsub_default` | Google Cloud | `airflow-connections-gcp_pubsub_default` |
+| `bigquery_default` | Google BigQuery | `airflow-connections-bigquery_default` |
 
 ### Formato das Connections
 
@@ -271,6 +396,19 @@ As connections são gerenciadas via **Secret Manager**:
     "conn_type": "generic",
     "password": "hf_xxx"  // Token HuggingFace
 }
+
+// gcp_pubsub_default (usa Application Default Credentials)
+{
+    "conn_type": "google_cloud_platform",
+    "project_id": "destaques-govbr"
+}
+
+// bigquery_default (usa Application Default Credentials)
+{
+    "conn_type": "google_cloud_platform",
+    "project_id": "destaques-govbr",
+    "dataset": "bronze"
+}
 ```
 
 ## Deploy de DAGs
@@ -282,6 +420,11 @@ Cada repo tem seu próprio workflow `composer-deploy-dags.yaml` que sincroniza p
 **Repo `data-platform`**:
 ```bash
 gsutil -m rsync -r -d src/data_platform/dags/ gs://{BUCKET}/dags/data-platform/
+```
+
+**Repo `data-science`**:
+```bash
+gsutil -m rsync -r -d dags/ gs://{BUCKET}/dags/data-science/
 ```
 
 **Repo `scraper`**:
@@ -299,6 +442,9 @@ BUCKET=$(gcloud composer environments describe destaquesgovbr-composer \
 
 # Upload das DAGs do data-platform
 gsutil -m rsync -r -d src/data_platform/dags/ $BUCKET/data-platform/
+
+# Upload das DAGs do data-science
+gsutil -m rsync -r -d dags/ $BUCKET/data-science/
 
 # Upload das DAGs do scraper
 gsutil -m rsync -r -d dags/ $BUCKET/scraper/
