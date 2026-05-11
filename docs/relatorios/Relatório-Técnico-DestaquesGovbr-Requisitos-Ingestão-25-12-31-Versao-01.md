@@ -1920,6 +1920,261 @@ Lista completa dos **25 temas principais** com seus respectivos subtemas (nívei
 
 ---
 
+## Apêndice: Terminologias e Abreviações
+
+### Siglas e Abreviações
+
+#### A
+- **AI** (Artificial Intelligence) - Inteligência Artificial utilizada para classificação temática e geração de resumos automáticos
+- **ANS** (Agência Nacional de Saúde Suplementar) - Agência reguladora do setor de saúde suplementar
+- **API** (Application Programming Interface) - Interface de comunicação entre sistemas de software
+- **App Router** - Padrão de roteamento do Next.js 15 utilizado no portal web
+
+#### B
+- **Bronze Layer** - Camada de dados brutos sem transformação no pipeline
+
+#### C
+- **CI/CD** (Continuous Integration/Continuous Deployment) - Práticas de automação de pipelines de desenvolvimento
+- **CPQD** - Centro de Pesquisa e Desenvolvimento em Telecomunicações
+- **CPU** (Central Processing Unit) - Unidade Central de Processamento
+- **CSV** (Comma-Separated Values) - Formato de arquivo de texto para dados tabulares
+
+#### D
+- **DAGs** (Directed Acyclic Graphs) - Grafos Acíclicos Direcionados para orquestração de workflows
+
+#### E
+- **EBC** (Empresa Brasil de Comunicação) - Empresa pública de comunicação (Agência Brasil)
+- **ETL** (Extract, Transform, Load) - Processo de Extração, Transformação e Carga de dados
+
+#### F
+- **Finep** - Financiadora de Estudos e Projetos
+
+#### G
+- **GB** (Gigabyte) - Unidade de medida de armazenamento
+- **GCP** (Google Cloud Platform) - Plataforma de serviços em nuvem da Google
+- **Gold Layer** - Camada de dados refinados prontos para consumo analítico
+- **gov.br** - Domínio oficial do governo brasileiro
+
+#### H
+- **HTML** (HyperText Markup Language) - Linguagem de marcação para páginas web
+- **HTTP** (HyperText Transfer Protocol) - Protocolo de transferência de hipertexto
+
+#### I
+- **IaC** (Infrastructure as Code) - Infraestrutura como Código
+- **IDH** (Índice de Desenvolvimento Humano) - Indicador socioeconômico internacional
+- **IDP** (Infraestrutura de Dados Públicos) - Framework de integração de bases governamentais
+- **ISO 8601** - Padrão internacional para representação de data e hora
+
+#### J
+- **JSON** (JavaScript Object Notation) - Formato de intercâmbio de dados
+
+#### L
+- **LAI** (Lei de Acesso à Informação) - Legislação sobre transparência e acesso a dados públicos
+- **LLM** (Large Language Model) - Modelo de Linguagem de Grande Escala para classificação
+
+#### M
+- **MD5** (Message Digest Algorithm 5) - Algoritmo de hash para gerar identificadores únicos
+- **MGI** (Ministério da Gestão e da Inovação) - Órgão federal responsável pela gestão pública
+- **Mi** (Mebibyte) - Unidade de memória (1 Mi = 1.048.576 bytes)
+
+#### N
+- **NRs** (Normas Regulamentadoras) - Normas de segurança e saúde no trabalho
+
+#### P
+- **Parquet** - Formato colunar otimizado para grandes volumes de dados
+- **Plone** - Sistema de gerenciamento de conteúdo usado em sites gov.br
+- **pt-BR** (Português Brasileiro) - Código de idioma
+
+#### R
+- **REST** (Representational State Transfer) - Estilo arquitetural para APIs web
+- **RF** (Requisito Funcional) - Especificação de funcionalidade do sistema
+- **RNF** (Requisito Não-Funcional) - Especificação de qualidade ou restrição
+- **ROI** (Return on Investment) - Retorno sobre Investimento
+
+#### S
+- **SaaS** (Software as a Service) - Software como Serviço
+- **SLA** (Service Level Agreement) - Acordo de Nível de Serviço
+- **SLO** (Service Level Objective) - Objetivo de Nível de Serviço
+- **SSD** (Solid-State Drive) - Unidade de armazenamento de estado sólido
+- **SSH** (Secure Shell) - Protocolo criptográfico para comunicação segura
+- **SUS** (Sistema Único de Saúde) - Sistema público de saúde brasileiro
+
+#### T
+- **TypeScript** - Linguagem de programação com tipagem estática
+
+#### U
+- **UI** (User Interface) - Interface de Usuário
+- **URL** (Uniform Resource Locator) - Endereço web
+- **UTC** (Coordinated Universal Time) - Tempo Universal Coordenado
+
+#### V
+- **vCPU** (Virtual CPU) - CPU virtual em ambiente de nuvem
+- **VM** (Virtual Machine) - Máquina Virtual
+- **VPC** (Virtual Private Cloud) - Rede privada virtual isolada
+
+#### Y
+- **YAML** (YAML Ain't Markup Language) - Formato de serialização de dados legível
+
+---
+
+### Tecnologias e Ferramentas
+
+#### Linguagens de Programação
+- **Python 3.12+** - Linguagem principal para scraper e pipeline
+- **TypeScript 5** - Linguagem para desenvolvimento do portal Next.js
+
+#### Frameworks Backend
+- **BeautifulSoup4** - Parsing e extração de dados HTML
+- **datasets** (HuggingFace) - Carregamento e processamento de datasets
+- **markdownify** - Conversão HTML para Markdown
+- **Poetry** - Gerenciador de dependências Python (v1.7+)
+- **requests** - Cliente HTTP para scraping
+
+#### Frameworks Frontend
+- **Next.js 15** - Framework React com renderização server-side
+- **React Query** - Gerenciamento de estado assíncrono
+- **shadcn/ui** - Componentes UI reutilizáveis
+- **Tailwind CSS 3.x** - Framework CSS utility-first
+
+#### Análise de Dados
+- **Altair** - Visualização de dados declarativa
+- **pandas** - Manipulação e análise de dados
+- **Streamlit** - Criação de aplicações web de análise
+
+#### Infraestrutura GCP
+- **Artifact Registry** - Armazenamento de imagens Docker
+- **Cloud Run** - Plataforma serverless para containers
+- **Compute Engine** - Máquinas virtuais (e2-medium: 2 vCPU / 4GB RAM)
+- **Secret Manager** - Armazenamento seguro de credenciais
+- **VPC Connector** - Conexão Cloud Run com VPC privada
+- **Workload Identity Federation** - Autenticação GitHub → GCP
+
+#### DevOps
+- **Docker** - Plataforma de containerização
+- **GitHub Actions** - Automação CI/CD
+- **Terraform** - Provisionamento de infraestrutura como código
+
+#### Banco de Dados e Busca
+- **HuggingFace Datasets** - Hospedagem de datasets públicos (~300k docs)
+- **PostgreSQL** - Sistema de gerenciamento de banco relacional
+- **Typesense** - Motor de busca full-text (e2-medium, 50GB SSD, porta 8108)
+
+#### Inteligência Artificial
+- **Cogfy** - API SaaS para inferência LLM (classificação temática, limite 5000 chars)
+
+#### Documentação
+- **Markdown** - Linguagem de marcação para conteúdo
+- **Mermaid** - Linguagem para diagramas em texto
+
+---
+
+### Conceitos do Domínio
+
+#### Arquitetura de Dados
+- **Camada de Apresentação** - Interface com usuário (Portal, Streamlit)
+- **Camada de Armazenamento** - Persistência no HuggingFace (~300k docs)
+- **Camada de Coleta** - Scraping de 160+ sites gov.br
+- **Camada de Enriquecimento** - Classificação temática via LLM
+- **Camada de Indexação** - Indexação Typesense para busca
+- **Fonte de Verdade** - Sistema autoritativo único (HuggingFace no DestaquesGovbr)
+- **Silver Layer** - Dados parcialmente processados e limpos
+
+#### Pipeline de Dados
+- **Backoff Exponencial** - Retry com intervalo crescente (2, 4, 8, 16s)
+- **Batch Processing** - Processamento em lotes (1000 registros no Cogfy)
+- **Deduplicação** - Remoção de duplicatas via unique_id
+- **Full Reload** - Recarga completa de dados (DESTRUTIVO)
+- **Graceful Degradation** - Falha em componente não bloqueia pipeline
+- **Incremental Load** - Carga apenas dos últimos 7 dias (padrão)
+- **Retry Logic** - Repetição automática (5 tentativas com backoff)
+- **Rollback** - Reversão automática em falha crítica
+- **Upsert** - Insert or update (inserir se novo, atualizar se existe)
+- **Versionamento** - Controle automático de versões do dataset
+
+#### Classificação e Taxonomia
+- **Árvore Temática** - Taxonomia hierárquica 25 temas × 3 níveis
+- **Classificação Temática** - Atribuição automática via LLM (L1, L2, L3)
+- **Lead Editorial** - Parágrafo introdutório resumindo notícia
+- **Most Specific Theme** - Tema mais específico (prioridade: L3 > L2 > L1)
+- **Nível 1** - 25 temas principais (ex: "01 - Economia e Finanças")
+- **Nível 2** - Subtemas (ex: "01.01 - Política Econômica")
+- **Nível 3** - Tópicos específicos (ex: "01.01.01 - Política Fiscal")
+- **Resumo Automático** - Síntese 2-3 frases gerada por LLM
+- **Theme Code** - Código numérico hierárquico (ex: "01.01.01")
+- **Theme Label** - Nome textual do tema
+
+#### Scraping
+- **Cobertura Temporal** - Período histórico (2023-presente, últimos 3 dias/execução)
+- **Conversão HTML → Markdown** - Transformação preservando estrutura
+- **EBCWebScraper** - Scraper para sites EBC (parser HTML específico)
+- **Extração de Campos** - Parsing HTML para extrair 30+ campos
+- **Paginação** - Navegação sequencial por múltiplas páginas
+- **Parser HTML** - Interpretação de estrutura HTML
+- **ScrapeManager** - Orquestrador paralelo/sequencial de scrapers
+- **Taxa de Sucesso** - Percentual sem erro (meta >95%, resultado ~97%)
+- **Truncamento** - Limitação a 5000 caracteres (restrição Cogfy)
+- **unique_id** - Hash MD5(agency + published_at + title)
+- **WebScraper** - Scraper genérico para sites gov.br Plone
+
+#### Qualidade e Métricas
+- **Artigos Indexados** - Total no Typesense (~300k)
+- **Artigos Raspados** - Coleta diária (500-1500/dia)
+- **Cobertura de Órgãos** - Percentual monitorado (156/156 = 100%)
+- **Duração do Pipeline** - Tempo total execução (75-130 min)
+- **Taxa de Classificação** - Com tema atribuído (meta >85%, resultado ~90%)
+- **Taxa de Geração de Resumo** - Com resumo gerado (meta >85%, resultado ~88%)
+
+#### Componentes
+- **Catálogo de Órgãos** - Base 156 agências com metadados
+- **Hierarquia Organizacional** - Árvore de subordinação de órgãos
+- **Schema do Dataset** - Estrutura 30+ campos definindo formato
+
+#### Segurança
+- **Auditoria de Acessos** - Registro e monitoramento de acessos
+- **Compliance** - Conformidade com regulamentações
+- **Dados Abertos** - Dados públicos livres para acesso/reutilização
+- **Licença Creative Commons** - Licença de uso público com atribuição
+- **Nível 2 – RESERVADO** - Classificação de sigilo (documentos internos)
+- **Rotação de Credenciais** - Atualização periódica automática
+- **Validação de Schema** - Verificação de conformidade antes de persistir
+
+#### Performance
+- **Cache Distribuído** - Armazenamento temporário multi-nó (planejado)
+- **Escala Automática** - Ajuste dinâmico de recursos (Cloud Run: 0-10)
+- **Filtros Facetados** - Filtragem multidimensional (agency, theme, date)
+- **Hot Reload** - Atualização automática em desenvolvimento
+- **Serverless** - Provedor gerencia infraestrutura automaticamente
+- **Tempo de Resposta** - Latência da aplicação (meta <2s)
+
+#### Busca
+- **Busca Full-Text** - Busca textual em title e content
+- **Busca Semântica** - Compreende significado além de palavras exatas
+- **Collection** - Agrupamento lógico de documentos (collection "news")
+- **Ordenação por Relevância** - Score de correspondência com query
+
+---
+
+### Formatos e Padrões
+
+- **Conventional Commits** - Padrão de mensagens (feat:, fix:, docs:, chore:)
+- **CSV** - Formato texto (3 variações: completo, por agência, por ano)
+- **ISO 8601** - Timestamps (YYYY-MM-DDTHH:MM:SSZ)
+- **Parquet** - Formato colunar eficiente (~200MB, formato principal)
+- **Utility-First CSS** - Estilização com classes atômicas (Tailwind)
+
+---
+
+### Etapas do Pipeline Diário
+
+1. **Scraping gov.br** - Coleta 160+ sites padrão (30-60 min, 4AM UTC)
+2. **Scraping EBC** - Sites EBC com parser específico (10-20 min, allow_update=True)
+3. **Upload para Cogfy** - Envio para processamento LLM (5-10 min, batches 1000)
+4. **Aguarda Processamento** - Delay fixo inferência LLM (20 min, sleep 1200s)
+5. **Enriquecimento** - Busca resultados Cogfy e atualiza (10-20 min)
+6. **Sincronização Typesense** - Indexação incremental 7 dias (10 min, 10AM UTC)
+
+---
+
 **Documento elaborado em**: 23 de março de 2026
 
 **Versão**: 1.0

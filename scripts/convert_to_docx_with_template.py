@@ -640,7 +640,7 @@ Exemplos:
     check_dependencies()
 
     # Caminhos padrão
-    template_path = 'docs/relatorios/templates/Template Relatório-Técnico-DestaquesGovbr Tema 7.docx'
+    template_path = 'docs/relatorios/templates/Template-Relatório-Técnico-DestaquesGovbr-Tema7.docx'
     relatorios_dir = 'docs/relatorios'
     output_dir = 'docs/relatorios/output'
     cache_dir = Path(output_dir) / 'imgs'
