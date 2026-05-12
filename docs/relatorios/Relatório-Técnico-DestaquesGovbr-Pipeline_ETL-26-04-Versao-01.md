@@ -1493,19 +1493,812 @@ ORDER BY avg_trending DESC;
 
 ## **3.7 Regras de Qualidade de Dados**
 
-*(Seções 3.7.1 a 3.7.5 mantidas da versão anterior - regras de qualidade não mudaram com event-driven)*
+O sistema implementa um **framework robusto e multicamadas** de controle de qualidade, garantindo integridade, consistência e confiabilidade dos dados em todas as etapas do pipeline.
 
 ### **3.7.1 Schema Validation com Pydantic**
 
-*(Conteúdo idêntico à versão 1.0 - veja seção 3.4.1 do relatório original)*
+O sistema utiliza **Pydantic** para validação de schema em tempo de execução, garantindo que todos os documentos atendam ao contrato de dados definido antes de serem processados.
+
+#### **Schema Base**
+
+```python
+from pydantic import BaseModel, Field, validator, HttpUrl
+from typing import Optional, List
+from datetime import datetime, date
+from enum import Enum
+import re
+
+class DocumentStatus(str, Enum):
+    """Status do documento no pipeline."""
+    PENDING = "pending"
+    PROCESSED = "processed"
+    ENRICHED = "enriched"
+    ERROR = "error"
+
+class GovBrDocument(BaseModel):
+    """Schema Pydantic para documentos do DestaquesGovbr."""
+
+    # Campos obrigatórios
+    unique_id: str = Field(..., min_length=64, max_length=64, description="SHA256 hash hexadecimal")
+    agency: str = Field(..., min_length=2, max_length=100, description="Código do órgão gov.br")
+    title: str = Field(..., min_length=10, max_length=500, description="Título da notícia")
+    published_at: datetime = Field(..., description="Data/hora de publicação")
+    source_url: HttpUrl = Field(..., description="URL original da notícia")
+
+    # Campos opcionais
+    content: Optional[str] = Field(None, min_length=100, max_length=50000, description="Conteúdo em Markdown")
+    subtitle: Optional[str] = Field(None, max_length=1000, description="Subtítulo/resumo")
+    summary: Optional[str] = Field(None, max_length=1000, description="Resumo gerado por IA")
+    themes: Optional[List[str]] = Field(default_factory=list, description="Códigos de temas (ex: 01.01.02)")
+    status: DocumentStatus = DocumentStatus.PENDING
+    
+    # Campos de enriquecimento (opcionais)
+    sentiment: Optional[str] = Field(None, description="Sentiment: positive, neutral, negative")
+    entities: Optional[List[str]] = Field(default_factory=list, description="Entidades extraídas")
+    content_embedding: Optional[List[float]] = Field(None, description="Embedding 768-dim")
+
+    class Config:
+        """Configurações do Pydantic."""
+        str_strip_whitespace = True  # Remove espaços em branco
+        validate_assignment = True    # Valida em atribuições
+        use_enum_values = True        # Usa valores de enum
+
+    @validator('unique_id')
+    def validate_unique_id_format(cls, v):
+        """
+        Valida que unique_id é um hash SHA256 válido (64 caracteres hexadecimais).
+        
+        Regra Q01: unique_id DEVE ser string única SHA256.
+        """
+        if not re.match(r'^[a-f0-9]{64}$', v.lower()):
+            raise ValueError(
+                f"unique_id deve ser SHA256 hexadecimal (64 chars): recebido {len(v)} chars"
+            )
+        return v.lower()
+
+    @validator('source_url')
+    def validate_source_url(cls, v):
+        """
+        Valida que source_url é uma URL HTTP/HTTPS válida.
+        
+        Regra Q02: source_url DEVE ser URL válida.
+        """
+        url_str = str(v)
+        if not url_str.startswith(('http://', 'https://')):
+            raise ValueError("source_url deve começar com http:// ou https://")
+        return v
+
+    @validator('published_at')
+    def validate_published_at(cls, v):
+        """
+        Valida que published_at está em range válido (2015-presente).
+        
+        Regra Q03: published_at DEVE ser datetime válido e não no futuro.
+        """
+        now = datetime.now()
+        min_date = datetime(2015, 1, 1)
+        
+        if v > now:
+            raise ValueError(
+                f"published_at não pode ser no futuro: {v} > {now}"
+            )
+        if v < min_date:
+            raise ValueError(
+                f"published_at muito antiga (anterior a 2015): {v}"
+            )
+        return v
+
+    @validator('title')
+    def clean_title(cls, v):
+        """Remove espaços extras e normaliza título."""
+        return ' '.join(v.split())
+
+    @validator('content')
+    def validate_content_length(cls, v):
+        """
+        Valida que content tem tamanho adequado.
+        
+        Regra Q04: content DEVE ter entre 100-50.000 caracteres.
+        """
+        if v is None:
+            return v
+        
+        # Remove apenas whitespace
+        content_stripped = v.strip()
+        if not content_stripped:
+            return None
+        
+        length = len(content_stripped)
+        if length < 100:
+            raise ValueError(
+                f"Conteúdo muito curto: {length} chars (mínimo: 100)"
+            )
+        if length > 50000:
+            raise ValueError(
+                f"Conteúdo muito longo: {length} chars (máximo: 50.000)"
+            )
+        
+        return content_stripped
+
+    @validator('themes')
+    def validate_themes(cls, v):
+        """
+        Valida que temas são únicos e em formato correto.
+        
+        Regra Q05: themes DEVE ser lista de strings únicas em lowercase.
+        """
+        if not v:
+            return v
+        
+        # Remove duplicatas e normaliza
+        unique_themes = list(set(theme.lower().strip() for theme in v if theme))
+        
+        # Valida formato (ex: 01.01.02)
+        theme_pattern = re.compile(r'^\d{2}\.\d{2}(\.\d{2})?$')
+        for theme in unique_themes:
+            if not theme_pattern.match(theme):
+                raise ValueError(
+                    f"Formato de tema inválido: {theme} (esperado: XX.XX ou XX.XX.XX)"
+                )
+        
+        return unique_themes
+
+    @validator('sentiment')
+    def validate_sentiment(cls, v):
+        """Valida valores permitidos de sentiment."""
+        if v is None:
+            return v
+        
+        allowed = ['positive', 'neutral', 'negative']
+        if v.lower() not in allowed:
+            raise ValueError(
+                f"Sentiment inválido: {v} (permitidos: {', '.join(allowed)})"
+            )
+        return v.lower()
+
+    @validator('content_embedding')
+    def validate_embedding_dimension(cls, v):
+        """Valida dimensão do embedding (768-dim)."""
+        if v is None:
+            return v
+        
+        if len(v) != 768:
+            raise ValueError(
+                f"Embedding deve ter 768 dimensões: recebido {len(v)}"
+            )
+        return v
+```
+
+#### **Regras de Validação Pydantic**
+
+| ID | Campo | Regra | Tipo de Validação |
+|----|-------|-------|-------------------|
+| **Q01** | `unique_id` | DEVE ser string única SHA256 (64 caracteres hex) | Formato + Unicidade |
+| **Q02** | `source_url` | DEVE ser URL válida (HTTP/HTTPS) | Formato (HttpUrl) |
+| **Q03** | `published_at` | DEVE ser datetime válido entre 2015 e hoje | Formato + Range |
+| **Q04** | `content` | DEVE ter entre 100-50.000 caracteres | Tamanho (min_length, max_length) |
+| **Q05** | `themes` | DEVE ser lista de strings únicas em lowercase (formato XX.XX.XX) | Tipo + Formato |
+| **Q06** | `sentiment` | DEVE ser 'positive', 'neutral' ou 'negative' | Enum values |
+| **Q07** | `content_embedding` | DEVE ter exatamente 768 dimensões | Array length |
+
+#### **Exemplo de Uso**
+
+```python
+from typing import List, Tuple
+
+def validate_scraped_document(raw_data: dict) -> Tuple[GovBrDocument, List[str]]:
+    """
+    Valida documento recém-coletado.
+    
+    Returns:
+        (documento_validado, lista_de_erros)
+    """
+    try:
+        validated = GovBrDocument(**raw_data)
+        return validated, []
+    except ValidationError as e:
+        errors = [f"{err['loc'][0]}: {err['msg']}" for err in e.errors()]
+        logger.warning(f"Documento inválido {raw_data.get('unique_id')}: {errors}")
+        return None, errors
+
+# Uso no scraper
+raw_doc = {
+    'unique_id': hashlib.sha256(url.encode()).hexdigest(),
+    'agency': 'fazenda',
+    'title': 'Nova política econômica anunciada',
+    'published_at': datetime.now(),
+    'source_url': 'https://www.gov.br/fazenda/pt-br/noticias/...',
+    'content': '...'  # Conteúdo em Markdown
+}
+
+validated_doc, errors = validate_scraped_document(raw_doc)
+if errors:
+    # Log erros, envia para DLQ ou descarta
+    pass
+else:
+    # Insere no PostgreSQL
+    db.insert(validated_doc)
+```
+
+#### **Taxa de Validação**
+
+- **Status atual**: ✅ **98%** (Meta: ≥ 97%)
+- **Documentos rejeitados**: ~2% (erros de schema)
+- **Erros mais comuns**:
+  1. `content_too_short`: 45% dos erros (< 100 chars)
+  2. `invalid_url`: 25% dos erros (URL malformada)
+  3. `unique_id_format`: 15% dos erros (não SHA256)
+  4. `future_date`: 10% dos erros (data no futuro)
+  5. `invalid_theme`: 5% dos erros (formato tema incorreto)
 
 ### **3.7.2 Validação em Lote**
 
-*(Conteúdo idêntico à versão 1.0 - veja seção 3.4.2 do relatório original)*
+Sistema de validação otimizado para processar **grandes volumes** de documentos simultaneamente, com separação de válidos/inválidos e relatórios detalhados.
+
+#### **BatchValidator**
+
+```python
+from typing import List, Dict, Tuple, Any
+from pydantic import ValidationError
+import pandas as pd
+from datetime import datetime
+
+class BatchValidator:
+    """Validador de lotes de documentos."""
+
+    def __init__(self):
+        self.valid_docs: List[GovBrDocument] = []
+        self.invalid_docs: List[Dict] = []
+        self.errors_by_type: Dict[str, int] = {}
+        self.start_time: datetime = None
+        self.end_time: datetime = None
+
+    def validate_batch(self, documents: List[Dict]) -> Tuple[List[GovBrDocument], List[Dict]]:
+        """
+        Valida um lote de documentos.
+        
+        Args:
+            documents: Lista de documentos brutos (dicts)
+        
+        Returns:
+            Tuple de (documentos_válidos, documentos_inválidos_com_erros)
+        """
+        self.start_time = datetime.now()
+        self.valid_docs = []
+        self.invalid_docs = []
+        
+        for i, doc in enumerate(documents):
+            try:
+                validated = GovBrDocument(**doc)
+                self.valid_docs.append(validated)
+            except ValidationError as e:
+                # Coleta erros detalhados
+                error_summary = {
+                    'document_index': i,
+                    'unique_id': doc.get('unique_id', 'UNKNOWN'),
+                    'agency': doc.get('agency', 'UNKNOWN'),
+                    'errors': []
+                }
+                
+                for error in e.errors():
+                    field = '.'.join(str(loc) for loc in error['loc'])
+                    error_type = error['type']
+                    message = error['msg']
+                    
+                    error_summary['errors'].append({
+                        'field': field,
+                        'type': error_type,
+                        'message': message
+                    })
+                    
+                    # Contabiliza por tipo
+                    self.errors_by_type[error_type] = self.errors_by_type.get(error_type, 0) + 1
+                
+                self.invalid_docs.append({
+                    'document': doc,
+                    'error_summary': error_summary
+                })
+                
+                logger.warning(
+                    f"Documento inválido [{i}] {doc.get('unique_id')}: "
+                    f"{len(error_summary['errors'])} erros"
+                )
+        
+        self.end_time = datetime.now()
+        return self.valid_docs, self.invalid_docs
+    
+    def get_validation_report(self) -> Dict[str, Any]:
+        """
+        Gera relatório completo de validação.
+        
+        Returns:
+            Dict com métricas e estatísticas do lote
+        """
+        total = len(self.valid_docs) + len(self.invalid_docs)
+        processing_time = (self.end_time - self.start_time).total_seconds() * 1000  # ms
+        
+        return {
+            'summary': {
+                'total_documents': total,
+                'valid_count': len(self.valid_docs),
+                'invalid_count': len(self.invalid_docs),
+                'validation_rate': len(self.valid_docs) / total if total > 0 else 0,
+                'processing_time_ms': processing_time,
+                'throughput_docs_per_sec': total / (processing_time / 1000) if processing_time > 0 else 0
+            },
+            'errors_by_type': dict(sorted(
+                self.errors_by_type.items(),
+                key=lambda x: x[1],
+                reverse=True
+            )),
+            'invalid_documents_sample': self.invalid_docs[:10],  # Primeiros 10 inválidos
+            'validation_metrics': self._calculate_field_metrics()
+        }
+    
+    def _calculate_field_metrics(self) -> Dict[str, Any]:
+        """Calcula métricas por campo."""
+        if not self.valid_docs:
+            return {}
+        
+        # Converte para DataFrame para análise
+        df = pd.DataFrame([doc.dict() for doc in self.valid_docs])
+        
+        metrics = {}
+        for col in df.columns:
+            if df[col].dtype == 'object':
+                # Campos de texto
+                metrics[col] = {
+                    'null_count': df[col].isna().sum(),
+                    'null_rate': df[col].isna().sum() / len(df),
+                    'unique_count': df[col].nunique()
+                }
+            elif col == 'themes':
+                # Temas (lista)
+                theme_counts = df[col].apply(lambda x: len(x) if x else 0)
+                metrics[col] = {
+                    'avg_themes_per_doc': theme_counts.mean(),
+                    'max_themes': theme_counts.max(),
+                    'docs_with_themes': (theme_counts > 0).sum()
+                }
+        
+        return metrics
+    
+    def export_invalid_docs_to_csv(self, filepath: str):
+        """Exporta documentos inválidos para CSV (debugging)."""
+        if not self.invalid_docs:
+            logger.info("Nenhum documento inválido para exportar")
+            return
+        
+        rows = []
+        for item in self.invalid_docs:
+            doc = item['document']
+            error_summary = item['error_summary']
+            
+            rows.append({
+                'unique_id': doc.get('unique_id', 'UNKNOWN'),
+                'agency': doc.get('agency', 'UNKNOWN'),
+                'title': doc.get('title', 'UNKNOWN')[:100],
+                'error_count': len(error_summary['errors']),
+                'error_types': ', '.join(set(e['type'] for e in error_summary['errors'])),
+                'error_fields': ', '.join(set(e['field'] for e in error_summary['errors']))
+            })
+        
+        df = pd.DataFrame(rows)
+        df.to_csv(filepath, index=False, encoding='utf-8')
+        logger.info(f"Exportados {len(rows)} documentos inválidos para {filepath}")
+```
+
+#### **Uso no Pipeline**
+
+```python
+# DAG de validação diária (Airflow)
+@dag(schedule="0 2 * * *")  # 2 AM daily
+def validate_daily_batch():
+    """Valida todos os documentos do dia anterior."""
+    
+    @task
+    def fetch_yesterday_docs() -> List[Dict]:
+        """Busca documentos inseridos ontem."""
+        yesterday = datetime.now() - timedelta(days=1)
+        
+        query = """
+            SELECT unique_id, agency, title, published_at, source_url, 
+                   content, subtitle, themes, sentiment, entities
+            FROM news
+            WHERE DATE(scraped_at) = DATE(%s)
+        """
+        
+        with db.cursor() as cur:
+            cur.execute(query, (yesterday,))
+            return [dict(row) for row in cur.fetchall()]
+    
+    @task
+    def validate_batch_task(documents: List[Dict]) -> Dict[str, Any]:
+        """Executa validação em lote."""
+        validator = BatchValidator()
+        valid, invalid = validator.validate_batch(documents)
+        
+        report = validator.get_validation_report()
+        
+        # Log relatório
+        logger.info(f"Validação concluída: {report['summary']}")
+        
+        # Exporta inválidos para CSV (debugging)
+        if invalid:
+            validator.export_invalid_docs_to_csv(
+                f"/tmp/invalid_docs_{datetime.now().strftime('%Y%m%d')}.csv"
+            )
+        
+        # Envia alerta se taxa < 97%
+        if report['summary']['validation_rate'] < 0.97:
+            send_alert(
+                title="Taxa de validação abaixo da meta",
+                message=f"Taxa: {report['summary']['validation_rate']:.2%} (Meta: ≥ 97%)",
+                severity="high"
+            )
+        
+        return report
+    
+    documents = fetch_yesterday_docs()
+    report = validate_batch_task(documents)
+
+validate_daily_batch()
+```
+
+#### **Exemplo de Relatório**
+
+```json
+{
+  "summary": {
+    "total_documents": 1000,
+    "valid_count": 980,
+    "invalid_count": 20,
+    "validation_rate": 0.98,
+    "processing_time_ms": 1523,
+    "throughput_docs_per_sec": 656.86
+  },
+  "errors_by_type": {
+    "value_error.str.min_length": 8,
+    "value_error.url": 5,
+    "value_error.datetime.future": 4,
+    "value_error.list": 3
+  },
+  "invalid_documents_sample": [
+    {
+      "document": {"unique_id": "abc123...", "agency": "fazenda", ...},
+      "error_summary": {
+        "document_index": 42,
+        "unique_id": "abc123...",
+        "agency": "fazenda",
+        "errors": [
+          {
+            "field": "content",
+            "type": "value_error.str.min_length",
+            "message": "Conteúdo muito curto: 45 chars (mínimo: 100)"
+          }
+        ]
+      }
+    }
+  ],
+  "validation_metrics": {
+    "content": {
+      "null_count": 0,
+      "null_rate": 0.0,
+      "unique_count": 980
+    },
+    "themes": {
+      "avg_themes_per_doc": 2.3,
+      "max_themes": 5,
+      "docs_with_themes": 952
+    }
+  }
+}
+```
 
 ### **3.7.3 Detecção de Anomalias**
 
-*(Conteúdo idêntico à versão 1.0 - veja seção 3.4.3 do relatório original)*
+Sistema de **detecção proativa** de padrões anômalos no dataset, identificando problemas antes que impactem usuários finais.
+
+#### **AnomalyDetector**
+
+```python
+import pandas as pd
+import numpy as np
+from typing import List, Dict, Any
+from datetime import datetime, timedelta
+from scipy import stats
+
+class AnomalyDetector:
+    """Detecta anomalias no pipeline de scraping e enriquecimento."""
+
+    def __init__(self, db_connection):
+        self.db = db_connection
+        self.anomalies: List[Dict[str, Any]] = []
+        self.df: pd.DataFrame = None
+
+    def detect_all(self) -> List[Dict[str, Any]]:
+        """
+        Executa todas as detecções de anomalia.
+        
+        Returns:
+            Lista de anomalias detectadas
+        """
+        # Carrega dados dos últimos 30 dias
+        self.df = self._load_recent_data(days=30)
+        
+        # Executa detectores
+        self._detect_volume_anomaly()          # Volume anormal por dia
+        self._detect_duplicate_spike()         # Pico de duplicatas
+        self._detect_missing_fields()          # Campos obrigatórios faltando
+        self._detect_date_anomalies()          # Datas inválidas
+        self._detect_agency_coverage()         # Órgãos sem dados
+        self._detect_content_anomalies()       # Conteúdo suspeito
+        
+        # Ordena por severidade
+        self.anomalies.sort(key=lambda x: {'high': 0, 'medium': 1, 'low': 2}[x['severity']])
+        
+        return self.anomalies
+    
+    def _load_recent_data(self, days: int = 30) -> pd.DataFrame:
+        """Carrega dados recentes do PostgreSQL."""
+        query = """
+            SELECT unique_id, agency, title, published_at, scraped_at,
+                   LENGTH(content) as content_length,
+                   theme_l1_id, theme_l2_id, theme_l3_id,
+                   sentiment, entities,
+                   content_embedding IS NOT NULL as has_embedding
+            FROM news
+            WHERE scraped_at >= NOW() - INTERVAL '%s days'
+        """
+        
+        return pd.read_sql(query, self.db, params=(days,))
+    
+    def _detect_volume_anomaly(self, threshold_std: float = 2.0):
+        """
+        Detecta volume anormal de documentos por dia usando Z-score.
+        
+        Baseline: média móvel de 7 dias
+        Alerta: desvio > 2σ (95% confidence) ou > 3σ (99.7% confidence)
+        """
+        daily_counts = self.df.groupby(
+            self.df['scraped_at'].dt.date
+        ).size()
+        
+        # Calcula média e desvio padrão
+        mean = daily_counts.mean()
+        std = daily_counts.std()
+        
+        for date, count in daily_counts.items():
+            z_score = (count - mean) / std if std > 0 else 0
+            
+            if abs(z_score) > threshold_std:
+                severity = 'high' if abs(z_score) > 3 else 'medium'
+                direction = 'alto' if z_score > 0 else 'baixo'
+                
+                self.anomalies.append({
+                    'type': 'volume_anomaly',
+                    'severity': severity,
+                    'date': str(date),
+                    'count': int(count),
+                    'expected': round(mean, 1),
+                    'z_score': round(z_score, 2),
+                    'std_dev': round(std, 1),
+                    'message': f"Volume {direction}: {count} docs (esperado: ~{mean:.0f} ± {std:.0f})",
+                    'recommendation': 'Verificar scraper ou fontes gov.br' if z_score < 0 else 'Pico esperado ou verificar duplicatas'
+                })
+    
+    def _detect_duplicate_spike(self, threshold: float = 0.05):
+        """
+        Detecta picos de documentos duplicados (unique_id).
+        
+        Baseline: 1.2% duplicatas
+        Alerta: taxa > 5%
+        """
+        daily_duplicates = self.df.groupby(
+            self.df['scraped_at'].dt.date
+        ).apply(lambda x: x['unique_id'].duplicated().sum() / len(x))
+        
+        for date, dup_rate in daily_duplicates.items():
+            if dup_rate > threshold:
+                self.anomalies.append({
+                    'type': 'duplicate_spike',
+                    'severity': 'high',
+                    'date': str(date),
+                    'duplicate_rate': round(dup_rate, 4),
+                    'threshold': threshold,
+                    'message': f"Pico de duplicatas: {dup_rate:.2%} (normal: ~1.2%)",
+                    'recommendation': 'Verificar lógica de unique_id no scraper ou re-scraping acidental'
+                })
+    
+    def _detect_missing_fields(self, threshold: float = 0.01):
+        """
+        Detecta campos obrigatórios faltando (NULL).
+        
+        Alerta: taxa > 1% para campos críticos
+        """
+        critical_fields = ['title', 'published_at', 'content', 'agency']
+        
+        for field in critical_fields:
+            if field not in self.df.columns:
+                continue
+            
+            null_rate = self.df[field].isna().sum() / len(self.df)
+            
+            if null_rate > threshold:
+                self.anomalies.append({
+                    'type': 'missing_field',
+                    'severity': 'high',
+                    'field': field,
+                    'null_count': int(self.df[field].isna().sum()),
+                    'null_rate': round(null_rate, 4),
+                    'threshold': threshold,
+                    'message': f"Campo '{field}' faltando em {null_rate:.2%} dos documentos",
+                    'recommendation': f'Verificar scraper para campo {field}'
+                })
+    
+    def _detect_date_anomalies(self):
+        """
+        Detecta datas inválidas (futuro, muito antiga).
+        
+        Válido: 2015-01-01 até hoje
+        Alerta: > 0.5% fora do range
+        """
+        now = pd.Timestamp.now()
+        min_date = pd.Timestamp('2015-01-01')
+        
+        # Datas no futuro
+        future_dates = self.df[self.df['published_at'] > now]
+        if len(future_dates) > 0:
+            self.anomalies.append({
+                'type': 'future_dates',
+                'severity': 'medium',
+                'count': len(future_dates),
+                'rate': round(len(future_dates) / len(self.df), 4),
+                'message': f"{len(future_dates)} documentos com data no futuro",
+                'sample_dates': future_dates['published_at'].head(5).astype(str).tolist(),
+                'recommendation': 'Verificar timezone ou clock do servidor scraper'
+            })
+        
+        # Datas muito antigas
+        old_dates = self.df[self.df['published_at'] < min_date]
+        if len(old_dates) > 0:
+            self.anomalies.append({
+                'type': 'old_dates',
+                'severity': 'low',
+                'count': len(old_dates),
+                'rate': round(len(old_dates) / len(self.df), 4),
+                'message': f"{len(old_dates)} documentos com data anterior a 2015",
+                'sample_dates': old_dates['published_at'].head(5).astype(str).tolist(),
+                'recommendation': 'Verificar parsing de data ou scraping de histórico'
+            })
+    
+    def _detect_agency_coverage(self, min_docs_per_week: int = 1):
+        """
+        Detecta órgãos sem publicação nos últimos 7 dias.
+        
+        Total órgãos: ~160
+        Alerta: < 90% ativos (144 órgãos)
+        """
+        last_week = datetime.now() - timedelta(days=7)
+        recent_docs = self.df[self.df['scraped_at'] >= last_week]
+        
+        # Órgãos ativos (com pelo menos 1 doc)
+        active_agencies = recent_docs['agency'].nunique()
+        
+        # Total de órgãos (query separada)
+        total_agencies_query = "SELECT COUNT(DISTINCT agency) FROM agencies WHERE active = true"
+        total_agencies = pd.read_sql(total_agencies_query, self.db).iloc[0, 0]
+        
+        coverage_rate = active_agencies / total_agencies if total_agencies > 0 else 0
+        
+        if coverage_rate < 0.90:
+            # Identifica órgãos inativos
+            all_agencies = pd.read_sql("SELECT agency FROM agencies WHERE active = true", self.db)
+            inactive_agencies = set(all_agencies['agency']) - set(recent_docs['agency'].unique())
+            
+            self.anomalies.append({
+                'type': 'low_agency_coverage',
+                'severity': 'medium',
+                'active_agencies': active_agencies,
+                'total_agencies': total_agencies,
+                'coverage_rate': round(coverage_rate, 4),
+                'threshold': 0.90,
+                'message': f"Cobertura de órgãos: {coverage_rate:.1%} (meta: ≥ 90%)",
+                'inactive_agencies_sample': list(inactive_agencies)[:10],
+                'recommendation': 'Verificar scrapers de órgãos inativos ou sites fora do ar'
+            })
+    
+    def _detect_content_anomalies(self):
+        """
+        Detecta conteúdo suspeito (muito curto, HTML não convertido, duplicatas).
+        """
+        # Conteúdo muito curto (< 100 chars)
+        short_content = self.df[self.df['content_length'] < 100]
+        if len(short_content) > 10:  # Threshold: > 10 docs
+            self.anomalies.append({
+                'type': 'short_content',
+                'severity': 'low',
+                'count': len(short_content),
+                'rate': round(len(short_content) / len(self.df), 4),
+                'message': f"{len(short_content)} documentos com conteúdo < 100 chars",
+                'sample_ids': short_content['unique_id'].head(5).tolist(),
+                'recommendation': 'Verificar parsing HTML→Markdown ou scraping de páginas vazias'
+            })
+        
+        # Títulos duplicados (conteúdo diferente)
+        duplicate_titles = self.df[self.df.duplicated(subset=['title'], keep=False)]
+        if len(duplicate_titles) > 0:
+            unique_ids_per_title = duplicate_titles.groupby('title')['unique_id'].nunique()
+            titles_with_multiple_ids = unique_ids_per_title[unique_ids_per_title > 1]
+            
+            if len(titles_with_multiple_ids) > 5:  # Threshold: > 5 títulos
+                self.anomalies.append({
+                    'type': 'duplicate_titles',
+                    'severity': 'low',
+                    'count': len(titles_with_multiple_ids),
+                    'message': f"{len(titles_with_multiple_ids)} títulos duplicados com unique_ids diferentes",
+                    'sample_titles': titles_with_multiple_ids.head(5).index.tolist(),
+                    'recommendation': 'Verificar se são atualizações legítimas ou problema no scraper'
+                })
+```
+
+#### **Anomalias Detectadas**
+
+| Tipo | Descrição | Severidade | Limiar | Recomendação |
+|------|-----------|------------|--------|--------------|
+| **volume_anomaly** | Volume de documentos fora do padrão (Z-score > 2) | High/Medium | ±2σ ou ±3σ | Verificar scraper ou fontes gov.br |
+| **duplicate_spike** | Taxa de duplicatas > 5% | High | 5% | Verificar lógica unique_id ou re-scraping |
+| **missing_field** | Campos obrigatórios ausentes (> 1%) | High | 1% | Verificar scraper para campo específico |
+| **future_dates** | Datas de publicação no futuro | Medium | > 0 | Verificar timezone ou clock do servidor |
+| **old_dates** | Datas antes de 2015 | Low | < 2015-01-01 | Verificar parsing de data |
+| **low_agency_coverage** | Órgãos sem dados nos últimos 7 dias | Medium | < 90% ativos | Verificar scrapers inativos ou sites fora |
+| **short_content** | Conteúdo com < 100 caracteres | Low | > 10 docs | Verificar parsing HTML→Markdown |
+| **duplicate_titles** | Títulos duplicados com unique_ids diferentes | Low | > 5 títulos | Verificar se são atualizações legítimas |
+
+#### **Uso no Pipeline**
+
+```python
+# DAG de detecção de anomalias (a cada 6 horas)
+@dag(schedule="0 */6 * * *")
+def detect_pipeline_anomalies():
+    """Detecta anomalias no pipeline a cada 6 horas."""
+    
+    @task
+    def run_anomaly_detection() -> List[Dict[str, Any]]:
+        """Executa detecção de anomalias."""
+        detector = AnomalyDetector(db_connection)
+        anomalies = detector.detect_all()
+        
+        # Log anomalias
+        logger.info(f"Detectadas {len(anomalies)} anomalias")
+        
+        # Filtra por severidade
+        high_severity = [a for a in anomalies if a['severity'] == 'high']
+        medium_severity = [a for a in anomalies if a['severity'] == 'medium']
+        
+        # Envia alertas
+        if high_severity:
+            send_alert(
+                title=f"⚠️ {len(high_severity)} anomalias HIGH detectadas",
+                message='\n'.join([a['message'] for a in high_severity[:5]]),
+                severity='high',
+                channel='slack'
+            )
+        
+        if medium_severity:
+            send_alert(
+                title=f"ℹ️ {len(medium_severity)} anomalias MEDIUM detectadas",
+                message='\n'.join([a['message'] for a in medium_severity[:5]]),
+                severity='medium',
+                channel='email'
+            )
+        
+        return anomalies
+    
+    anomalies = run_anomaly_detection()
+
+detect_pipeline_anomalies()
+```
 
 ### **3.7.4 Métricas de Qualidade (Atualizadas)**
 
