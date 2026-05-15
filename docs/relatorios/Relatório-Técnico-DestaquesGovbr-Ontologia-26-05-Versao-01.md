@@ -74,7 +74,7 @@ Este documento tem como objetivo:
 
 O Portal DestaquesGovbr agrega notícias de ~160 portais governamentais brasileiros (gov.br), processando diariamente ~500 novos artigos. O volume e diversidade de fontes (Ministérios, autarquias, fundações) exigem uma **representação formal do conhecimento** que permita:
 
-1. **Classificação automática** via LLM (Cogfy) usando taxonomia hierárquica
+1. **Classificação automática** via LLM (AWS Bedrock) usando taxonomia hierárquica
 2. **Busca semântica** híbrida (keyword BM25 + vetores)
 3. **Interoperabilidade** com sistemas externos (datasets HuggingFace, APIs públicas)
 4. **Governança de metadados** com padrões internacionais
@@ -117,7 +117,7 @@ graph TB
     
     subgraph "Processamento"
         DP[Data Platform<br/>Python]
-        CF[Cogfy/LLM<br/>Classificação]
+        CF[AWS Bedrock<br/>Classificação LLM]
     end
     
     subgraph "Armazenamento"
@@ -162,7 +162,7 @@ graph TB
 sequenceDiagram
     participant SC as Scraper
     participant DP as Data Platform
-    participant CF as Cogfy/LLM
+    participant CF as AWS Bedrock
     participant PG as PostgreSQL
     participant ONT as Ontologia
     
@@ -288,7 +288,7 @@ classDiagram
 | Propriedade | Tipo | Cardinalidade | Descrição |
 |-------------|------|---------------|-----------|
 | `dgb:subtitle` | `xsd:string` | 0..1 | Subtítulo da notícia |
-| `dgb:summary` | `xsd:string` | 0..1 | Resumo gerado pelo Cogfy/LLM |
+| `dgb:summary` | `xsd:string` | 0..1 | Resumo gerado pelo AWS Bedrock |
 | `dgb:editorialLead` | `xsd:string` | 0..1 | Lead editorial original |
 | `dgb:imageUrl` | `xsd:anyURI` | 0..1 | URL da imagem destaque |
 | `dgb:videoUrl` | `xsd:anyURI` | 0..1 | URL do vídeo (YouTube/Vimeo) |
@@ -780,16 +780,16 @@ ORDER BY ?level ?label
 # Exemplo de uso no EnrichmentManager (data-platform)
 def classify_article(article: dict) -> dict:
     """
-    Classifica artigo usando Cogfy/LLM e árvore temática SKOS.
+    Classifica artigo usando AWS Bedrock e árvore temática SKOS.
     """
-    # 1. Enviar artigo para Cogfy com contexto SKOS
-    response = cogfy_client.classify(
+    # 1. Enviar artigo para AWS Bedrock com contexto SKOS
+    response = bedrock_client.classify(
         title=article["title"],
         content=article["content"],
         taxonomy=load_skos_taxonomy()  # Serialização Turtle da árvore
     )
     
-    # 2. Cogfy retorna código do tema (ex: "01.01.01")
+    # 2. AWS Bedrock retorna código do tema (ex: "01.01.01")
     theme_code = response["theme_1_level_3_code"]
     
     # 3. Buscar IRI do tema na ontologia
@@ -2731,7 +2731,7 @@ A ontologia DestaquesGovbr **reutiliza** vocabulários padrão da web semântica
 |------------|---------|
 | `prov:Entity` | Artigo como entidade rastreável |
 | `prov:Activity` | Processo de scraping/enriquecimento |
-| `prov:Agent` | Data Platform, Cogfy/LLM |
+| `prov:Agent` | Data Platform, AWS Bedrock |
 
 **Propriedades Planejadas**:
 
