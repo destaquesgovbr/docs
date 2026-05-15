@@ -17,11 +17,11 @@ Quando este skill for invocado:
 
 1. **Se receber `--all`**: Para cada arquivo .md em `docs/relatorios/`:
    - **Passo 1**: Execute `python scripts/convert_md_to_docx.py docs/relatorios/{arquivo.md}` (conversão limpa, sem template)
-   - **Passo 2**: Execute `python scripts/merge_docx_with_docxcompose.py "docs/relatorios/templates/Template Relatório-Técnico-DestaquesGovbr Tema 7.docx" "docs/relatorios/output/{arquivo}.docx" "docs/relatorios/output/{arquivo}-FINAL.docx"`
+   - **Passo 2**: Execute `python scripts/merge_docx_with_docxcompose.py "docs\relatorios\templates\Template-Relatório-Técnico-DestaquesGovbr-Tema7.docx" "docs/relatorios/output/{arquivo}.docx" "docs/relatorios/output/{arquivo}-FINAL.docx"`
 
 2. **Se receber nome de arquivo**: Execute o fluxo de 2 etapas:
    - **Passo 1**: Execute `python scripts/convert_md_to_docx.py docs/relatorios/{arquivo.md}` (conversão limpa, sem template)
-   - **Passo 2**: Execute `python scripts/merge_docx_with_docxcompose.py "docs/relatorios/templates/Template Relatório-Técnico-DestaquesGovbr Tema 7.docx" "docs/relatorios/output/{arquivo}.docx" "docs/relatorios/output/{arquivo}-FINAL.docx"`
+   - **Passo 2**: Execute `python scripts/merge_docx_with_docxcompose.py "docs\relatorios\templates\Template-Relatório-Técnico-DestaquesGovbr-Tema7.docx" "docs/relatorios/output/{arquivo}.docx" "docs/relatorios/output/{arquivo}-FINAL.docx"`
    - Informe ao usuário que o arquivo final está em `{arquivo}-FINAL.docx`
 
 3. **Se NÃO receber argumentos**:
@@ -56,7 +56,7 @@ Quando este skill for invocado:
 ## Template Utilizado
 
 O script usa o template oficial:
-- **Caminho**: `docs/relatorios/templates/Template Relatório-Técnico-DestaquesGovbr Tema 7.docx`
+- **Caminho**: `docs\relatorios\templates\Template-Relatório-Técnico-DestaquesGovbr-Tema7.docx`
 - **Conteúdo preservado**:
   - Capa com logo INSPIRE Meta 7
   - Informações do convênio (MGI/Finep)
