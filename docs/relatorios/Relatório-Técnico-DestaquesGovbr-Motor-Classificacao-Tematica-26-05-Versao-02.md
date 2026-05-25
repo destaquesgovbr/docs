@@ -1623,3 +1623,153 @@ resource "google_pubsub_subscription" "enrichment_worker_sub" {
   }
 }
 ```
+
+## **F. Terminologias e Abreviações**
+
+### Arquitetura e Infraestrutura
+
+| Termo | Significado |
+|-------|-------------|
+| **API** | Application Programming Interface - Interface de Programação de Aplicações |
+| **CDN** | Content Delivery Network - Rede de Distribuição de Conteúdo |
+| **CI/CD** | Continuous Integration/Continuous Delivery - Integração Contínua/Entrega Contínua |
+| **Cloud Run** | Serviço serverless do Google Cloud para executar containers |
+| **Cloud SQL** | Serviço de banco de dados gerenciado do Google Cloud |
+| **DAG** | Directed Acyclic Graph - Grafo Acíclico Direcionado (usado no Airflow) |
+| **DLQ** | Dead-Letter Queue - Fila de mensagens que falharam após múltiplas tentativas |
+| **Event-Driven** | Arquitetura orientada a eventos |
+| **FastAPI** | Framework web moderno para Python |
+| **GCP** | Google Cloud Platform |
+| **GCS** | Google Cloud Storage - Armazenamento de objetos do Google Cloud |
+| **IAM** | Identity and Access Management - Gerenciamento de Identidade e Acesso |
+| **Pub/Sub** | Google Cloud Pub/Sub - Serviço de mensageria assíncrona |
+| **SA** | Service Account - Conta de Serviço |
+| **SDK** | Software Development Kit - Kit de Desenvolvimento de Software |
+| **Serverless** | Arquitetura sem gerenciamento de servidores |
+| **VPC** | Virtual Private Cloud - Nuvem Privada Virtual |
+
+### Banco de Dados e Armazenamento
+
+| Termo | Significado |
+|-------|-------------|
+| **CRUD** | Create, Read, Update, Delete - Operações básicas de banco de dados |
+| **JSONB** | JSON Binary - Formato binário otimizado para armazenar JSON no PostgreSQL |
+| **ORM** | Object-Relational Mapping - Mapeamento Objeto-Relacional |
+| **pgvector** | Extensão PostgreSQL para armazenar e buscar vetores (embeddings) |
+| **PostgreSQL** | Sistema de gerenciamento de banco de dados relacional open-source |
+| **SQL** | Structured Query Language - Linguagem de Consulta Estruturada |
+| **Schema** | Estrutura que define a organização dos dados em um banco |
+
+### Machine Learning e IA
+
+| Termo | Significado |
+|-------|-------------|
+| **AWS Bedrock** | Serviço AWS para acesso a modelos de IA via API |
+| **Batch Processing** | Processamento em lote (múltiplos itens de uma vez) |
+| **Claude** | Família de modelos de linguagem da Anthropic |
+| **Embedding** | Representação vetorial de texto (768 dimensões) |
+| **Haiku** | Modelo Claude mais rápido e econômico (vs Sonnet/Opus) |
+| **LLM** | Large Language Model - Modelo de Linguagem de Grande Escala |
+| **NLP** | Natural Language Processing - Processamento de Linguagem Natural |
+| **Prompt** | Instrução/contexto enviado ao modelo de IA |
+| **Temperature** | Parâmetro que controla aleatoriedade do LLM (0-1) |
+| **Token** | Unidade básica de texto processada por LLMs (~4 caracteres) |
+| **Sentiment Analysis** | Análise de sentimento (positivo/negativo/neutro) |
+| **Named Entity Recognition (NER)** | Extração de entidades nomeadas (pessoas, organizações, locais) |
+
+### Data Pipeline e ETL
+
+| Termo | Significado |
+|-------|-------------|
+| **Airflow** | Plataforma de orquestração de workflows (Apache Airflow) |
+| **Backlog** | Conjunto de trabalho pendente de processamento |
+| **Bronze Layer** | Camada de dados brutos (Medallion Architecture) |
+| **ETL** | Extract, Transform, Load - Extração, Transformação e Carga |
+| **Gold Layer** | Camada de dados analíticos (Medallion Architecture) |
+| **Idempotência** | Propriedade de operação que pode ser executada múltiplas vezes sem efeito colateral |
+| **Medallion Architecture** | Padrão de arquitetura de dados em 3 camadas (Bronze/Silver/Gold) |
+| **Reconciliation** | Processo de sincronização para corrigir inconsistências |
+| **Silver Layer** | Camada de dados limpos e normalizados (Medallion Architecture) |
+| **Worker** | Serviço que processa mensagens de forma assíncrona |
+
+### Métricas e Observabilidade
+
+| Termo | Significação |
+|-------|-------------|
+| **Ack/Nack** | Acknowledge/Negative Acknowledge - Confirmação positiva/negativa de recebimento |
+| **Ack Deadline** | Tempo máximo para processar mensagem antes de retry |
+| **Backoff** | Estratégia de aumentar delay entre tentativas (exponential backoff) |
+| **Latência** | Tempo de resposta de uma operação |
+| **P50/P95/P99** | Percentil 50/95/99 - Valor abaixo do qual X% das medições estão |
+| **Retry** | Tentativa de reprocessar operação que falhou |
+| **Throttling** | Limitação de taxa de requisições (rate limiting) |
+| **Trace ID** | Identificador único para rastrear operação através de múltiplos serviços |
+
+### Classificação e Taxonomia
+
+| Termo | Significado |
+|-------|-------------|
+| **Acurácia** | Taxa de classificações corretas |
+| **Categoria** | Tema ou classe na taxonomia |
+| **Código Temático** | Identificador único do tema (ex: "01.02.03") |
+| **Hierarquia** | Estrutura de níveis pai-filho na taxonomia |
+| **Label** | Rótulo descritivo de uma categoria |
+| **Nível** | Profundidade na hierarquia (L1/L2/L3) |
+| **Taxonomia** | Sistema hierárquico de classificação |
+| **Tema** | Assunto ou tópico principal |
+
+### Formatos e Protocolos
+
+| Termo | Significado |
+|-------|-------------|
+| **Base64** | Codificação de dados binários em texto ASCII |
+| **HTTP** | Hypertext Transfer Protocol - Protocolo de Transferência de Hipertexto |
+| **JSON** | JavaScript Object Notation - Formato de dados estruturados |
+| **REST** | Representational State Transfer - Estilo arquitetural para APIs |
+| **UTF-8** | Codificação de caracteres Unicode |
+| **YAML** | Yet Another Markup Language - Linguagem de serialização de dados |
+
+### Métricas de Negócio
+
+| Termo | Significado |
+|-------|-------------|
+| **Enriquecimento** | Adição de metadados (temas, resumo, sentimento) às notícias |
+| **Gov.br** | Domínio oficial do governo brasileiro |
+| **MGI** | Ministério da Gestão e da Inovação em Serviços Públicos |
+| **Portal** | Site web (destaques.gov.br) |
+| **Scraping** | Coleta automatizada de dados de websites |
+| **Unique ID** | Identificador único da notícia (formato: agency-YYYY-MM-DD-slug) |
+
+### Siglas de Órgãos e Instituições
+
+| Sigla | Nome Completo |
+|-------|---------------|
+| **CPQD** | Centro de Pesquisa e Desenvolvimento em Telecomunicações |
+| **EBC** | Empresa Brasil de Comunicação |
+| **Finep** | Financiadora de Estudos e Projetos |
+| **INSPIRE** | Projeto de inovação em serviços públicos (MGI/Finep) |
+| **LGPD** | Lei Geral de Proteção de Dados |
+| **MEC** | Ministério da Educação |
+| **MGI** | Ministério da Gestão e da Inovação em Serviços Públicos |
+
+### Termos Técnicos Específicos
+
+| Termo | Significado |
+|-------|-------------|
+| **Boto3** | SDK Python oficial da AWS |
+| **Cold Start** | Delay inicial ao iniciar instância serverless |
+| **Composer** | Google Cloud Composer - Airflow gerenciado |
+| **Conflict** | Conflito de chave única no banco (INSERT já existe) |
+| **docxcompose** | Biblioteca Python para merge de arquivos DOCX |
+| **Graceful Degradation** | Continuar funcionando parcialmente mesmo com falhas |
+| **HuggingFace** | Plataforma para compartilhamento de modelos e datasets de ML |
+| **Pandoc** | Conversor universal de formatos de documento |
+| **Parquet** | Formato colunar eficiente para armazenamento de dados |
+| **Poetry** | Gerenciador de dependências Python |
+| **psycopg2** | Driver PostgreSQL para Python |
+| **Pygments** | Biblioteca Python para syntax highlighting |
+| **SQLAlchemy** | ORM (Object-Relational Mapper) para Python |
+| **Terraform** | Ferramenta de Infrastructure as Code (IaC) |
+| **ThreadPoolExecutor** | Executor de tarefas paralelas em Python |
+| **Typesense** | Motor de busca open-source (full-text + semântica) |
+| **Workload Identity** | Método seguro para autenticação entre GCP e GitHub Actions |
