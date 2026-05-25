@@ -1,6 +1,22 @@
 Data: 22/05/2026
 
-PROMPT: Analisar o relatório técnico "docs/relatorios/Relatório-Técnico-DestaquesGovbr-Ontologia-26-05-Versao-01.md" (5451 linhas) e gerar uma versão revisada usando o template "docs/relatorios/Template-Relatório Técnico INSPIRE.md". O novo documento deve: (1) Manter TODO o conteúdo técnico do relatório original (classes OWL, propriedades, axiomas, exemplos RDF/Turtle, diagramas Mermaid, código completo); (2) Reorganizar a estrutura seguindo o template INSPIRE com seções: Objetivo deste documento, Público-alvo, Desenvolvimento (todo o conteúdo técnico), Resultados, Conclusões e considerações finais, Referências Bibliográficas, Apêndice; (3) Adicionar campos do template: Data 22/05/2026, Prompt usado, Elaborado por Claude Sonnet 4.5, Nível de sigilo Nível 2 – RESERVADO; (4) Manter TODOS os diagramas Mermaid, exemplos de código, tabelas e estruturas técnicas; (5) Salvar como "docs/relatorios/Relatório-Técnico-DestaquesGovbr-Ontologia-26-05-Versao-01-Rev.md". IMPORTANTE: Este é um relatório técnico muito completo sobre ontologia OWL 2, não simplifique nem remova conteúdo técnico. Apenas reorganize seguindo o template INSPIRE.
+PROMPT VERSÃO 1 :
+---------------
+Monte um plano para eleboração de um Relatório técnico da Ontologia
+abordando seguinte tópicos e critérios:
+
+1. Classes Ontológicas
+2. Relações e mapeamento de metadados do Portal Web Destaquesgovbr
+3. Suporte à recuperação da informação
+4. Tradução de necessidades em linguagem natural
+5. Informação sobre categorias/termos de um domínio
+6. Integração de banco de dados e interoperabilidade
+7. Desenvolvimento de recursos para web Semântica
+8. Integração Semântica e de vocabulários controlados
+9. A árvore temática atual
+10. Busca Semântica
+
+Execute em etapas para não perder o contexto.
 
 Elaborado por: Claude Sonnet 4.5
 

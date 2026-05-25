@@ -1,3 +1,23 @@
+PROMPT VERSÃO 1 :
+---------------
+Monte um plano para eleboração de um Relatório técnico da Ontologia
+abordando seguinte tópicos e critérios:
+
+1. Classes Ontológicas
+2. Relações e mapeamento de metadados do Portal Web Destaquesgovbr
+3. Suporte à recuperação da informação
+4. Tradução de necessidades em linguagem natural
+5. Informação sobre categorias/termos de um domínio
+6. Integração de banco de dados e interoperabilidade
+7. Desenvolvimento de recursos para web Semântica
+8. Integração Semântica e de vocabulários controlados
+9. A árvore temática atual
+10. Busca Semântica
+
+Execute em etapas para não perder o contexto.
+
+Elaborado por: Claude Sonnet 4.5
+
 # Relatório Técnico: Ontologia do Portal DestaquesGovbr
 
 **Versão**: 1.0  
