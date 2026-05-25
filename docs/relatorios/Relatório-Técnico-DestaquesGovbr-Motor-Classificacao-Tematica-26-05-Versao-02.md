@@ -338,41 +338,50 @@ graph TB
 
 ### **3.4.2 Topics e Subscriptions Pub/Sub**
 
-**Topic 1: `dgb.news.scraped`**
-- **Publisher**: Scraper API (Cloud Run)
-- **Subscribers**: Bronze Writer, **Enrichment Worker**
-- **Payload**:
-  ```json
-  {
-    "unique_id": "mec-2026-02-27-titulo-noticia",
-    "agency_key": "mec",
-    "published_at": "2026-02-27T14:30:00Z",
-    "scraped_at": "2026-02-27T15:00:00Z"
-  }
-  ```
-- **Attributes**: `trace_id` (UUID), `event_version` ("1.0")
-- **Retention**: 7 dias
+#### **Topic 1: dgb.news.scraped**
 
-**Topic 2: `dgb.news.enriched`**
+- **Publisher**: Scraper API (Cloud Run)
+- **Subscribers**: Bronze Writer, Enrichment Worker
+- **Retention**: 7 dias
+- **Attributes**: trace_id (UUID), event_version ("1.0")
+
+**Payload exemplo**:
+
+```json
+{
+  "unique_id": "mec-2026-02-27-titulo-noticia",
+  "agency_key": "mec",
+  "published_at": "2026-02-27T14:30:00Z",
+  "scraped_at": "2026-02-27T15:00:00Z"
+}
+```
+
+#### **Topic 2: dgb.news.enriched**
+
 - **Publisher**: Enrichment Worker (após classificação Bedrock)
 - **Subscribers**: Feature Worker, Thumbnail Worker, Typesense Sync
-- **Payload**:
-  ```json
-  {
-    "unique_id": "mec-2026-02-27-titulo-noticia",
-    "enriched_at": "2026-02-27T15:02:00Z",
-    "most_specific_theme_code": "04.02.03",
-    "has_summary": true
-  }
-  ```
+- **Retention**: 7 dias
+- **Attributes**: trace_id (UUID), event_version ("1.0")
 
-**Subscription: `dgb.news.scraped--enrichment`**
-- **Topic**: `dgb.news.scraped`
+**Payload exemplo**:
+
+```json
+{
+  "unique_id": "mec-2026-02-27-titulo-noticia",
+  "enriched_at": "2026-02-27T15:02:00Z",
+  "most_specific_theme_code": "04.02.03",
+  "has_summary": true
+}
+```
+
+#### **Subscription: dgb.news.scraped--enrichment**
+
+- **Topic**: dgb.news.scraped
 - **Subscriber**: Enrichment Worker (Cloud Run)
-- **Tipo**: Push (HTTP POST para `/process`)
-- **Ack Deadline**: 600s (10 minutos)
+- **Tipo**: Push (HTTP POST para /process)
+- **Ack Deadline**: 600 segundos (10 minutos)
 - **Retry Policy**: Exponential backoff 10s-600s, máximo 10 tentativas
-- **Dead-Letter Queue**: `dgb.news.scraped-dlq`
+- **Dead-Letter Queue**: dgb.news.scraped-dlq
 
 ### **3.4.3 Enrichment Worker - Especificações Cloud Run**
 
