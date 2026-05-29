@@ -1,6 +1,6 @@
-Data: 28/05/2026
+Data: 29/05/2026
 
-PROMPT: Elaborar relatório técnico de avaliação comparativa (benchmarking) do DestaquesGovbr contra 13 plataformas internacionais (5 portais governamentais + 8 agregadores comerciais), analisando 6 dimensões de experiência do usuário, identificando gaps, forças e oportunidades de evolução.
+PROMPT: Analise exclusivamente o documento "relatorios\output\UX - Discovery - Bench_v2.pdf", e desse contexto, gere um documento com o nome "docs\relatorios\Relatório-Avaliação-Benchmark-DestaquesGovbr-26-05-Versao-01.md", usando como base o template "docs\relatorios\Template-Relatório Técnico INSPIRE.md", mantendo-se fiel ao conteúdo do arquivo original, assim como de sua divisão de sequencia dos tópicos abordados.
 
 Elaborado por: Claude Sonnet 4.5 (Anthropic)
 
@@ -10,979 +10,1063 @@ Revisado por: <!-- NÃO PREENCHA ESTE CAMPO: O humano preencherá manualmente-->
 
 <!-- NÃO PREENCHA ESTE CAMPO: O humano incluirá manualmente-->
 
----
-
 # **1 Objetivo deste documento**
 
-Este documento apresenta a **avaliação comparativa (benchmarking)** do portal **DestaquesGovbr** em relação a **13 plataformas internacionais de referência**, divididas em dois grupos:
+Este documento apresenta uma avaliação de benchmarking de UX (User Experience) para o projeto **DestaquesGovBr**, analisando 10 plataformas de referência global em difusão de notícias e publicações governamentais, distribuídas em dois grupos:
 
-- **Grupo A (Portais Governamentais)**: GOV.UK, USA.gov, Canada.ca, Gov.br, Portugal.gov.pt
-- **Grupo B (Agregadores Comerciais)**: Google News, Feedly, Apple News, SmartNews, Flipboard, Yahoo News, MSN News, NewsBreak
+- **Grupo A — Portais Governamentais**: GOV.UK (Reino Unido), USA.gov (Estados Unidos), Canada.ca (Canadá), Gov.br (Brasil) e Portugal.gov.pt (Portugal)
+- **Grupo B — Agregadores de Notícias**: Google News, Feedly, Apple News, Flipboard e SmartNews
 
-O estudo analisa **6 dimensões fundamentais** de experiência do usuário:
+O benchmarking avalia cada plataforma em 6 dimensões de UX: (1) Arquitetura da Informação, (2) Busca e Filtragem, (3) Personalização de Feed, (4) Área do Usuário e Clipping, (5) Clareza de Conteúdo e (6) Comunicação e Engajamento. O objetivo é identificar padrões positivos e negativos, gaps de mercado que nenhum portal governamental resolve hoje, e oportunidades de diferenciação e inovação para o DestaquesGovBr.
 
-1. Arquitetura da Informação
-2. Busca e Filtragem
-3. Personalização de Feed
-4. Área do Usuário e Clipping
-5. Clareza de Conteúdo
-6. Comunicação e Engajamento
-
-O objetivo é identificar:
-- **Posicionamento competitivo** do DestaquesGovbr no mercado
-- **Pontos fortes** implementados que superam benchmarks
-- **Gaps residuais** em relação a líderes de mercado
-- **Oportunidades de evolução** priorizadas por impacto e esforço
+Este relatório posiciona-se na fase **Descobrir (Discover)** do modelo Double Diamond de design e inovação, servindo como base para a próxima fase (Definir), onde serão criadas personas, jornadas, requisitos, wireframes e protótipos no Figma.
 
 ## **1.1 Nível de sigilo dos documentos**
 
 Este documento é classificado como **Nível 2 – RESERVADO**, destinado aos envolvidos no projeto MGI/Finep e equipes técnicas do CPQD.
 
----
-
 # **2 Público-alvo**
 
-* Gestores de dados do Ministério da Gestão e da Inovação (MGI)
-* Equipes de desenvolvimento e arquitetura do CPQD
-* Pesquisadores em Governança de Dados e IA
-* Designers de experiência do usuário (UX/UI)
-* Product Owners e gestores de produto
-* Profissionais de comunicação governamental
-
----
+* Gestores de dados do Ministério da Gestão e da Inovação (MGI).  
+* Equipes de desenvolvimento e arquitetura do CPQD.  
+* Pesquisadores em Governança de Dados e IA.
+* Equipes de design e produto do projeto DestaquesGovBr.
 
 # **3 Desenvolvimento**
 
-## **3.1 Metodologia de Avaliação**
-
-### **3.1.1 Seleção de Benchmarks**
-
-A seleção de plataformas para comparação seguiu os critérios:
-
-**Grupo A - Portais Governamentais (5 plataformas):**
-- GOV.UK (Reino Unido) - referência mundial em design de serviços públicos
-- USA.gov (Estados Unidos) - portal federal americano
-- Canada.ca (Canadá) - modelo de clareza e acessibilidade
-- Gov.br (Brasil) - portal unificado do governo federal brasileiro
-- Portugal.gov.pt (Portugal) - experiência lusófona
-
-**Grupo B - Agregadores Comerciais (8 plataformas):**
-- Google News - líder global em personalização via ML
-- Feedly - referência em curadoria profissional para jornalistas
-- Apple News - modelo de curadoria híbrida (algoritmos + editores)
-- SmartNews - especialista em distribuição offline e anti-filtro-bolha
-- Flipboard - agregador visual com curadoria social
-- Yahoo News - portal tradicional com grande alcance
-- MSN News - integração com ecossistema Microsoft
-- NewsBreak - agregador local emergente (EUA)
+## **3.1 Contexto: O Problema que Justifica o Produto**
 
-### **3.1.2 Dimensões Avaliadas**
+Para encontrar uma notícia oficial, o cidadão brasileiro precisa conhecer o organograma do Estado. Isso cria barreiras cognitivas severas, sobrecarga informacional e ineficiência crítica. O cenário atual apresenta:
 
-Cada plataforma foi avaliada em escala de **0 a 5 pontos** nas seguintes dimensões:
+- **160+ sites e portais federais** independentes e fragmentados (Decreto 9.756/2019 / Agência Brasil, jul. 2019)
+- **23,4 minutos perdidos** a cada troca de contexto informacional (NewzTiQ Blog, 2025)
+- **US$ 14 bilhões**: mercado global de agregadores de notícias (NewzTiQ Blog, 2025)
 
-| Dimensão | Critérios de Avaliação |
-|----------|------------------------|
-| **1. Arquitetura da Informação** | Taxonomia, navegação, hierarquia, metadados, findability |
-| **2. Busca e Filtragem** | Motor de busca, filtros, ordenação, refinamento progressivo |
-| **3. Personalização de Feed** | Following, recomendações, histórico, notificações |
-| **4. Área do Usuário e Clipping** | Clipping, coleções, export, sync cross-device |
-| **5. Clareza de Conteúdo** | Plain language, resumos, metadados visíveis, links para fonte |
-| **6. Comunicação e Engajamento** | Canais de distribuição, combate a fake news, feedback |
+O DestaquesGovBr propõe centralizar, personalizar e verificar as notícias governamentais num único lugar, usando o conceito de **Government as a Platform (GaaP)**.
 
-### **3.1.3 Processo de Avaliação**
+### **3.1.1 Fundamentação Teórica: Government as a Platform (GaaP)**
 
-1. **Análise desk research**: Revisão de documentação oficial, artigos acadêmicos e whitepapers das plataformas
-2. **Avaliação heurística**: Inspeção sistemática por especialistas UX seguindo as 10 heurísticas de Nielsen
-3. **Testes de usabilidade**: Simulação de tarefas-chave em cada plataforma
-4. **Análise comparativa**: Pontuação normalizada (0-5) por dimensão
-5. **Identificação de gaps**: Comparação DestaquesGovbr vs média dos grupos A e B
+**Tim O'Reilly (2011)** cunhou o conceito no artigo 'Government as a Platform' (MIT Press): assim como Google, Amazon e Wikipedia aprenderam a usar o poder dos próprios usuários para co-criar valor, o governo deveria se tornar uma plataforma aberta — disponibilizando dados e infraestrutura para que cidadãos, empresas e desenvolvedores construam serviços sobre eles.
 
----
+**Myeong (MDPI, 2020)** avança essa ideia usando o método AHP (Analytic Hierarchy Process), uma técnica de priorização por peso, para identificar quais fatores especialistas consideram mais importantes ao construir um GaaP. Resultado: especialistas priorizam o caráter público da plataforma — o governo deve focar em sua função primária, independente das características técnicas. Um GaaP orientado a dados é necessário para lidar com big data, múltiplos canais e serviços contratuais, onde governo, cidadãos e setor privado atuam como parceiros.
 
-## **3.2 Resultados da Avaliação Comparativa**
+**Referências:**
+- O'Reilly (2011): direct.mit.edu/itgg/article/6/1/13/9649
+- Myeong (2020): mdpi.com/2071-1050/12/14/5615
 
-### **3.2.1 Posicionamento Geral**
+## **3.2 Metodologia: Double Diamond e Posicionamento do Benchmarking**
 
-| Dimensão | Grupo A (Gov) | Grupo B (Agregadores) | **DestaquesGovbr** | Gap vs Grupo B |
-|----------|---------------|----------------------|-------------------|----------------|
-| **1. Arquitetura da Informação** | 4,2 / 5 | 4,8 / 5 | **4,5 / 5** | -0,3 |
-| **2. Busca e Filtragem** | 3,6 / 5 | 4,4 / 5 | **4,0 / 5** | -0,4 |
-| **3. Personalização de Feed** | 1,2 / 5 | 4,8 / 5 | **4,0 / 5** | -0,8 |
-| **4. Área do Usuário e Clipping** | 1,8 / 5 | 4,6 / 5 | **4,5 / 5** | -0,1 |
-| **5. Clareza de Conteúdo** | 4,6 / 5 | 5,0 / 5 | **4,5 / 5** | -0,5 |
-| **6. Comunicação e Engajamento** | 3,4 / 5 | 3,2 / 5 | **4,0 / 5** | +0,8 |
-| **MÉDIA GERAL** | **3,1 / 5** | **4,5 / 5** | **4,25 / 5** | **-0,25** |
+Publicado originalmente em 2005 e revisado em 2015 pelo Design Council do Reino Unido, o **Double Diamond** é uma das metodologias de design e inovação mais adotadas no mundo — usada pelo próprio GOV.UK, pela BBC e por empresas como Lego e Philips. O modelo organiza o processo criativo em quatro fases:
 
-**Análise do posicionamento:**
+1. **DESCOBRIR (Discover)**: divergir — coletar amplamente insights, pesquisar, observar, explorar → **Você está aqui**
+2. **DEFINIR (Define)**: convergir — sintetizar descobertas, formular o problema correto
+3. **DESENVOLVER (Develop)**: divergir — gerar ideias, prototipar, testar diferentes soluções
+4. **ENTREGAR (Deliver)**: convergir — refinar, validar e lançar a solução
 
-- DestaquesGovbr alcançou **4,25 de 5 pontos** na média geral
-- **Supera todos os portais governamentais** (Grupo A: 3,1) em 5 das 6 dimensões
-- **Alcança 94,4% da média dos agregadores comerciais** (Grupo B: 4,5)
-- **Lidera em Comunicação e Engajamento** (+0,8 vs agregadores) — único com combate estruturado a fake news
-- **Gaps residuais**: Personalização (-0,8) e Busca (-0,4) ainda inferiores a Feedly/Google News
+Este benchmarking posiciona-se como peça metodológica rigorosa dentro da fase de **Descoberta**: seu papel é divergir, coletar amplamente o que existe, antes de qualquer decisão de design. Os insights gerados aqui alimentam diretamente a fase seguinte (Definir): personas, jornadas e requisitos do DestaquesGovBr.
 
-### **3.2.2 Posicionamento Estratégico**
+**Referência:**
+- Design Council UK (2015): designcouncil.org.uk/our-resources/framework-for-innovation/
 
-```
-                        DestaquesGovbr (4,25)
-                              ▲
-                              │
-Portais Gov ◄────────────────┼────────────────► Agregadores
-  (3,1)                       │                    (4,5)
-                              │
-                    ┌─────────┴─────────┐
-                    │  Preenche o GAP   │
-                    │  de Mercado       │
-                    └───────────────────┘
-```
+### **3.2.1 Seleção dos Players: E-Government Survey 2024 (ONU)**
 
-O DestaquesGovbr ocupa posição estratégica única:
-- **Acima dos portais governamentais tradicionais**: supera em personalização, clipping e busca
-- **Próximo aos agregadores comerciais**: apenas 5,6% abaixo da média
-- **Líder em categoria única**: combate estruturado à desinformação (nenhum outro player implementou)
+O E-Government Survey é publicado a cada dois anos pela Divisão de Administração Pública da ONU (UNDESA). Mede a maturidade digital de 193 países usando o índice EGDI (E-Government Development Index), composto por três pilares:
 
----
+- **Online Service Index**: qualidade e abrangência dos serviços digitais ao cidadão
+- **Telecommunication Infrastructure Index**: conectividade e infraestrutura
+- **Human Capital Index**: capacidade humana para usar e desenvolver serviços digitais
 
-## **3.3 Detalhamento por Dimensão**
+O relatório de 2024 apontou que o GaaP (Government as a Platform) é o modelo dominante nos países líderes, com governos atuando cada vez mais como catalisadores de ecossistemas digitais, não apenas como provedores de serviços.
 
-### **3.3.1 Dimensão 1: Arquitetura da Informação (4,5/5)**
+**Justificativa para os players analisados no Grupo A:**
+- GOV.UK (Reino Unido), USA.gov (EUA), Canada.ca (Canadá) e Portugal.gov.pt figuram consistentemente entre os líderes do índice EGDI
+- Gov.br (Brasil) foi incluído como referência de contexto local — sendo o caso mais próximo ao DestaquesGovBr em termos de escala, idioma e desafios de fragmentação
 
-**O que o DestaquesGovbr implementa:**
+**Referência:**
+- ONU / UNDESA – E-Government Survey 2024: govinsider.asia/intl-en/article/asia-an-emerging-leader-in-digital-government
 
-- Taxonomia IPTC (International Press Telecommunications Council) com 25 temas principais organizados em 3 níveis hierárquicos — padrão usado por Reuters, AP e BBC
-- Catálogo de 156 órgãos governamentais organizados por ministério, autarquia e secretaria
-- Navegação temática com hierarquia rasa e breadcrumbs consistentes
-- Schema.org (NewsArticle + GovernmentOrganization) para rich snippets nos buscadores
+### **3.2.2 Framework de Avaliação: 6 Dimensões de UX**
 
-**Comparação com benchmarks:**
+Cada uma das 10 plataformas foi avaliada em 6 dimensões (escala 1–5), baseadas no framework de benchmarking de UX do Nielsen Norman Group:
 
-| Plataforma | Pontuação | Destaque |
-|------------|-----------|----------|
-| **GOV.UK** | 5/5 | ~4.000 tópicos com content modelling granular "estilo Lego" |
-| **USA.gov** | 4/5 | Busca facetada robusta com metadados expostos via API |
-| **Google News** | 5/5 | Múltiplas camadas (For You, Headlines, Following, Newsstand) |
-| **DestaquesGovbr** | 4,5/5 | Taxonomia IPTC + catálogo de órgãos, sem fragmentação de conteúdo |
+1. **Arquitetura da Informação**: taxonomia, hierarquia, navegação, breadcrumbs, consistência estrutural
+2. **Busca e Filtragem**: busca semântica, filtros progressivos, metadados, faceted search
+3. **Personalização de Feed**: following explícito, ML/algoritmos, curadoria híbrida, diversidade de perspectivas
+4. **Área do Usuário e Clipping**: autenticação, salvamento, organização (boards/folders), export, sync cross-device
+5. **Clareza de Conteúdo**: plain language, metadados visíveis, sumarização, link para fonte primária, acessibilidade
+6. **Comunicação e Engajamento**: combate a fake news, transparência afirmativa, canal de denúncia, FAQ educativo, federação
 
-**Gap identificado:**
+**Referência:**
+- Nielsen Norman Group – Documenting a UX-Benchmarking Study
 
-Conteúdo ainda é publicado como páginas completas HTML, não como "blocos mínimos reutilizáveis" (modelo GOV.UK). Falta API-first para consumo por assistentes de IA e aplicações mobile.
+## **3.3 Análise dos Players**
 
-**Impacto do gap:** Dificulta entrega omnicanal (web, app, voz, IA) sem retrabalho editorial.
+### **3.3.1 Grupo A — Portais Governamentais**
 
----
+#### **GOV.UK — Reino Unido**
 
-### **3.3.2 Dimensão 2: Busca e Filtragem (4,0/5)**
+**Avaliação:**
+- Arquitetura da Informação: 5/5
+- Busca e Filtragem: 4/5
+- Personalização: 1/5
+- Clipping: 1/5
+- Clareza de Conteúdo: 5/5
+- Comunicação e Engajamento: 4/5
+- **Média: 3,3/5**
 
-**O que o DestaquesGovbr implementa:**
+**O que faz de melhor:**
 
-- Busca híbrida combinando keyword (BM25) e semântica (embeddings 768 dimensões)
-- Filtros laterais progressivos por órgão, tema IPTC e data
-- Motor Typesense com latência < 100ms (percentil 95) e cache hit 70%
-- Busca por similaridade semântica para "artigos relacionados"
+**Content Modelling Granular**
+Blocos mínimos reutilizáveis — "estilo Lego". Um único dado publicado serve web, app, voz e IA sem retrabalho editorial. Base factual confiável para modelos de IA.
 
-**Comparação com benchmarks:**
+Publicado em abril de 2025 pela equipe de Arquitetura da Informação do Government Digital Service (GDS) do Reino Unido, o artigo descreve a evolução do GOV.UK: da publicação de páginas HTML estáticas para a fragmentação do conteúdo em blocos mínimos enriquecidos com metadados semânticos — o que a própria equipe chama de estrutura 'estilo Lego'.
 
-| Plataforma | Pontuação | Destaque |
-|------------|-----------|----------|
-| **USA.gov (Search.gov)** | 4/5 | Filtros por departamento, tipo, data e tópico |
-| **Feedly** | 5/5 | AI Leo filtra artigos antes de você ler (priorização upstream) |
-| **Google News** | 5/5 | Personalização ML + Full Coverage (múltiplas perspectivas) |
-| **DestaquesGovbr** | 4,0/5 | Busca híbrida funcional, sem priorização ML upstream |
+Dois objetivos críticos dessa reestruturação:
+- **Entrega omnicanal**: apps com espaço restrito de tela consultam a API e exibem apenas os dados essenciais para o cidadão naquele momento, sem carregar páginas HTML completas
+- **Base de conhecimento para IA (ground truth)**: conteúdo altamente estruturado fornece fundação factual indispensável para modelos de IA, ancorando respostas em evidências rastreáveis e mitigando severamente o risco de alucinações algorítmicas
 
-**Gap identificado:**
+**Design System completo (WCAG 2.1 AA)**
+Componentes testados com usuários reais. Step-by-step navigation para jornadas complexas. Breadcrumbs consistentes em todas as páginas.
 
-Não há filtragem "antes de você ler" (AI Leo-style). Usuário ainda precisa escanear todos os resultados. Falta agrupamento automático de múltiplas perspectivas de órgãos diferentes sobre o mesmo tema (Full Coverage).
+**Taxonomia de ~4.000 tópicos**
+Accordions e grids para escaneamento. Plain language mandatório via GOV.UK style guide. Busca semântica com aliases para termos familiares.
 
-**Impacto do gap:** Sobrecarga informacional — jornalistas e servidores gastam tempo escaneando resultados.
+**Gap / Ausências:**
+Personalização zero, sem clipping de notícias e sem canal de denúncia de fake news.
 
----
+**Insight para o DestaquesGovBr:**
+💡 Adotar content modelling desde o início — uma notícia publicada uma vez deve ser exibível no feed, app, notificações e respostas de IA sem retrabalho editorial.
 
-### **3.3.3 Dimensão 3: Personalização de Feed (4,0/5)**
+**Referências:**
+- Inside GOV.UK Blog, abr. 2025 (content modelling, ~4.000 tópicos): insidegovuk.blog.gov.uk/2025/04/10/how-information-architects-are-helping-to-build-gov-uks-future/
+- design-system.service.gov.uk (Design System, WCAG 2.1 AA)
 
-**O que o DestaquesGovbr implementa:**
+#### **USA.gov — Estados Unidos**
 
-- Autenticação federada (Google OAuth + Gov.br OIDC)
-- Following explícito — usuário segue órgãos e temas IPTC de interesse
-- Feed personalizado filtrando apenas conteúdo dos órgãos/temas seguidos
-- Notificações push configuráveis (PWA + VAPID) por órgão e tema
+**Avaliação:**
+- Arquitetura da Informação: 4/5
+- Busca e Filtragem: 4/5
+- Personalização: 1/5
+- Clipping: 2/5
+- Clareza de Conteúdo: 5/5
+- Comunicação e Engajamento: 5/5
+- **Média: 3,5/5**
 
-**Comparação com benchmarks:**
+**O que faz de melhor:**
 
-| Plataforma | Pontuação | Destaque |
-|------------|-----------|----------|
-| **Portais Gov (média)** | 1,2/5 | NENHUM portal governamental tem personalização |
-| **Google News** | 5/5 | ML histórico (For You) + regional (Headlines) + explícito (Following) |
-| **Feedly** | 5/5 | Feeds → Folders → Boards (3 camadas de organização) |
-| **DestaquesGovbr** | 4,0/5 | Following funcional, sem ML histórico ou curadoria híbrida |
+**Busca Facetada (Search.gov)**
+Filtros laterais progressivos por departamento, tipo de documento, data e tópico. Metadados dos CMS das agências expostos de forma padronizada.
 
-**Destaque:**
+**API-first (api.data.gov)**
+Centenas de APIs abertas em tempo real — jornalistas e desenvolvedores consomem dados governamentais sem depender do portal como único canal.
 
-DestaquesGovbr é o **único portal governamental com personalização implementada** — supera em 233% a média dos portais governamentais (4,0 vs 1,2).
+**Atendimento multicanal e Section 508**
+Telefone gratuito, chat online, formulário estruturado e processo formal para acessibilidade. Section 508 mandatório em todos os componentes.
 
-**Gap identificado:**
+**Gap / Ausências:**
+Login.gov existe como autenticação unificada para serviços, mas nunca aplicado a curadoria de notícias.
 
-Falta curadoria híbrida (algoritmo ML + editores humanos) estilo Apple News. Não há histórico de leitura para recomendações automáticas.
+**Insight para o DestaquesGovBr:**
+💡 Busca facetada é padrão obrigatório para 160+ fontes. Filtros por órgão, tipo de publicação, data e categoria IPTC são essenciais para qualquer usuário.
 
-**Impacto do gap:** Usuários não descobrem conteúdo relevante que não buscariam ativamente (filter bubble).
+**Referências:**
+- USAGov Blog, dez. 2023 (busca facetada): usa.gov/blog/2023/12/less-is-more-improving-the-publics-web-search-experience-with-filters
+- api.data.gov — U.S. GSA
+- ADA.gov – Web Accessibility Guidance (Section 508)
 
----
+#### **Canada.ca — Canadá**
 
-### **3.3.4 Dimensão 4: Área do Usuário e Clipping (4,5/5)**
+**Avaliação:**
+- Arquitetura da Informação: 5/5
+- Busca e Filtragem: 4/5
+- Personalização: 2/5
+- Clipping: 1/5
+- Clareza de Conteúdo: 5/5
+- Comunicação e Engajamento: 4/5
+- **Média: 3,5/5**
 
-**O que o DestaquesGovbr implementa:**
+**O que faz de melhor:**
 
-- Clippings automáticos (CRON diário/semanal) com 4 canais de entrega: email, Telegram, webhook e RSS
-- Marketplace de clippings — follow, like e clone de curadoria de outros usuários
-- Boards de organização — usuário cria coleções temáticas multi-feed por projeto/pauta
-- Export em RSS/Atom/JSON por clipping
-- Sync cross-device via Firestore (acesso web e mobile)
+**Arquitetura flat e mobile-first**
+Hierarquia rasa, navegação in-page mais eficaz que menus complexos. Templates testados em inglês/francês, mobile/tablet/desktop e tecnologias assistivas.
 
-**Comparação com benchmarks:**
+**Journey Maps e Service Blueprints**
+Canada.ca Experience Office mapeia jornadas end-to-end antes de qualquer decisão de design — inclui serviços de múltiplas agências.
 
-| Plataforma | Pontuação | Destaque |
-|------------|-----------|----------|
-| **Portais Gov (média)** | 1,8/5 | NENHUM portal tem clipping (cidadãos usam screenshots) |
-| **Feedly** | 5/5 | Export para Notion/Sheets/Slack (1.000+ integrações Zapier) |
-| **Apple News** | 5/5 | Saved Stories + History + iCloud sync + Audio Stories offline |
-| **DestaquesGovbr** | 4,5/5 | Clipping robusto + marketplace único, sem export PDF/Zapier |
+**Conteúdo único e autêntico (princípio)**
+O governo não publica conteúdo para o qual não é fonte autoritativa. Duplicatas removidas sistematicamente. Ciclo de vida ativo.
 
-**Destaque:**
+**Gap / Ausências:**
+Personalização em experimentação com geolocalização, mas não implementada. Sem clipping.
 
-DestaquesGovbr é o **único portal governamental com clipping implementado** — supera em 150% a média dos portais governamentais (4,5 vs 1,8).
+**Insight para o DestaquesGovBr:**
+💡 Journey Maps são essenciais antes de prototipar. A jornada de um jornalista e a de um cidadão buscando benefícios são completamente distintas — cada persona exige caminhos específicos.
 
-**Gap identificado:**
+**Referências:**
+- canada.ca/en/government/system/digital-government/design-with-users.html
+- Canadian Digital Service, 2024
 
-Falta integrações Zapier/Make e export para PDF/planilha (solicitação mais frequente no feedback de usuários: 5 menções).
+#### **Gov.br — Brasil**
 
-**Impacto do gap:** Portal ainda é de consumo passivo, não ferramenta de trabalho integrada aos fluxos profissionais.
+**Avaliação:**
+- Arquitetura da Informação: 4/5
+- Busca e Filtragem: 3/5
+- Personalização: 1/5
+- Clipping: 3/5
+- Clareza de Conteúdo: 4/5
+- Comunicação e Engajamento: 3/5
+- **Média: 3,0/5**
 
----
+**O que faz de melhor:**
 
-### **3.3.5 Dimensão 5: Clareza de Conteúdo (4,5/5)**
+**Conta gov.br — dezenas de milhões de usuários**
+SSO unificado com assinatura eletrônica, documentos digitais (CNH, CPF) e histórico de serviços. Infraestrutura de autenticação pronta.
 
-**O que o DestaquesGovbr implementa:**
+**Design System GovBr v4**
+Design tokens, componentes reutilizáveis, padrões de autenticação, biblioteca Figma. Versão 4.0 em desenvolvimento com modernizações.
 
-- Plain language priorizando clareza (texto original dos órgãos)
-- Sumarização automática via AWS Bedrock (Claude 3 Haiku) gerando resumos de 2-3 frases
-- Metadados visíveis: órgão emissor, data de publicação, tema, entidades (pessoas/organizações/locais)
-- Links para fonte primária — URL original do órgão sempre presente
+**Catálogo de 3.000+ serviços + app mobile**
+Organização temática (Saúde, Educação, Trabalho). App gov.br centraliza serviços, documentos e assinatura digital no celular.
 
-**Comparação com benchmarks:**
+**Gap / Ausências:**
+Busca de notícias muito mais fraca que busca de serviços. Conta gov.br nunca usada para curadoria de notícias. Sem personalização ou canal anti fake news.
 
-| Plataforma | Pontuação | Destaque |
-|------------|-----------|----------|
-| **GOV.UK** | 5/5 | Plain language mandatório via style guide, step-by-step navigation |
-| **Canada.ca** | 5/5 | Conteúdo único e autêntico (governo não publica o que não é fonte) |
-| **SmartNews** | 5/5 | Clareza editorial com ~400 publishers verificados |
-| **DestaquesGovbr** | 4,5/5 | Sumarização automática + metadados, sem revisão humana |
+**Insight para o DestaquesGovBr:**
+💡 A Conta gov.br é a maior oportunidade do projeto — infraestrutura com dezenas de milhões de usuários e custo de aquisição zero. Estender para preferências de notícias e clippings.
 
-**Gap identificado:**
+**Referências:**
+- Decreto 9.756/2019 / Agência Brasil, jul. 2019 (~1.600 sites, R$ 43 mi investimento)
+- next-ds.estaleiro.serpro.gov.br (Design System GovBr v4)
 
-Sumarização 100% automatizada — falta human-in-the-loop (revisão editorial) como WSJ/Yahoo News. Risco de erros raros mas custosos em portarias críticas (saúde, segurança, benefícios sociais).
+#### **Portugal.gov.pt — Portugal**
 
-**Impacto do gap:** Questão de governança — governo deve ter padrão de qualidade superior a redações privadas.
+**Avaliação:**
+- Arquitetura da Informação: 3/5
+- Busca e Filtragem: 3/5
+- Personalização: 1/5
+- Clipping: 2/5
+- Clareza de Conteúdo: 4/5
+- Comunicação e Engajamento: 3/5
+- **Média: 2,7/5**
 
----
+**O que faz de melhor:**
 
-### **3.3.6 Dimensão 6: Comunicação e Engajamento (4,0/5)**
+**Chave Móvel Digital (CMD)**
+Autenticação via SMS ou app, válida para serviços públicos e privados (banca, saúde, telecomunicações). Simplicidade + segurança — referência da lusofonia.
 
-**O que o DestaquesGovbr implementa:**
+**Padrão jornalístico na redação**
+Textos seguem regras editoriais claras. Notícias, comunicados e documentos claramente separados. Histórico de governos preservado.
 
-- Combate estruturado a fake news com links para fontes primárias (portarias/decretos) em cada notícia
-- ClaimReview — desmentidos marcados com Schema.org para indexação prioritária nos buscadores
-- FAQ educativo sobre como identificar fontes governamentais oficiais
-- Federação ActivityPub — distribuição em Mastodon/Misskey desde abril de 2026
-- Múltiplos canais: web, RSS, Telegram, push notifications, widgets embarcáveis
+**Gap / Ausências:**
+Separação entre portal de notícias (portugal.gov.pt) e serviços (gov.pt) gera fricção. Busca básica. Personalização e clipping ausentes apesar da CMD existir.
 
-**Comparação com benchmarks:**
+**Insight para o DestaquesGovBr:**
+💡 O DestaquesGovBr deve integrar notícias e serviços numa mesma experiência — o cidadão lê sobre um benefício e acessa o serviço no mesmo fluxo, sem trocar de portal.
 
-| Plataforma | Pontuação | Destaque |
-|------------|-----------|----------|
-| **Portais Gov (média)** | 3,4/5 | Contato institucional básico, sem combate a fake news |
-| **Agregadores (média)** | 3,2/5 | Comunicação mínima, sem canal de denúncia robusto |
-| **DestaquesGovbr** | 4,0/5 | **LÍDER EM COMUNICAÇÃO** — único com combate estruturado |
+**Referências:**
+- autenticacao.gov.pt (Chave Móvel Digital)
+- eportugal.gov.pt/en/sobre (portal de serviços)
 
-**Destaque:**
+### **3.3.2 Grupo B — Agregadores de Notícias**
 
-DestaquesGovbr é o **único player (governamental OU agregador) com combate estruturado a fake news** — supera agregadores em 25% (4,0 vs 3,2) e portais governamentais em 18% (4,0 vs 3,4).
+#### **Google News**
 
-**Estratégia embasada cientificamente:**
-- LSE Business Review (2019) prova que "selos de falso" não funcionam devido a viés de confirmação
-- Solução: **transparência afirmativa** com evidências rastreáveis em vez de rótulos binários
+**Avaliação:**
+- Arquitetura da Informação: 5/5
+- Busca e Filtragem: 5/5
+- Personalização: 5/5
+- Clipping: 4/5
+- Clareza de Conteúdo: 5/5
+- Comunicação e Engajamento: 3/5
+- **Média: 4,5/5**
 
-**Gap identificado:**
+**O que faz de melhor:**
 
-Combate é unidirecional (governo → cidadão). Falta canal bidirecional para cidadão reportar fake news suspeita. FAQ educativo é estático (sem interação).
+**Personalização em camadas distintas**
+"For You" (ML histórico), "Headlines" (regional), "Following" (escolha explícita), "Newsstand" (exploração). Cada tab com propósito único e claro.
 
-**Impacto do gap:** Perde oportunidade de crowdsourcing de vigilância — cidadãos podem ajudar a identificar fake news em escala.
+**Full Coverage — múltiplas perspectivas**
+Exibe diversas fontes sobre o mesmo evento — combate o filter bubble mostrando que um fato pode ser narrado de formas diferentes.
 
----
+**Preferred Sources + Fact-check labels**
+Usuário escolhe outlets favoritos (2025). Fact Check Schema integra verificações de fatos nos resultados de busca e feed.
 
-## **3.4 Pontos Fortes Implementados**
+**Gap / Ausências:**
+Clipping básico (sem boards/folders). Sem canal direto de denúncia de fake news ou FAQ educativo sobre verificação de fontes.
 
-### **3.4.1 Única Plataforma Governamental com Personalização e Clipping**
+**Insight para o DestaquesGovBr:**
+💡 Full Coverage aplicado ao governo: ao noticiar um programa de saúde, exibir automaticamente links para a portaria ministerial, dados orçamentários e estatísticas de implementação regional.
 
-**Conquista:**
+**Referências:**
+- support.google.com/googlenews (personalização e Full Coverage)
+- Straight Arrow News, ago. 2025 (Preferred Sources)
+- Google News Initiative, 2024 (fact-check)
 
-Nenhum dos portais governamentais pesquisados (GOV.UK, USA.gov, Canada.ca, Gov.br, Portugal.gov.pt) possui:
-- Sistema de personalização de feed
-- Ferramentas de clipping profissional
-- Marketplace de curadoria
+#### **Feedly · 12+ milhões de usuários**
 
-O DestaquesGovbr preenche gap crítico de mercado ao oferecer:
-- Following explícito de órgãos e temas
-- Feed personalizado
-- Clippings automáticos com envio em 4 canais
-- Boards de organização multi-feed
+**Avaliação:**
+- Arquitetura da Informação: 5/5
+- Busca e Filtragem: 5/5
+- Personalização: 5/5
+- Clipping: 5/5
+- Clareza de Conteúdo: 5/5
+- Comunicação e Engajamento: 4/5
+- **Média: 4,8/5**
 
-**Impacto:**
+**O que faz de melhor:**
 
-- 4,0/5 em Personalização vs média 1,2/5 do Grupo A (+233%)
-- 4,5/5 em Clipping vs média 1,8/5 do Grupo A (+150%)
-- ~45 clippings criados por semana (abril-maio 2026)
-- Clippings requerem autenticação — indicador de usuários engajados e recorrentes
+**Feeds > Folders > Boards (3 camadas)**
+Organização multi-nível. Boards são coleções temáticas cross-feed — jornalistas organizam por pauta, pesquisadores por projeto, servidores por tema.
 
----
+**AI Leo — filtra antes de você ler**
+Assistente de IA que prioriza artigos relevantes antes da leitura, analisando milhões de conteúdos/dia. Age upstream — menos ruído, mais sinal.
 
-### **3.4.2 Líder em Combate à Desinformação com Transparência Afirmativa**
+**Export e 1.000+ integrações via Zapier**
+Boards exportados para Notion, Google Sheets, Slack. Transforma o agregador em ferramenta de trabalho — não só de consumo passivo.
 
-**Conquista:**
+**Gap / Ausências:**
+Sem foco em conteúdo governamental. Sem denúncia de fake news ou educação sobre verificação de fontes.
 
-Implementação de estratégia estruturada baseada em evidências científicas:
-- Links para fontes primárias (portarias, decretos) em cada notícia
-- ClaimReview (Schema.org) para desmentidos indexados com destaque no Google
-- FAQ educativo sobre identificação de fontes oficiais .gov.br
-- Federação ActivityPub para distribuição em redes descentralizadas
+**Insight para o DestaquesGovBr:**
+💡 Boards são o benchmark de clipping profissional. Jornalistas, servidores e pesquisadores precisam organizar por projeto — com possibilidade de anotar, exportar e compartilhar coleções.
 
-**Diferencial:**
+**Referências:**
+- Readless.app – Feedly vs Readwise Reader, abr. 2026 (12+ milhões de usuários, AI Leo, Zapier integrações)
 
-Não usa "bandeiras de falso" que são ignoradas por viés de confirmação. Usa **transparência afirmativa**: evidências rastreáveis em vez de rótulos binários.
+#### **Apple News**
 
-**Impacto:**
+**Avaliação:**
+- Arquitetura da Informação: 5/5
+- Busca e Filtragem: 4/5
+- Personalização: 5/5
+- Clipping: 5/5
+- Clareza de Conteúdo: 5/5
+- Comunicação e Engajamento: 2/5
+- **Média: 4,3/5**
 
-- Único player (governamental OU agregador) com estratégia estruturada
-- Supera agregadores em 25% (4,0 vs 3,2)
-- Supera portais governamentais em 18% (4,0 vs 3,4)
+**O que faz de melhor:**
 
----
+**Curadoria híbrida: ML + equipe editorial**
+Today tab combina top stories curadas por humanos com recomendações de ML — evita filter bubble (100% ML) e falta de escala (100% humano).
 
-### **3.4.3 Latência Near Real-Time com Arquitetura Event-Driven**
+**Blocked Channels & Topics — controle total**
+Usuário bloqueia fontes ou tópicos permanentemente. Controle granular explícito sobre o que nunca quer ver no feed.
 
-**Conquista:**
+**Saved Stories, History + Audio Stories offline**
+Artigos salvos offline via iCloud, sincronizados entre iPhone, iPad e Mac. Audio Stories para consumo em mobilidade e acessibilidade.
 
-Transformação arquitetural entre dezembro 2025 e março 2026:
-- Pipeline event-driven via Pub/Sub (scraped → enriched → embedded)
-- Latência end-to-end: 15 segundos (vs 45 minutos na versão batch)
-- AWS Bedrock (Claude 3 Haiku) para classificação temática + resumo + sentiment + entities
-- Escalabilidade automática (Cloud Run 0-3 replicas, scale-to-zero)
-- Taxa de sucesso 97% com workers DLQ e retry automático
+**Gap / Ausências:**
+Filtros de busca limitados. Canal de comunicação mínimo — sem denúncia de fake news. Exclusivo do ecossistema Apple.
 
-**Impacto:**
+**Insight para o DestaquesGovBr:**
+💡 Curadoria híbrida é o modelo ideal para governo. Editores governamentais definem destaques do dia; o algoritmo personaliza o restante do feed para cada cidadão com base em interesses.
 
-- 99,97% de redução de latência (de 45 min para 15s)
-- Push notifications em tempo real (~20s delay após publicação)
-- Busca semântica imediata (embeddings gerados em 5s)
-- 27,4% de redução de custo (de $420/mês para $305/mês)
+**Referências:**
+- AppleInsider – Inside Apple News, mar. 2025 (curadoria híbrida, Saved Stories, Audio Stories, iCloud sync)
 
-**Evidência operacional:**
+#### **Flipboard**
 
-- Throughput: ~800 artigos/dia de 156 agências
-- Pico: ~150 artigos/15min (horário comercial 9h-18h)
-- Typesense: ~50.000 queries/dia com latência < 100ms (p95)
+**Avaliação:**
+- Arquitetura da Informação: 5/5
+- Busca e Filtragem: 5/5
+- Personalização: 5/5
+- Clipping: 5/5
+- Clareza de Conteúdo: 5/5
+- Comunicação e Engajamento: 3/5
+- **Média: 4,7/5**
 
----
+**O que faz de melhor:**
 
-### **3.4.4 Busca Híbrida (Keyword + Semântica) com IPTC e Schema.org**
+**Smart Magazines — um canal por interesse**
+Cada interesse vira uma revista separada, não um feed único que mistura tudo. Usuário swipa entre até 9 magazines no carousel da home.
 
-**Conquista:**
+**10M+ magazines de curadoria colaborativa**
+Usuários criam e publicam magazines. Algoritmo combina sinais de máquinas e de pessoas — conteúdo humano indexado e amplificado por IA.
 
-Único portal governamental com busca que entende significado das palavras:
-- Busca híbrida combinando BM25 (keyword) e embeddings 768-dim (semântica)
-- Taxonomia IPTC (25 temas L1, 3 níveis hierárquicos) — padrão Reuters/AP/BBC
-- Filtros progressivos por órgão, tema e data
-- Schema.org (NewsArticle + GovernmentOrganization) para rich snippets
-- Artigos relacionados via similaridade semântica (cosine similarity)
+**Content Search — busca que vira revista**
+Busca por topic, person ou hashtag gera uma 'revista instantânea' com todo o conteúdo relacionado no formato visual do Flipboard.
 
-**Impacto:**
+**Gap / Ausências:**
+Sem foco governamental. Sem canal de denúncia de fake news ou educação sobre verificação de fontes.
 
-- 4,0/5 em Busca — acima da média de portais gov (3,6/5)
-- ~800 buscas/dia — 23% dos usuários fazem busca ativa
-- Typesense: cache hit 70%, latência < 100ms
+**Insight para o DestaquesGovBr:**
+💡 Smart Magazines para o governo: um canal por ministério e por tema IPTC — Saúde, Editais, Educação. O cidadão assina os canais que quer, sem navegar por 160 sites.
 
-**Diferencial:**
+**Referências:**
+- Flipboard Press, 2017 (Smart Magazines)
+- Flipboard Blog, 2014 (30.000+ tópicos, 10M+ magazines)
 
-Taxonomia IPTC garante que notícias de órgãos diferentes sobre o mesmo assunto sejam encontradas juntas (ex: busca "educação" retorna MEC, MCTI, MDS).
+#### **SmartNews**
 
----
+**Avaliação:**
+- Arquitetura da Informação: 4/5
+- Busca e Filtragem: 3/5
+- Personalização: 4/5
+- Clipping: 3/5
+- Clareza de Conteúdo: 5/5
+- Comunicação e Engajamento: 4/5
+- **Média: 3,8/5**
 
-### **3.4.5 Múltiplos Canais de Distribuição (Government as a Platform)**
+**O que faz de melhor:**
 
-**Conquista:**
+**Personalized Discovery — anti-câmara-de-eco**
+O algoritmo intencionalmente recomenda conteúdo fora da bolha usual do usuário. Perspectivas diversas por design, não por acidente.
 
-Implementação de princípio Government as a Platform (GaaP):
-- Portal web (Next.js 15, App Router, React Server Components)
-- Feeds estruturados (RSS/Atom/JSON global + por clipping)
-- Federação ActivityPub (Mastodon/Misskey desde abril 2026)
-- Widgets embarcáveis (4 layouts × 4 tamanhos: 240px a 640px)
-- Push notifications (PWA + VAPID)
-- Clippings via Telegram (bot com comandos interativos)
-- Webhooks para integração com sistemas externos
+**Offline reading por pré-download**
+Artigos e imagens baixados antes de o usuário perder conexão. Fundamental para regiões com conectividade intermitente — como grande parte do Brasil.
 
-**Impacto:**
+**~400 publishers verificados nos EUA**
+AP, Reuters, Bloomberg, USA Today. Publisher-friendly: primeiro clique vai para o publisher, que fica com 100% da receita de anúncios no SmartView.
 
-- ~12.000 pageviews/dia (média 30 dias abril-maio 2026)
-- ~3.500 usuários únicos/dia
-- Bounce rate 42% — melhor que benchmark gov (~55%)
+**Gap / Ausências:**
+Filtros de busca básicos. Boards ausentes. Combate a fake news via curadoria de fontes — opaco para o usuário, sem canal explícito de denúncia.
 
-**Diferencial:**
+**Insight para o DestaquesGovBr:**
+💡 Offline reading é acessibilidade no Brasil. O princípio anti-filter-bubble deve ser central: DestaquesGovBr deve mostrar perspectivas de múltiplos órgãos sobre o mesmo tema.
 
-- Único portal governamental com federação ActivityPub (integração com Fediverso)
-- Widgets embarcáveis permitem outros sites gov.br exibirem notícias sem scraping
+**Referências:**
+- Nanalyze, ago. 2019 (Personalized Discovery)
+- Marketing Dive, 2014 (~400 publishers EUA, SmartView modelo publisher-friendly)
 
----
+## **3.4 Matriz Comparativa e Análise de Gaps**
 
-### **3.4.6 Infraestrutura de Autenticação Gov.br Integrada**
+### **3.4.1 Matriz Comparativa: 10 Players × 6 Dimensões**
 
-**Conquista:**
+| Player | Arq.Info | Busca | Pers. | Clipping | Clareza | Comunic. | Média |
+|--------|----------|-------|-------|----------|---------|----------|-------|
+| 🇬🇧 GOV.UK | 5 | 4 | 1 | 1 | 5 | 4 | **3,3** |
+| 🇺🇸 USA.gov | 4 | 4 | 1 | 2 | 5 | 5 | **3,5** |
+| 🇨🇦 Canada.ca | 5 | 4 | 2 | 1 | 5 | 4 | **3,5** |
+| 🇧🇷 Gov.br | 4 | 3 | 1 | 3 | 4 | 3 | **3,0** |
+| 🇵🇹 Portugal.gov.pt | 3 | 3 | 1 | 2 | 4 | 3 | **2,7** |
+| Google News | 5 | 5 | 5 | 4 | 5 | 3 | **4,5** |
+| Feedly | 5 | 5 | 5 | 5 | 5 | 4 | **4,8** |
+| Apple News | 5 | 4 | 5 | 5 | 5 | 2 | **4,3** |
+| Flipboard | 5 | 5 | 5 | 5 | 5 | 3 | **4,7** |
+| SmartNews | 4 | 3 | 4 | 3 | 5 | 4 | **3,8** |
 
-Primeira aplicação gov.br que estende a Conta para curadoria de notícias (não apenas serviços):
-- Conta gov.br (OIDC) — SSO unificado com dezenas de milhões de usuários
-- Google OAuth 2.0 para autenticação simplificada
-- JWT tokens para sessões stateless com refresh
-- Custo de aquisição zero — usuários já têm Conta gov.br
+**Médias por grupo:**
+- **Portais Governamentais**: 3,0/5,0
+- **Agregadores de Notícias**: 4,4/5,0
+- **Gap**: 1,4 pontos
 
-**Impacto:**
+### **3.4.2 O Gap Crítico — e a Oportunidade do DestaquesGovBr**
 
-- Gov.br é a maior oportunidade do projeto — infraestrutura com 70M+ usuários (CPF digital, CNH, assinatura eletrônica)
-- Reduz fricção de cadastro — usuário já autenticado em outros serviços gov.br
+**Gaps uniformes em todos os portais governamentais analisados:**
 
-**Diferencial comparativo:**
+1. **Sem clipping de notícias**
+   - Nenhum portal gov permite salvar, organizar ou exportar notícias
+   - Cidadãos dependem de screenshots e ferramentas externas para guardar informação oficial
 
-- USA.gov tem Login.gov mas nunca usou para notícias
-- Portugal.gov.pt tem Chave Móvel Digital mas notícias e serviços são portais separados
-- DestaquesGovbr integra notícias + Conta gov.br desde o MVP
+2. **Sem personalização do feed**
+   - Todos recebem o mesmo conteúdo
+   - Quem acompanha saúde navega por notícias de transporte
+   - Sobrecarga para uns, irrelevância para outros
 
----
+3. **Sem combate estruturado a fake news**
+   - Nenhum portal tem canal robusto de denúncia ou verificação
+   - Nenhum educa sobre como identificar fontes governamentais oficiais
 
-## **3.5 Oportunidades de Evolução Identificadas**
+**Conclusão:**
+Nenhum player combina: agregação centralizada + área logada + clipping + personalização ML + combate a fake news + padrão IPTC. **Esse é o espaço do DestaquesGovBr.**
 
-### **3.5.1 Matriz de Priorização**
+## **3.5 Padrões Identificados**
 
-| Oportunidade | Impacto | Esforço | Prioridade | Dimensão Afetada |
-|--------------|---------|---------|------------|------------------|
-| **Human-in-the-loop (sumarização)** | Alto | Baixo | 🔴 Crítica | Clareza (4,5→5,0) |
-| **Curadoria híbrida (ML + editores)** | Alto | Alto | 🟢 Alta | Personalização (4,0→4,5) |
-| **Full Coverage (múltiplas perspectivas)** | Alto | Médio | 🟢 Alta | Clareza (4,5→5,0) |
-| **Export PDF/planilha + Zapier** | Médio | Médio | 🟢 Alta | Clipping (4,5→5,0) |
-| **Canal denúncia fake news** | Médio | Baixo | 🟢 Alta | Comunicação (4,0→4,5) |
-| **API pública documentada** | Alto | Médio | 🟢 Alta | Arq.Info (4,5→5,0) |
-| **Content modelling granular** | Alto | Alto | 🟡 Média | Arq.Info (4,5→5,0) |
-| **AI Leo-style filtering** | Médio | Alto | 🟡 Média | Busca (4,0→4,5) |
-| **Offline reading robusto** | Médio | Médio | 🟡 Média | Acessibilidade |
-| **Dark mode funcional** | Baixo | Baixo | 🟡 Média | Estética |
+### **3.5.1 Padrões Positivos — O que funciona e deve ser adotado**
 
----
+#### **GOV.UK: Content Modelling Granular**
+Conteúdo em blocos mínimos reutilizáveis. Um dado publicado serve web, app, voz e IA sem retrabalho. Base confiável para modelos de IA.
 
-### **3.5.2 Oportunidades Prioritárias (Detalhamento)**
+#### **USA.gov: Busca Facetada com Metadados**
+Filtros progressivos por departamento, tipo, data e tema. Essencial para bases com 160+ fontes. Usuário refina sem sair da página.
 
-#### **O1. Content Modelling Granular (Inspiração: GOV.UK)**
+#### **Apple News: Curadoria Híbrida**
+Algoritmo + editores humanos. Evita filter bubble (só ML) e limitação de escala (só humano). Editores priorizam; IA personaliza.
 
-**Gap atual:**
-- Conteúdo publicado como páginas completas HTML
-- Não há fragmentação em blocos mínimos reutilizáveis
-- Falta API-first para consumo por assistentes de IA
+#### **Feedly: Boards e Coleções Profissionais**
+Organizar por projeto, anotar, exportar e compartilhar coleções. Transforma o portal em ferramenta de trabalho real.
 
-**Solução proposta:**
-- Adotar content modelling "estilo Lego" do GOV.UK
-- Publicar notícia uma vez → exibir em web, app, voz, IA sem retrabalho editorial
-- Criar API pública (api.destaquesgov.br) para desenvolvedores e jornalistas
+#### **Flipboard: Smart Magazines por Interesse**
+Um canal separado por tema, não um feed único confuso. Usuário swipa entre revistas que escolheu seguir. Reduz sobrecarga.
 
-**Impacto esperado:**
-- Base factual confiável para modelos LLM (ground truth, mitigar alucinações)
-- Entrega omnicanal — apps mobile consultam API e exibem apenas dados essenciais
-- Arquitetura da Informação: 4,5 → 5,0
+#### **SmartNews: Offline Reading Robusto**
+Pré-download de conteúdo. No Brasil, com desigualdade de conectividade, isso é acessibilidade — não conforto ou feature extra.
 
-**Prioridade:** 🟡 Média (requisito para fase 2 do projeto)
+### **3.5.2 Padrões Negativos — O que evitar e onde estão os gaps**
 
----
+#### **Fake news flags simples não funcionam** (Todos os players)
 
-#### **O2. Curadoria Híbrida (Algoritmo ML + Editores Humanos)**
+Estudos cognitivos mostram que 'bandeiras de falso' são ignoradas por viés de confirmação e criam o efeito de verdade implícita em artigos não marcados.
 
-**Gap atual:**
-- Personalização baseada apenas em following explícito
-- Não há recomendações ML baseadas em histórico de leitura
-- Não há editores priorizando "destaques do dia"
+**Solução:** transparência afirmativa — links para fontes primárias e ClaimReview, não rótulos binários.
 
-**Solução proposta:**
-- Implementar curadoria híbrida estilo Apple News
-- Tab "Destaques" → editores governamentais escolhem top stories do dia
-- Tab "Para Você" → algoritmo ML recomenda baseado em histórico de leitura
-- Tab "Explorar" → conteúdo fora da bolha usual (anti filter bubble, estilo SmartNews)
+**Evidência científica:**
+- Dennis et al. / LSE Business Review (2019): Experimento com EEG (eletroencefalograma) mostrou que 80% dos usuários não conseguem distinguir notícias falsas de verdadeiras. O flag de fake news do Facebook não teve NENHUM efeito na crença dos usuários. O viés de confirmação dominou: as pessoas acreditaram nos títulos alinhados às suas crenças e ignoraram completamente os que conflitavam.
 
-**Impacto esperado:**
-- Evita filter bubble (só ML) e falta de escala (só humano)
-- Aumenta engajamento — usuários descobrem conteúdo relevante que não buscariam ativamente
-- Personalização: 4,0 → 4,5
+- Pennycook et al. / Management Science (2020) — 'The Implied Truth Effect': quando avisos de 'falso' são colocados em apenas alguns artigos, os artigos SEM aviso passam a ser percebidos como MAIS verdadeiros do que eram antes — como se a ausência do rótulo fosse um selo de aprovação implícito. Estudo com N = 5.271 participantes.
 
-**Prioridade:** 🟢 Alta (feedback indica que bounce rate 42% ainda é alto para governo)
+**Referências:**
+- LSE Business Review, jun. 2019: blogs.lse.ac.uk/businessreview/2019/06/26/fake-news-source-ratings...
+- Pennycook et al. (2020): doi.org/10.1287/mnsc.2019.3478
 
----
+#### **Infraestrutura de autenticação subutilizada** (Gov.br / USA.gov / Portugal.gov.pt)
 
-#### **O3. AI Leo-Style Filtering (Priorização Upstream)**
+Conta gov.br, Login.gov e Autenticação.gov têm sistemas robustos com milhões de usuários — mas nenhum usa isso para curadoria de notícias. Infraestrutura pronta, oportunidade desperdiçada.
 
-**Gap atual:**
-- Usuário ainda precisa escanear todos os resultados de busca
-- Não há "filtragem antes de você ler" (Feedly AI Leo)
-- Algoritmo de relevância básico (BM25 + embeddings, sem ML de priorização)
+#### **Busca de notícias fraca vs. busca de serviços** (Gov.br / Portugal.gov.pt)
 
-**Solução proposta:**
-- Implementar assistente de IA que prioriza artigos relevantes antes da leitura
-- Analisar milhões de artigos/dia, destacar os mais importantes para cada usuário
-- Usar AWS Bedrock para summarização + scoring de relevância
+Portais governamentais investem em busca de serviços e ignoram busca de notícias. Filtrar por data, órgão ou tema é precário ou impossível — mesmo com 160+ fontes publicando diariamente.
 
-**Impacto esperado:**
-- Reduz sobrecarga informacional — menos ruído, mais sinal
-- Aumenta eficiência — jornalistas, servidores e pesquisadores economizam tempo
-- Busca e Filtragem: 4,0 → 4,5
+#### **Personalização zero — todos recebem o mesmo conteúdo** (Todos os portais governamentais)
 
-**Prioridade:** 🟡 Média (depende de volume de uso crescer para treinar modelo ML)
+Nenhum portal permite seguir órgãos ou temas. Resultado: sobrecarga para quem acompanha muito e irrelevância para quem acompanha pouco. Engajamento estruturalmente baixo.
 
----
+## **3.6 Temas Transversais**
 
-#### **O4. Full Coverage (Múltiplas Perspectivas de Órgãos)**
+### **3.6.1 Taxonomia IPTC e Schema.org: a Espinha Dorsal da Plataforma**
 
-**Gap atual:**
-- Notícias exibidas isoladamente
-- Não há agrupamento automático de perspectivas de múltiplos órgãos sobre o mesmo evento
+#### **IPTC MEDIA TOPICS**
 
-**Solução proposta:**
-- Implementar Full Coverage estilo Google News
-- Quando MEC anuncia investimento em educação, exibir automaticamente:
-  - Portaria ministerial original (link para fonte primária)
-  - Dados orçamentários (link para Tesouro Transparente)
-  - Estatísticas de implementação regional (link para IBGE/DataGov)
-  - Notícia de outros órgãos envolvidos (ex: MCTI se houver tecnologia educacional)
+**O que é:**
+Vocabulário controlado com 1.100+ termos hierárquicos para classificar notícias. Padrão global — adotado por Reuters, AP e BBC.
 
-**Impacto esperado:**
-- Combate filter bubble — múltiplas perspectivas sobre o mesmo fato
-- Aumenta confiança — cidadão vê evidências primárias, não apenas narrativas
-- Clareza de Conteúdo: 4,5 → 5,0
+**Por que adotar:**
+Uma notícia do Min. Infraestrutura sobre meio ambiente usa os mesmos metadados de uma do Min. Meio Ambiente — a busca entende que é o mesmo assunto.
 
-**Prioridade:** 🟢 Alta (diferencial competitivo claro)
+**Regra fundamental:**
+Categorizar pelo ASSUNTO, jamais pelo ministério emissor. Reestruturações administrativas não podem quebrar a navegação.
 
----
+**Referência:**
+- iptc.org/standards/media-topics (1.100+ termos, compatível XML/JSON/NewsML-G2)
 
-#### **O5. Human-in-the-Loop para Sumarização (Revisão Editorial)**
+#### **SCHEMA.ORG + JSON-LD + CLAIMREVIEW**
 
-**Gap atual:**
-- Sumarização 100% automatizada (AWS Bedrock Claude 3 Haiku)
-- Não há revisão humana antes de publicar resumo
-- Risco: erros raros mas custosos (correções públicas)
+**NewsArticle + GovernmentOrganization:**
+Toda publicação recebe marcação via JSON-LD. Google reconhece o governo como fonte primária e oficial. Rich snippets nos resultados de busca.
 
-**Solução proposta:**
-- Adicionar human-in-the-loop como WSJ/Yahoo News
-- IA gera resumo → editor humano revisa e aprova → publicação
-- Interface transparente — usuário sabe que é "resumo assistido por IA, revisado por editor"
+**ClaimReview (combate fake news):**
+Para cada desmentido publicado, o código inclui ClaimReview. Quando alguém googla o tema, a correção oficial aparece com destaque visual nos resultados — sem depender de denúncias manuais.
 
-**Impacto esperado:**
-- Reduz risco de erros em resumos de portarias críticas (saúde, segurança, benefícios)
-- Aumenta confiança — governo deve ter padrão de qualidade superior a redações privadas
-- Clareza de Conteúdo: 4,5 → 5,0
+**Referências:**
+- schema.org/NewsArticle
+- Google Fact Check Tools / ClaimReview (newsinitiative.withgoogle.com)
 
-**Prioridade:** 🔴 Crítica (questão de governança, não apenas UX)
+### **3.6.2 IA, Sumarização e Combate à Desinformação**
 
----
+#### **Sumarização com Governança (Key Takeaways)**
 
-#### **O6. Integrações Zapier/Make e Export PDF/Planilha**
+Portarias e decretos ganham resumo gerado por IA no topo da publicação — como já fazem WSJ e Yahoo News. Três salvaguardas obrigatórias:
+1. Modelo confinado ao texto da publicação, sem acesso à internet
+2. Editor humano revisa e aprova (human-in-the-loop)
+3. Interface informa claramente que é um resumo assistido por IA
 
-**Gap atual:**
-- Clippings exportáveis apenas como RSS/Atom/JSON
-- Não há export para PDF, Excel, Notion, Google Sheets, Slack
-- Falta integrações com ferramentas de produtividade
+**Evidência real:**
+Reportagem publicada pelo Nieman Journalism Lab (Harvard) em junho de 2025, documentando as experiências reais de três grandes redações com sumarização automática de artigos por IA:
 
-**Solução proposta:**
-- Implementar export para PDF/planilha (solicitação mais frequente: 5 menções)
-- Criar integrações Zapier/Make (inspiração: Feedly)
-- Permitir que clippings alimentem ferramentas de trabalho (Notion, Trello, Monday.com)
+- **Wall Street Journal**: usa key points gerados por IA para expandir o negócio de newswires, inclusive em coreano e japonês
+- **Bloomberg**: adota sumarização com guardrails editoriais rigorosos
+- **Yahoo News**: lançou 'Key Takeaways' em 2024. A lição principal da diretora: 'human-in-the-loop is critical — as taxas de erro são muito baixas, mas não são zero, e mesmo erros raros podem gerar correções custosas.'
 
-**Impacto esperado:**
-- Transforma portal de consumo passivo em ferramenta de trabalho
-- Jornalistas, servidores e pesquisadores usam clippings em fluxos profissionais
-- Área do Usuário e Clipping: 4,5 → 5,0
+Conclusão compartilhada pelas três redações: 'Resumos não substituem o jornalismo — eles não podem existir sem ele.'
 
-**Prioridade:** 🟢 Alta (feedback direto de usuários, ROI claro)
+**Referência:**
+- Nieman Lab / Harvard, jun. 2025: niemanlab.org/2025/06/lets-get-to-the-point-three-newsrooms-on-generating-ai-summaries-for-news/
 
----
+#### **Combate à Desinformação: Transparência Afirmativa**
 
-#### **O7. Canal de Denúncia Bidirecional de Fake News**
+Fake news flags simples são ineficazes — ignoradas por viés de confirmação e criam o "efeito de verdade implícita" em artigos não marcados.
 
-**Gap atual:**
-- Combate a fake news é unidirecional (gov → cidadão via ClaimReview)
-- Não há canal para cidadão reportar fake news suspeita
-- FAQ educativo é estático (sem interação)
+**Solução:**
+- Links para portarias/decretos em cada notícia
+- ClaimReview em desmentidos
+- FAQ educativo sobre como identificar fontes .gov.br
+- Contexto e evidência no lugar de rótulos
 
-**Solução proposta:**
-- Criar formulário de denúncia — cidadão reporta notícia suspeita atribuída ao governo
-- Fluxo: denúncia → triagem → verificação → resposta com ClaimReview (se fake news confirmada)
-- Adicionar chatbot educativo — cidadão pergunta "como saber se notícia é oficial?" e recebe guia interativo
+#### **Personalização com Equidade Algorítmica**
 
-**Impacto esperado:**
-- Crowdsourcing de vigilância — cidadãos ajudam a identificar fake news em escala
-- Educação ativa — chatbot mais eficaz que FAQ estático
-- Comunicação e Engajamento: 4,0 → 4,5
-
-**Prioridade:** 🟢 Alta (fortalece diferencial competitivo único)
-
----
-
-#### **O8. Offline Reading Robusto (PWA com Pré-Download)**
-
-**Gap atual:**
-- PWA instalável, mas sem pré-download de conteúdo
-- Offline reading limitado ao cache do navegador
-- Não há estratégia para regiões com conectividade intermitente
-
-**Solução proposta:**
-- Implementar offline reading estilo SmartNews
-- Artigos e imagens baixados automaticamente antes de o usuário perder conexão
-- Sincronização inteligente — prioriza artigos dos órgãos/temas seguidos
-
-**Impacto esperado:**
-- Acessibilidade no Brasil — grande parte do país tem conectividade intermitente
-- Aumenta retenção — usuários podem ler notícias gov.br em metrô, ônibus, áreas rurais
-- Funcionalidade robusta, não apenas "feature extra"
-
-**Prioridade:** 🟡 Média (requisito de acessibilidade, não UX)
-
----
-
-#### **O9. API Pública Documentada para Desenvolvedores**
-
-**Gap atual:**
-- Widgets embarcáveis existem, mas são limitados (4 layouts)
-- Não há API REST pública documentada
-- Desenvolvedores não podem criar integrações customizadas
-
-**Solução proposta:**
-- Lançar api.destaquesgov.br com documentação OpenAPI/Swagger
-- Endpoints:
-  - `GET /noticias` — lista artigos com filtros (órgão, tema, data)
-  - `GET /noticias/{id}` — detalhes de um artigo
-  - `GET /temas` — árvore hierárquica de temas IPTC
-  - `GET /orgaos` — catálogo de órgãos gov.br
-- Rate limiting: 1.000 requests/hora (tier gratuito)
-
-**Impacto esperado:**
-- Government as a Platform — desenvolvedores criam apps/sites que consomem dados governamentais
-- Reduz scraping não autorizado — desenvolvedores usam API oficial
-- Solicitação de feedback (2 menções)
-
-**Prioridade:** 🟢 Alta (princípio fundador do GaaP)
-
----
-
-#### **O10. Dark Mode Funcional**
-
-**Gap atual:**
-- Interface apenas light mode
-- Dark mode é solicitação recorrente (3 menções no feedback)
-
-**Solução proposta:**
-- Implementar dark mode com toggle manual + detecção automática (`prefers-color-scheme`)
-- Usar design tokens do Gov.br Design System v4 se disponíveis
-- Garantir contraste WCAG AA (4.5:1 para texto normal, 3:1 para texto grande)
-
-**Impacto esperado:**
-- Melhora experiência em ambientes com pouca luz
-- Reduz fadiga visual para leitores frequentes (jornalistas, servidores)
-- Acessibilidade (beneficia usuários com sensibilidade à luz)
-
-**Prioridade:** 🟡 Média (estética, não funcional)
-
----
+Algoritmos de recomendação podem herdar vieses históricos — se otimizarem só engajamento, priorizarão sensacionalismo e excluirão populações vulneráveis de informações importantes. Fairness-aware algorithms garantem exposição equitativa, com auditoria contínua documentada e pública.
 
 # **4 Resultados**
 
-## **4.1 Síntese dos Resultados**
+## **4.1 DestaquesGovBr — Avaliação nas 6 Dimensões**
 
-O DestaquesGovbr alcançou posicionamento competitivo único:
+O mesmo framework usado para avaliar os 10 players aplicado ao DestaquesGovBr. Não é um ranking — é uma régua para saber onde estamos e para onde ir.
 
-### **4.1.1 Em Relação a Portais Governamentais (Grupo A)**
+| Dimensão | Nota | Detalhe |
+|----------|------|---------|
+| **1. Arquitetura da Informação** | **4,5/5** | Taxonomia IPTC com 3 níveis hierárquicos. Órgãos catalogados por ministério/autarquia. Schema.org NewsArticle + GovernmentOrganization. Hierarquia rasa, breadcrumbs consistentes. |
+| **2. Busca e Filtragem** | **4,0/5** | Busca híbrida: keyword + semântica (embeddings). Filtros progressivos por órgão, tema IPTC e data. Artigos relacionados por similaridade semântica. |
+| **3. Personalização de Feed** | **4,0/5** | Following explícito: usuário segue órgãos e temas IPTC de interesse. Feed personalizado com apenas conteúdo dos seguidos. Notificações push configuráveis por órgão e tema. |
+| **4. Área do Usuário e Clipping** | **4,5/5** | Clippings automáticos com entrega em múltiplos canais (email, Telegram, webhook, RSS). Marketplace de clippings. Boards de organização multi-feed. Sync cross-device. |
+| **5. Clareza de Conteúdo** | **4,5/5** | Plain language. Sumarização automática por IA. Metadados visíveis: órgão, data, tema, entidades. Link para fonte primária sempre presente em cada notícia. |
+| **6. Comunicação e Engajamento** | **4,0/5** | ClaimReview (Schema.org): desmentidos indexados com destaque no Google. Links para portarias/decretos em cada notícia. FAQ educativo. Federação ActivityPub. |
 
-- **Supera todos os portais governamentais** em 5 das 6 dimensões
-- **Média geral**: 4,25 vs 3,1 (37% superior)
-- **Gaps preenchidos**:
-  - Personalização: 4,0 vs 1,2 (+233%)
-  - Clipping: 4,5 vs 1,8 (+150%)
-  - Busca: 4,0 vs 3,6 (+11%)
-  - Comunicação: 4,0 vs 3,4 (+18%)
+**Média geral: 4,2/5**
 
-### **4.1.2 Em Relação a Agregadores Comerciais (Grupo B)**
+## **4.2 Highlights — O que o DestaquesGovBr Faz de Melhor Hoje**
 
-- **Alcança 94,4% da média** dos agregadores comerciais (4,25 vs 4,5)
-- **Gap total**: apenas -0,25 pontos
-- **Lidera em Comunicação**: 4,0 vs 3,2 (+25%)
-- **Gaps residuais**:
-  - Personalização: -0,8 pontos (falta ML histórico)
-  - Clareza: -0,5 pontos (falta revisão humana)
-  - Busca: -0,4 pontos (falta priorização upstream)
-  - Arquitetura: -0,3 pontos (falta content modelling granular)
+### **🚀 Único Portal Gov com Personalização e Clipping**
 
-### **4.1.3 Diferencial Competitivo Único**
+- Following explícito por órgão e tema IPTC, com autenticação via Google OAuth e Gov.br
+- Feed personalizado exibe apenas o que o usuário escolheu acompanhar
+- Clippings automáticos em múltiplos canais (email, Telegram, webhook, RSS)
+- Marketplace de clippings: qualquer usuário pode seguir, curtir e clonar a curadoria de outros
+- Boards para organização multi-feed por projeto ou pauta
 
-O DestaquesGovbr é o **único player (governamental OU agregador)** com:
-- Combate estruturado a fake news via transparência afirmativa
-- ClaimReview (Schema.org) para desmentidos
-- Federação ActivityPub (integração com Fediverso)
-- Autenticação Gov.br integrada à curadoria de notícias
+**Diferencial:** Preenche o gap crítico: nenhum dos portais governamentais analisados (GOV.UK, USA.gov, Canada.ca, Gov.br, Portugal) tem personalização ou clipping.
 
----
+### **👑 Líder em Combate à Desinformação**
 
-## **4.2 Métricas de Uso (Abril-Maio 2026)**
+- Transparência afirmativa em vez de fake news flags — estratégia embasada em estudos cognitivos
+- Links para portarias e decretos originais em cada notícia
+- ClaimReview (Schema.org): desmentidos indexados com destaque visual nos buscadores
+- FAQ educativo: como verificar se uma URL é fonte oficial (.gov.br)
+- Federação ActivityPub: distribuição em redes descentralizadas desde Abr 2026
 
-| Métrica | Valor | Observação |
-|---------|-------|------------|
-| **Pageviews/dia** | ~12.000 | Média 30 dias |
-| **Usuários únicos/dia** | ~3.500 | - |
-| **Bounce rate** | 42% | Melhor que benchmark gov (~55%) |
-| **Buscas/dia** | ~800 | 23% dos usuários fazem busca ativa |
-| **Clippings criados/semana** | ~45 | Usuários engajados e recorrentes |
-| **Latência end-to-end** | 15 segundos | Scraping → indexação |
-| **Throughput** | ~800 artigos/dia | 156 agências gov.br |
-| **Taxa de sucesso pipeline** | 97% | Workers com DLQ e retry |
+**Diferencial:** Único player — governamental OU agregador — com estratégia estruturada contra fake news. Supera a média dos agregadores comerciais nesta dimensão.
 
----
+### **🔍 Busca Híbrida com IPTC e Schema.org**
 
-## **4.3 Comparação: Antes vs Depois da Transformação Arquitetural**
+- Busca híbrida: keyword (BM25) combinada com semântica (embeddings) — encontra por significado, não só por palavra exata
+- Taxonomia IPTC com 3 níveis hierárquicos — mesmo padrão usado por Reuters, AP e BBC
+- Filtros progressivos por órgão, tema e data
+- Artigos relacionados via similaridade semântica
+- Schema.org NewsArticle: rich snippets no Google identificando o governo como fonte primária
 
-| Dimensão | Antes (Batch) | Depois (Event-Driven) | Melhoria |
-|----------|---------------|----------------------|----------|
-| **Latência** | 45 minutos | 15 segundos | -99,4% |
-| **Custo/mês** | $420 (Cogfy) | $305 (Bedrock) | -27,4% |
-| **Escalabilidade** | Fixa | Scale-to-zero | Elástica |
-| **Push notifications** | Não | Sim (~20s delay) | Novo |
-| **Busca semântica** | Batch diário | Imediata (5s) | Real-time |
+**Diferencial:** Único portal governamental com busca semântica e taxonomia IPTC implementadas.
 
----
+### **📡 Múltiplos Canais de Distribuição**
 
-# **5 Conclusões e Considerações Finais**
+- Portal web moderno com arquitetura de componentes (Next.js, App Router)
+- Feeds estruturados: RSS/Atom/JSON — globais e por clipping individual
+- Federação ActivityPub: qualquer instância Mastodon ou Misskey pode seguir o portal
+- Widgets embarcáveis em múltiplos layouts e tamanhos — outros portais gov.br exibem notícias sem scraping
+- Push notifications PWA e bot Telegram com comandos interativos
 
-## **5.1 Conquistas Alcançadas**
+**Diferencial:** Government as a Platform (GaaP) em prática: dados públicos distribuídos para qualquer canal que queira consumi-los.
 
-O DestaquesGovbr estabeleceu-se como **referência internacional** em portais governamentais agregadores ao:
+### **🏗 Arquitetura Event-Driven e Sumarização por IA**
 
-1. **Preencher gap crítico de mercado** — único portal governamental com personalização e clipping profissional
-2. **Liderar em combate à desinformação** — único com estratégia estruturada de transparência afirmativa
-3. **Alcançar 94,4% da performance** dos melhores agregadores comerciais do mundo (Google News, Feedly, Apple News)
-4. **Superar todos os portais governamentais pesquisados** em 5 das 6 dimensões avaliadas
+- Pipeline event-driven: processamento assíncrono e escalável por natureza
+- Sumarização automática por IA (AWS Bedrock) — resumos de 2-3 frases para cada publicação
+- Classificação temática automática com IPTC e extração de entidades (pessoas, locais, organizações)
+- Escalabilidade automática com escala-to-zero: custo proporcional ao uso real
+- Filas com dead letter queue e retry automático para garantir processamento
 
-**Evidência do posicionamento:**
-- Média geral: 4,25/5 (vs 3,1 portais gov, vs 4,5 agregadores)
-- Lidera em Comunicação: 4,0/5 (vs 3,4 portais gov, vs 3,2 agregadores)
-- Primeiro lugar em Clipping entre gov: 4,5/5 (vs 1,8 média)
-- Primeiro lugar em Personalização entre gov: 4,0/5 (vs 1,2 média)
+**Diferencial:** Infraestrutura desenhada para crescer: mesma arquitetura suporta 156 órgãos ou 1.600.
 
----
+### **🔐 Autenticação Integrada ao Gov.br**
 
-## **5.2 Gaps Residuais e Roadmap de Evolução**
+- Conta gov.br (OIDC): SSO unificado — o mesmo login de dezenas de serviços públicos
+- Google OAuth 2.0 como alternativa simplificada
+- Custo de aquisição zero: o usuário já tem Conta gov.br
+- Primeira aplicação gov.br que estende a Conta para curadoria de notícias — não apenas serviços transacionais
+- Base para expansão: histórico de leitura, preferências e clippings vinculados à identidade digital
 
-As 10 oportunidades identificadas estão priorizadas em 3 níveis:
+**Diferencial:** USA.gov tem Login.gov mas nunca o usou para notícias. Portugal tem CMD mas mantém portais separados. DestaquesGovBr integrou desde o MVP.
 
-### **Prioridade Crítica (1)**
-- **O5. Human-in-the-loop para sumarização** — questão de governança, reduz risco de erros custosos
+## **4.3 Oportunidades de Evolução — Gaps e Roadmap**
 
-### **Prioridade Alta (6)**
-- **O2. Curadoria híbrida (ML + editores)** — aumenta engajamento, reduz bounce rate
-- **O4. Full Coverage (múltiplas perspectivas)** — diferencial competitivo claro
-- **O6. Export PDF/planilha + Zapier** — transforma em ferramenta de trabalho
-- **O7. Canal denúncia fake news** — fortalece diferencial único
-- **O9. API pública documentada** — princípio fundador do GaaP
+### **🔴 Prioridade 1: Crítica**
 
-### **Prioridade Média (3)**
-- **O1. Content modelling granular** — requisito para fase 2 do projeto
-- **O3. AI Leo-style filtering** — depende de volume crescer para ML
-- **O8. Offline reading robusto** — acessibilidade
-- **O10. Dark mode** — estética
+#### **1. Human-in-the-Loop para Sumarização** (Dimensão 5: Clareza de Conteúdo)
 
----
+**Gap:** Sumarização 100% automática — sem revisão editorial antes da publicação.
 
-## **5.3 Impacto Esperado das Melhorias**
+**Solução:** Adicionar revisão humana como WSJ e Yahoo News. Interface transparente: 'resumo assistido por IA, revisado por editor'. Reduz risco em portarias críticas.
 
-Com a implementação das 10 oportunidades, o DestaquesGovbr pode alcançar:
+**Referência:** Nieman Lab / Harvard, jun. 2025
 
-| Dimensão | Atual | Meta | Delta |
-|----------|-------|------|-------|
-| **Arquitetura da Informação** | 4,5 | 5,0 | +0,5 (O1 + O9) |
-| **Busca e Filtragem** | 4,0 | 4,5 | +0,5 (O3) |
-| **Personalização de Feed** | 4,0 | 4,5 | +0,5 (O2) |
-| **Área do Usuário e Clipping** | 4,5 | 5,0 | +0,5 (O6) |
-| **Clareza de Conteúdo** | 4,5 | 5,0 | +0,5 (O4 + O5) |
-| **Comunicação e Engajamento** | 4,0 | 4,5 | +0,5 (O7) |
-| **MÉDIA GERAL** | **4,25** | **4,75** | **+0,5** |
+### **🟢 Prioridade 2: Alta**
 
-**Meta de longo prazo**: Superar a média dos agregadores comerciais (4,5) e alcançar **4,75/5** até Q4 2026.
+#### **2. Curadoria Híbrida (ML + Editores Humanos)** (Dimensão 3: Personalização de Feed)
 
----
+**Gap:** Personalização baseada só em following explícito — sem ML de histórico nem editor priorizando destaques do dia.
 
-## **5.4 Próximos Passos Recomendados**
+**Solução:** Algoritmo recomenda por histórico + editores definem destaques. Evita filter bubble (só ML) e falta de escala (só humano). Inspiração: Apple News.
 
-**Curto prazo (Q2 2026):**
-1. Implementar O5 (human-in-the-loop) — prioridade crítica de governança
-2. Desenvolver protótipo de O7 (canal denúncia fake news)
-3. Planejar arquitetura de O2 (curadoria híbrida)
+#### **3. Múltiplas Perspectivas de Órgãos** (Dimensão 2: Busca e Filtragem)
 
-**Médio prazo (Q3 2026):**
-4. Lançar O9 (API pública documentada)
-5. Implementar O6 (export PDF/planilha)
-6. Desenvolver O4 (Full Coverage)
+**Gap:** Notícias exibidas isoladamente — sem agrupamento de perspectivas de múltiplos órgãos sobre o mesmo evento.
 
-**Longo prazo (Q4 2026):**
-7. Implementar O2 (curadoria híbrida com ML)
-8. Desenvolver O1 (content modelling granular)
-9. Implementar O3 (AI Leo-style filtering)
-10. Lançar O8 e O10 (offline reading + dark mode)
+**Solução:** MEC anuncia programa → exibe automaticamente: portaria original, dados orçamentários (Tesouro) e estatísticas regionais (IBGE). Inspiração: Google News.
 
----
+#### **4. Integrações Zapier/Make e Export PDF/Planilha** (Dimensão 4: Área do Usuário e Clipping)
 
-## **5.5 Considerações Estratégicas**
+**Gap:** Clippings exportáveis apenas como RSS/JSON — sem export para PDF, Excel, Notion ou Slack.
 
-O benchmarking evidencia que o DestaquesGovbr:
+**Solução:** Solicitação recorrente dos usuários. Inspiração: Feedly com 1.000+ integrações via Zapier. Transforma o portal em ferramenta de trabalho profissional.
 
-1. **Não compete diretamente** com agregadores comerciais (Google News, Feedly) — públicos diferentes, modelos de negócio diferentes
-2. **Define categoria nova** — portal governamental agregador com personalização, clipping e combate a fake news
-3. **Tem oportunidade única** — 70M+ usuários da Conta gov.br (infraestrutura pronta)
-4. **Lidera em dimensão crítica** — combate à desinformação (nenhum outro player implementou estratégia estruturada)
+#### **5. Canal de Denúncia Bidirecional de Fake News** (Dimensão 6: Comunicação e Engajamento)
 
-**Recomendação estratégica:**
+**Gap:** Sem canal para cidadão reportar notícia suspeita. FAQ educativo é estático e sem interação.
 
-Consolidar posição como **modelo global de portal governamental agregador**, focando em:
-- Manter diferencial em combate a fake news (transparência afirmativa)
-- Expandir personalização com curadoria híbrida
-- Transformar portal em ferramenta de trabalho (integrações Zapier, export PDF)
-- Disponibilizar API pública para ecossistema de desenvolvedores (GaaP)
+**Solução:** Formulário de denúncia + chatbot educativo interativo. Crowdsourcing de vigilância: cidadãos identificam fake news em escala. Fortalece o diferencial competitivo único.
 
----
+#### **6. API Pública Documentada para Desenvolvedores** (Dimensão 1: Arquitetura da Informação)
+
+**Gap:** Widgets embarcáveis existem, mas sem API REST pública documentada. Desenvolvedores não criam integrações customizadas.
+
+**Solução:** api.destaquesgov.br com OpenAPI/Swagger: /noticias, /temas IPTC, /orgaos. Princípio fundador do GaaP: dados públicos para quem quiser construir sobre eles.
+
+### **🟡 Prioridade 3: Média**
+
+#### **7. Content Modelling Granular (Inspiração GOV.UK)** (Dimensão 1: Arquitetura da Informação)
+
+**Gap:** Conteúdo como páginas HTML completas — sem fragmentação em blocos mínimos reutilizáveis.
+
+**Solução:** 'Estilo Lego' do GOV.UK: notícia como componentes atômicos (manchete, lead, galeria, portaria vinculada). Base factual para LLMs. Requisito para fase 2.
+
+#### **8. AI Leo-Style Filtering (Priorização Upstream)** (Dimensão 2: Busca e Filtragem)
+
+**Gap:** Usuário escaneia todos os resultados — sem filtragem inteligente antes da leitura.
+
+**Solução:** Assistente de IA que prioriza artigos relevantes antes do usuário ler. Inspiração: Feedly Leo. Reduz sobrecarga informacional para jornalistas e servidores.
+
+#### **9. Offline Reading Robusto (PWA com Pré-Download)** (Dimensão 4: Área do Usuário e Clipping)
+
+**Gap:** PWA instalável, mas sem pré-download. Offline limitado ao cache do navegador.
+
+**Solução:** Pré-download de artigos e imagens dos órgãos seguidos. Acessibilidade real no Brasil com conectividade intermitente. Inspiração: SmartNews.
+
+#### **10. Dark Mode Funcional** (UX / Acessibilidade)
+
+**Gap:** Interface apenas light mode — solicitação recorrente dos usuários.
+
+**Solução:** Toggle manual + detecção automática (prefers-color-scheme). Design tokens do GovBr v4 se disponíveis. Contraste WCAG AA obrigatório. Reduz fadiga visual.
+
+# **5 Conclusões e considerações finais**
+
+Este benchmarking de UX, realizado na fase de Descoberta do modelo Double Diamond, identificou o espaço único que o DestaquesGovBr ocupa no ecossistema de difusão de notícias governamentais:
+
+## **5.1 Principais Conclusões**
+
+1. **Gap crítico nos portais governamentais**: Nenhum dos portais gov analisados (GOV.UK, USA.gov, Canada.ca, Gov.br, Portugal) oferece personalização de feed, clipping de notícias ou combate estruturado a fake news. A média de UX dos portais governamentais é 3,0/5, enquanto os agregadores comerciais atingem 4,4/5 — uma diferença de 1,4 pontos.
+
+2. **DestaquesGovBr preenche esse gap**: Com média de 4,2/5, o produto já supera os portais governamentais de referência internacional e se aproxima dos agregadores comerciais, mantendo o diferencial único de ser focado exclusivamente em conteúdo oficial verificado.
+
+3. **Infraestrutura de autenticação subutilizada**: A Conta gov.br representa a maior oportunidade estratégica — infraestrutura com dezenas de milhões de usuários e custo de aquisição zero. O DestaquesGovBr é a primeira aplicação gov.br que estende a Conta para curadoria de notícias, não apenas serviços transacionais.
+
+4. **Transparência afirmativa funciona melhor que flags**: Estudos cognitivos comprovam que rótulos de "fake news" são ineficazes. A estratégia correta — implementada no DestaquesGovBr — é oferecer links para fontes primárias, ClaimReview em desmentidos e educação proativa.
+
+5. **Content modelling é requisito para fase 2**: O GOV.UK demonstra que fragmentar conteúdo em blocos mínimos ('estilo Lego') é essencial para entregar experiências omnicanal e servir como base confiável (ground truth) para modelos de IA.
+
+## **5.2 Próximos Passos**
+
+Este relatório encerra a fase de **Descoberta** e prepara a entrada na fase de **Definir** do Double Diamond. Os próximos passos são:
+
+1. **Personas e jornadas**: mapear perfis de usuários (jornalistas, servidores públicos, cidadãos, pesquisadores) e suas jornadas específicas no portal
+2. **Requisitos funcionais**: traduzir os padrões positivos identificados em requisitos priorizados
+3. **Wireframes e protótipos**: criar mockups no Figma incorporando os insights deste benchmarking
+4. **Testes com usuários reais**: validar as decisões de design antes da implementação
+
+## **5.3 Considerações Finais**
+
+O DestaquesGovBr está posicionado para ser o primeiro portal governamental do mundo a combinar agregação centralizada, personalização algorítmica, clipping profissional e combate estruturado à desinformação — tudo isso construído sobre padrões internacionais (IPTC, Schema.org) e integrado à infraestrutura de identidade digital já existente.
+
+A oportunidade está mapeada. O próximo passo é o design.
 
 # **6 Referências Bibliográficas**
 
-1. **GOV.UK Design System**. *Design principles*. Disponível em: https://design-system.service.gov.uk/. Acesso em: 21 maio 2026.
+## **6.1 Fundamentação Teórica**
 
-2. **USA.gov**. *USAGov Platform Documentation*. Disponível em: https://www.usa.gov/. Acesso em: 21 maio 2026.
+[1] **Decreto 9.756/2019 — Portal único gov.br**  
+Agência Brasil, jul. 2019  
+https://agenciabrasil.ebc.com.br/geral/noticia/2019-07/portal-unico-do-governo-ja-esta-disponivel-na-internet
 
-3. **Canada.ca**. *Canada.ca Content Style Guide*. Disponível em: https://www.canada.ca/en/treasury-board-secretariat/services/government-communications/canada-content-style-guide.html. Acesso em: 21 maio 2026.
+[2] **Government as a Platform — Priority Factors**  
+MDPI Sustainability, 2020  
+https://mdpi.com/2071-1050/12/14/5615
 
-4. **Gov.br**. *Portal Único de Serviços do Governo Federal*. Disponível em: https://www.gov.br/. Acesso em: 21 maio 2026.
+[3] **Best News Aggregator Apps 2025: Complete Comparison Guide**  
+NewzTiQ Blog, 2025  
+https://newztiq.ai/blogs/blog?slug=best-news-aggregator-apps-2025
 
-5. **Portugal.gov.pt**. *Portal do Governo Português*. Disponível em: https://www.portugal.gov.pt/. Acesso em: 21 maio 2026.
+[4] **Five Best News Aggregators: Evidence-Based Efficiency Ranking**  
+LifeTips / NewzTiQ, 2025  
+https://lifetips.alibaba.com/tech-efficiency/five-best-news-aggregators
 
-6. **Google News Initiative**. *Google News Platform Documentation*. Disponível em: https://newsinitiative.withgoogle.com/. Acesso em: 21 maio 2026.
+## **6.2 Metodologia**
 
-7. **Feedly**. *AI for Research Documentation*. Disponível em: https://feedly.com/. Acesso em: 21 maio 2026.
+[5] **The Double Diamond Design Process**  
+Design Council UK, 2015  
+https://designcouncil.org.uk/our-resources/framework-for-innovation/
 
-8. **Apple News**. *Apple News Format Reference*. Disponível em: https://developer.apple.com/documentation/apple_news. Acesso em: 21 maio 2026.
+[6] **Asia an emerging leader in digital government — E-Government Survey 2024**  
+GovInsider / ONU, 2024  
+https://govinsider.asia/intl-en/article/asia-an-emerging-leader-in-digital-government
 
-9. **SmartNews**. *SmartNews Algorithm Documentation*. Disponível em: https://about.smartnews.com/. Acesso em: 21 maio 2026.
+## **6.3 Portais Governamentais — Grupo A**
 
-10. **Nielsen, J.** (1994). *10 Usability Heuristics for User Interface Design*. Nielsen Norman Group.
+[7] **How information architects are helping to build GOV.UK's future**  
+Inside GOV.UK Blog (GDS), abr. 2025  
+https://insidegovuk.blog.gov.uk/2025/04/10/how-information-architects-are-helping-to-build-gov-uks-future/
 
-11. **Double Diamond Design Framework**. Design Council UK (2015). *Framework for Innovation*.
+[8] **GOV.UK Design System**  
+Government Digital Service, 2018–2026  
+https://design-system.service.gov.uk
 
-12. **IPTC**. *International Press Telecommunications Council - News Taxonomy*. Disponível em: https://iptc.org/standards/subject-codes/. Acesso em: 21 maio 2026.
+[9] **Less is more: improving the public's web search experience with filters**  
+USAGov Blog, dez. 2023  
+https://usa.gov/blog/2023/12/less-is-more-improving-the-publics-web-search-experience-with-filters
 
-13. **Schema.org**. *NewsArticle and GovernmentOrganization Schemas*. Disponível em: https://schema.org/. Acesso em: 21 maio 2026.
+[10] **api.data.gov — APIs abertas do governo federal americano**  
+U.S. General Services Administration, 2024  
+https://api.data.gov
 
-14. **W3C ActivityPub**. *ActivityPub Protocol Specification*. Disponível em: https://www.w3.org/TR/activitypub/. Acesso em: 21 maio 2026.
+[11] **Guidance on Web Accessibility and the ADA**  
+ADA.gov, 2024  
+https://ada.gov/resources/web-guidance/
 
-15. **LSE Business Review** (2019). *Fake news warnings do not work, but accuracy prompts might*. Disponível em: https://blogs.lse.ac.uk/businessreview/. Acesso em: 21 maio 2026.
+[12] **Design with users — Canada.ca**  
+Canadian Digital Service / Government of Canada, 2025  
+https://canada.ca/en/government/system/digital-government/design-with-users.html
 
-16. **AWS Bedrock Documentation**. *Claude 3 Haiku Model Reference*. Disponível em: https://docs.aws.amazon.com/bedrock/. Acesso em: 21 maio 2026.
+[13] **Padrão Digital de Governo — Design System GovBr v4**  
+Serpro / MGI, 2024  
+https://next-ds.estaleiro.serpro.gov.br
 
-17. **Typesense Documentation**. *Open Source Search Engine*. Disponível em: https://typesense.org/docs/. Acesso em: 21 maio 2026.
+[14] **Autenticação.gov — Chave Móvel Digital / ePortugal**  
+Governo de Portugal, 2024  
+https://autenticacao.gov.pt | https://eportugal.gov.pt/en/sobre
 
-18. **Next.js 15 Documentation**. *App Router and React Server Components*. Disponível em: https://nextjs.org/docs. Acesso em: 21 maio 2026.
+## **6.4 Agregadores de Notícias — Grupo B**
 
-19. **Google Cloud Pub/Sub Documentation**. *Event-Driven Architecture Patterns*. Disponível em: https://cloud.google.com/pubsub/docs. Acesso em: 21 maio 2026.
+[15] **How Google News stories are selected**  
+Google News Help, 2025  
+https://support.google.com/googlenews/answer/9005749
 
-20. **Gov.br Design System**. *Padrões de Interface do Governo Federal*. Disponível em: https://gov.br/ds/. Acesso em: 21 maio 2026.
+[16] **Customize what you find on Google News**  
+Google News Help, 2025  
+https://support.google.com/googlenews/answer/9010862
 
----
+[17] **Google allows users to filter news sources — Preferred Sources**  
+Straight Arrow News, ago. 2025  
+https://straightarrowsnews.com
+
+[18] **Google Fact Check Tools**  
+Google News Initiative, 2024  
+https://newsinitiative.withgoogle.com/resources/trainings/google-fact-check-tools/
+
+[19] **Feedly vs Readwise Reader 2026 — 12M+ usuários, AI Leo, Zapier**  
+Readless.app, abr. 2026  
+https://readless.app/blog/feedly-vs-readwise-reader-2026
+
+[20] **Inside Apple News — curadoria híbrida, Audio Stories, iCloud sync**  
+AppleInsider, mar. 2025  
+https://appleinsider.com/inside/apple-news/tips/
+
+[21] **Flipboard Releases World's First Smart Magazines**  
+Flipboard Press, 2017  
+https://about.flipboard.com/press/new-flipboard-first-smart_magazines/
+
+[22] **The New Flipboard Gets Personal with Over 30,000 Topics**  
+Flipboard Blog, 2014  
+https://about.flipboard.com/inside-flipboard/the-new-flipboard-gets-personal-with-over-30000-topics-to-follow/
+
+[23] **SmartNews: An AI News App for Personalized Discovery**  
+Nanalyze, ago. 2019  
+https://nanalyze.com/2019/08/smartnews-ai-news/
+
+[24] **NBC News, AP seek SmartNews for aggregated content (~400 publishers)**  
+Marketing Dive, 2014  
+https://marketingdive.com/ex/mobilemarketer/cms/news/media/18904.html
+
+## **6.5 Evidência sobre Fake News e Combate à Desinformação**
+
+[25] **Fake news, source ratings and better user interface design**  
+LSE Business Review, jun. 2019  
+https://blogs.lse.ac.uk/businessreview/2019/06/26/fake-news-source-ratings-and-better-user-interface-design-help-us-see-deception/
+
+[26] **It matters how platforms label manipulated media — 12 principles**  
+Partnership on AI  
+https://partnershiponai.org/it-matters-how-platforms-label-manipulated-media-here-are-12-principles-designers-should-follow/
+
+## **6.6 Padrões Técnicos**
+
+[27] **IPTC Media Topics — 1.100+ termos hierárquicos para notícias**  
+International Press Telecommunications Council, 2024  
+https://iptc.org/standards/media-topics/
+
+[28] **NewsArticle Schema — marcação semântica para notícias**  
+Schema.org  
+https://schema.org/NewsArticle
+
+[29] **ClaimReview / Google Fact Check Tools**  
+Schema.org + Google News Initiative, 2024  
+https://newsinitiative.withgoogle.com/resources/trainings/google-fact-check-tools/
+
+## **6.7 IA e Sumarização**
+
+[30] **Three newsrooms on generating AI summaries for news (WSJ, Yahoo News)**  
+Nieman Lab, jun. 2025  
+https://niemanlab.org/2025/06/lets-get-to-the-point-three-newsrooms-on-generating-ai-summaries-for-news/
+
+## **6.8 Referências Complementares**
+
+[31] **LifeSG app — 100+ serviços por eventos de vida do cidadão**  
+GovTech Singapore, 2024  
+https://life.gov.sg/app
 
 # **Apêndice**
 
-## **A. Detalhamento dos Benchmarks**
+## **A.1 Terminologias e Abreviações**
 
-### **A.1 Grupo A - Portais Governamentais**
+### **Conceitos e Metodologias**
 
-| Portal | País | Pontuação Geral | Destaques |
-|--------|------|-----------------|-----------|
-| **GOV.UK** | Reino Unido | 4,8/5 | Content modelling granular, ~4.000 tópicos |
-| **USA.gov** | Estados Unidos | 4,2/5 | Search.gov robusto, API pública |
-| **Canada.ca** | Canadá | 4,4/5 | Plain language exemplar, acessibilidade WCAG AAA |
-| **Gov.br** | Brasil | 2,8/5 | SSO unificado (Conta gov.br), sem agregador |
-| **Portugal.gov.pt** | Portugal | 2,3/5 | Chave Móvel Digital, portal tradicional |
+**AHP (Analytic Hierarchy Process)**  
+Técnica de priorização por peso utilizada no estudo de Myeong (2020) para identificar fatores críticos na construção de plataformas governamentais.
 
-### **A.2 Grupo B - Agregadores Comerciais**
+**Double Diamond**  
+Metodologia de design e inovação com quatro fases: Descobrir, Definir, Desenvolver e Entregar. Desenvolvida pelo Design Council UK e adotada globalmente.
 
-| Agregador | Pontuação Geral | Modelo de Negócio | Destaques |
-|-----------|-----------------|-------------------|-----------|
-| **Google News** | 5,0/5 | Gratuito (ads) | ML histórico, Full Coverage, regional |
-| **Feedly** | 5,0/5 | Freemium | AI Leo filtering, 1.000+ integrações |
-| **Apple News** | 5,0/5 | Freemium | Curadoria híbrida, Audio Stories |
-| **SmartNews** | 4,8/5 | Gratuito (ads) | Offline reading, anti filter bubble |
-| **Flipboard** | 4,2/5 | Gratuito (ads) | Visual storytelling, curadoria social |
-| **Yahoo News** | 3,8/5 | Gratuito (ads) | Alcance massivo, editorial tradicional |
-| **MSN News** | 3,6/5 | Gratuito (ads) | Integração Windows, personalização básica |
-| **NewsBreak** | 3,4/5 | Gratuito (ads) | Foco local (EUA), notícias hiperlocais |
+**GaaP (Government as a Platform)**  
+Conceito criado por Tim O'Reilly (2011) que propõe que governos se tornem plataformas abertas, disponibilizando dados e infraestrutura para que cidadãos, empresas e desenvolvedores construam serviços sobre eles.
+
+**Human-in-the-Loop**  
+Abordagem onde um ser humano (geralmente um editor) revisa e aprova conteúdo gerado automaticamente por IA antes da publicação.
+
+**Plain Language**  
+Prática editorial que prioriza linguagem clara, direta e acessível, evitando jargões técnicos desnecessários.
+
+**Transparência Afirmativa**  
+Estratégia de combate à desinformação que fornece links para fontes primárias e contexto factual, em vez de usar rótulos simples de "fake news".
+
+### **Padrões e Tecnologias**
+
+**API (Application Programming Interface)**  
+Interface que permite que diferentes sistemas de software se comuniquem e troquem dados de forma padronizada.
+
+**ClaimReview**  
+Esquema do Schema.org específico para marcação de fact-checking. Quando implementado, faz correções oficiais aparecerem com destaque visual em buscadores.
+
+**Content Modelling**  
+Abordagem que fragmenta conteúdo em blocos mínimos reutilizáveis ("estilo Lego"), permitindo distribuição omnicanal sem retrabalho editorial.
+
+**IPTC (International Press Telecommunications Council)**  
+Consórcio internacional que desenvolve padrões para a indústria de notícias. O IPTC Media Topics é um vocabulário controlado com 1.100+ termos hierárquicos para classificar notícias.
+
+**JSON-LD (JavaScript Object Notation for Linked Data)**  
+Formato de dados usado para marcação semântica de páginas web, permitindo que buscadores entendam o conteúdo estruturado.
+
+**NewsML-G2 (News Markup Language Generation 2)**  
+Padrão IPTC para intercâmbio de conteúdo noticioso estruturado.
+
+**OAuth (Open Authorization)**  
+Protocolo padrão aberto de autorização, usado para autenticação segura de usuários sem compartilhar senhas.
+
+**OIDC (OpenID Connect)**  
+Camada de identidade sobre OAuth 2.0, usada pela Conta gov.br para autenticação unificada.
+
+**RSS (Really Simple Syndication) / Atom**  
+Formatos de feed web que permitem assinatura de atualizações de conteúdo.
+
+**Schema.org**  
+Vocabulário colaborativo mantido por Google, Microsoft, Yahoo e Yandex para marcação semântica de páginas web. NewsArticle e GovernmentOrganization são esquemas específicos usados no DestaquesGovBr.
+
+**WCAG (Web Content Accessibility Guidelines)**  
+Diretrizes internacionais para acessibilidade de conteúdo web. WCAG 2.1 AA é o padrão mandatório no GOV.UK e recomendado globalmente.
+
+### **Algoritmos e Técnicas**
+
+**BM25 (Best Matching 25)**  
+Algoritmo de ranking usado em buscas por palavra-chave (keyword search).
+
+**Embeddings**  
+Representações vetoriais de texto que capturam significado semântico, permitindo busca por similaridade conceitual em vez de apenas palavras exatas.
+
+**Fairness-Aware Algorithms**  
+Algoritmos que garantem exposição equitativa de conteúdo, evitando vieses que possam excluir populações vulneráveis.
+
+**ML (Machine Learning)**  
+Aprendizado de máquina — técnicas que permitem sistemas aprenderem padrões a partir de dados sem programação explícita.
+
+### **Organizações e Índices**
+
+**EGDI (E-Government Development Index)**  
+Índice da ONU que mede maturidade digital de 193 países em três pilares: serviços online, infraestrutura de telecomunicações e capital humano.
+
+**GDS (Government Digital Service)**  
+Órgão do governo britânico responsável pela transformação digital de serviços públicos, incluindo o GOV.UK.
+
+**ONU / UNDESA (United Nations Department of Economic and Social Affairs)**  
+Divisão de Administração Pública da ONU que publica o E-Government Survey bianualmente.
+
+### **Componentes e Experiência**
+
+**Breadcrumbs**  
+Trilha de navegação que mostra a localização do usuário na hierarquia do site (ex: Home > Saúde > Campanhas).
+
+**Boards**  
+Coleções temáticas de notícias organizadas por projeto, pauta ou tema, permitindo curadoria cross-feed.
+
+**Clipping**  
+Processo de salvar, organizar e compartilhar notícias de interesse em coleções personalizadas.
+
+**Faceted Search / Busca Facetada**  
+Sistema de busca com múltiplos filtros progressivos (ex: por órgão, tipo, data, tema) que se refinam dinamicamente.
+
+**Feed**  
+Fluxo contínuo de conteúdo atualizado, podendo ser personalizado conforme preferências do usuário.
+
+**Following**  
+Mecanismo onde usuário escolhe explicitamente quais fontes (órgãos) ou temas deseja acompanhar.
+
+**Full Coverage**  
+Funcionalidade do Google News que agrupa múltiplas perspectivas de diferentes fontes sobre o mesmo evento.
+
+**PWA (Progressive Web App)**  
+Aplicação web que pode ser instalada como app nativo, oferecendo recursos offline e notificações push.
+
+**Rich Snippets**  
+Resultados de busca enriquecidos com informações estruturadas (imagem, data, autor) que aparecem diretamente no Google.
+
+**Smart Magazines**  
+Conceito do Flipboard onde cada interesse vira uma "revista" separada com design editorial próprio.
+
+**UX (User Experience)**  
+Experiência do usuário — disciplina que estuda e projeta a interação entre pessoas e sistemas digitais.
+
+### **Infraestrutura e Segurança**
+
+**ActivityPub**  
+Protocolo aberto de federação que permite interoperabilidade entre redes sociais descentralizadas (Mastodon, Misskey).
+
+**CMD (Chave Móvel Digital)**  
+Sistema de autenticação português via SMS ou app, válido para serviços públicos e privados.
+
+**Conta gov.br**  
+Sistema de autenticação unificada do governo brasileiro (SSO) com dezenas de milhões de usuários.
+
+**Section 508**  
+Lei americana que exige acessibilidade em tecnologias de informação do governo federal dos EUA.
+
+**SSO (Single Sign-On)**  
+Sistema de autenticação unificada que permite acesso a múltiplos serviços com um único login.
+
+### **Outros Termos**
+
+**EEG (Eletroencefalograma)**  
+Técnica de medição de atividade elétrica cerebral, usada por Dennis et al. (2019) para estudar reações a fake news flags.
+
+**FAQ (Frequently Asked Questions)**  
+Perguntas frequentes — seção educativa com respostas a dúvidas comuns.
+
+**Filter Bubble / Bolha de Filtro**  
+Fenômeno onde algoritmos mostram apenas conteúdo alinhado às crenças prévias do usuário, isolando-o de perspectivas diversas.
+
+**HTML (HyperText Markup Language)**  
+Linguagem de marcação padrão para criação de páginas web.
+
+**MVP (Minimum Viable Product)**  
+Produto mínimo viável — versão inicial de um produto com funcionalidades essenciais para validação de mercado.
+
+**Viés de Confirmação**  
+Tendência cognitiva de buscar, interpretar e lembrar informações que confirmam crenças preexistentes, ignorando evidências contrárias.
+
+**XML (eXtensible Markup Language)**  
+Linguagem de marcação extensível usada para estruturação e transporte de dados.
 
 ---
 
-## **B. Matriz Detalhada de Pontuação**
-
-| Plataforma | Arq.Info | Busca | Personaliz. | Clipping | Clareza | Comunic. | **Média** |
-|------------|----------|-------|-------------|----------|---------|----------|-----------|
-| GOV.UK | 5,0 | 4,0 | 1,0 | 2,0 | 5,0 | 4,0 | 3,5 |
-| USA.gov | 4,0 | 4,0 | 1,0 | 1,5 | 4,5 | 3,5 | 3,1 |
-| Canada.ca | 4,5 | 3,5 | 1,5 | 2,0 | 5,0 | 3,0 | 3,3 |
-| Gov.br | 3,5 | 3,0 | 1,0 | 1,5 | 4,0 | 3,5 | 2,8 |
-| Portugal.gov.pt | 4,0 | 3,5 | 1,0 | 2,0 | 4,5 | 3,0 | 3,0 |
-| **Média Grupo A** | **4,2** | **3,6** | **1,2** | **1,8** | **4,6** | **3,4** | **3,1** |
-| | | | | | | | |
-| Google News | 5,0 | 5,0 | 5,0 | 4,5 | 5,0 | 3,5 | 4,7 |
-| Feedly | 4,5 | 5,0 | 5,0 | 5,0 | 5,0 | 3,0 | 4,6 |
-| Apple News | 5,0 | 4,5 | 5,0 | 5,0 | 5,0 | 3,5 | 4,7 |
-| SmartNews | 4,5 | 4,5 | 5,0 | 4,5 | 5,0 | 3,0 | 4,4 |
-| Flipboard | 5,0 | 4,0 | 4,5 | 4,5 | 5,0 | 3,0 | 4,3 |
-| Yahoo News | 4,5 | 4,0 | 4,5 | 4,0 | 5,0 | 3,5 | 4,3 |
-| MSN News | 4,5 | 4,0 | 4,5 | 4,5 | 5,0 | 3,0 | 4,3 |
-| NewsBreak | 5,0 | 4,5 | 5,0 | 5,0 | 5,0 | 2,5 | 4,5 |
-| **Média Grupo B** | **4,8** | **4,4** | **4,8** | **4,6** | **5,0** | **3,2** | **4,5** |
-| | | | | | | | |
-| **DestaquesGovbr** | **4,5** | **4,0** | **4,0** | **4,5** | **4,5** | **4,0** | **4,25** |
-| Gap vs Grupo B | -0,3 | -0,4 | -0,8 | -0,1 | -0,5 | +0,8 | -0,25 |
-
----
-
-## **C. Evidências de Uso (Screenshots e Métricas)**
-
-*[Seção reservada para inclusão de screenshots das plataformas benchmark e dashboards de métricas do DestaquesGovbr]*
-
----
-
-## **D. Glossário de Termos Técnicos**
-
-| Termo | Definição |
-|-------|-----------|
-| **ActivityPub** | Protocolo W3C para federação de redes sociais descentralizadas |
-| **BM25** | Algoritmo de ranking para busca full-text baseado em TF-IDF |
-| **ClaimReview** | Schema.org para marcação estruturada de fact-checking |
-| **Embeddings** | Representação vetorial de texto em espaço de alta dimensão (768-dim) |
-| **Event-driven** | Arquitetura onde componentes comunicam via eventos assíncronos |
-| **Full Coverage** | Agrupamento de múltiplas perspectivas sobre o mesmo evento |
-| **GaaP** | Government as a Platform — disponibilizar dados públicos via API |
-| **Human-in-the-loop** | Supervisão humana em processos automatizados por IA |
-| **IPTC** | International Press Telecommunications Council — taxonomia de notícias |
-| **OIDC** | OpenID Connect — protocolo de autenticação federada |
-| **Pub/Sub** | Padrão publish-subscribe para mensageria assíncrona |
-| **Schema.org** | Vocabulário estruturado para marcação semântica de conteúdo |
-| **Typesense** | Motor de busca open-source com suporte a vetores semânticos |
-| **VAPID** | Voluntary Application Server Identification for Web Push |
+*Espaço reservado para materiais complementares adicionais que o humano revisor julgar necessário incluir.*
