@@ -1,6 +1,40 @@
 Data: 05/06/2026
 
-PROMPT: Atuando como analista de requisitos, usando as melhores práticas de engenharia de requisitos, analise documentação e códigos presentes no repositório "C:\Users\joserm\Documents\Projetos\Inspire\Meta-7\Git\data-science\" e gere um relatório técnico sobre o trabalho realizado sobre "Comparativo de Modelos de Embedding PT-BR" para ser utilizado como base de referência de um sistema de portal de notícias do governo brasileiro.
+PROMPT: 
+Atuando como analista de requisitos, usando as melhores práticas de engenharia de requisitos, analise documentação e codigos presentes no repositório "C:\Users\joserm\Documents\Projetos\Inspire\Meta-7\Git\data-science\" e 
+gere um relatório técnico sobre o trabalho
+realizado sobre "Comparativo de Modelos de Embedding PT-BR" para ser utilizado como base de referencia de um sistema de portal de notícias do governo brasileiro, 
+conforme contexto abaixo:
+
+Execute em etapas para não perder o contexto.
+
+1. Contexto de Negócio: Qual problema da empresa motivou essa pesquisa?
+2. Objetivo da Pesquisa: Avaliar a eficácia, custo e viabilidade dos principais modelos de embedding para o Português Brasileiro.
+3. Metodologia usada na pesquisa.
+4. Recomendação Final: Qual modelo foi o vencedor para o nosso cenário e o porquê.
+5. Escopo da Avaliação (O que foi testado).
+6. Como foi realizado o estudo feito pelo Cientista de Dados.
+7. Modelos Avaliados
+8. Critérios de Sucesso (Requisitos Não-Funcionais): O que pesou na balança?
+9. Acurácia Semântica.
+10. Latência de cada modelo testado e demora para gerar o vetor.
+11. Custo/Infraestrutura: Custo por milhão de tokens (se API) ou custo de servidor/GPU (se Open Source).
+12. Privacidade e Governança de Dados: Exigências de conformidade (LGPD) para dados sensíveis.
+13. Metodologia do Experimento: Uma explicação breve e de alto nível sobre como o Cientista de Dados validou os modelos.
+14. Massa de Dados Usada: Quantos documentos/frases foram testados? Eram dados reais da nossa empresa ou um dataset público (como o MTEB)?
+15. Métrica de Avaliação.
+16. Análise Comparativa e Resultados (O Coração do Relatório): Transformar dados técnicos em tabelas e gráficos visuais de fácil digestão.
+17. Tabela Comparativa Matriz: Uma visão cruzada dos critérios.
+18. Gráficos de Tendência:Ex: Gráfico de dispersão mostrando - Acurácia vs. Custo  ou Acurácia vs. Velocidade.
+19. Análise de Trade-offs (Prós e Contras).
+20. Recomendação e Próximos Passos.
+21. Conclusão lógica baseada nos requisitos levantados.
+22. Modelo Escolhido: Declaração explícita de qual modelo deve ser adotado para a Fase 1 (MVP). Evite o uso de termos como "o modelo X performou muito melhor". Substitua por dados tangíveis de requisitos: "o modelo X apresentou um ganho de 18% em precisão semântica com um acréscimo de apenas 5ms na latência". 
+23. Gere ao final do documento no trecho "Apêndice" com "Terminologias e Abreviações", 
+e também elabore de direta uma breve conceituação sobre "Embeddings", abordar também o "Por que os Embeddings são tão importantes hoje" e como "Como funciona na prática"? 
+ 
+Ao final gere o resultado criando o arquivo  "docs\relatorios\Relatório-Ciencia-de-Dados-Embeddings-26-05-Versao-01.md", 
+usando como base o template "docs\relatorios\Template-Relatório Técnico INSPIRE.md"
 
 Elaborado por: Claude Sonnet 4.5 (Anthropic) - Análise de Requisitos
 
