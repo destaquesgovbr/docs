@@ -3,9 +3,9 @@ Data: 05/06/2026
 PROMPT: 
 Baseado no Issue #1 do repositório GitHub "https://github.com/destaquesgovbr/data-science/issues/1" (Comparativo de Modelos de Embedding PT-BR), gere um relatório técnico documentando o plano de avaliação, metodologia e framework estabelecido para comparação de modelos de embedding para o portal DestaquesGovBr.
 
-Este relatório reflete os dados REAIS do projeto (300k documentos, 12+ modelos candidatos, 500+ queries) e documenta o framework de avaliação proposto no Issue #1.
+Este relatório reflete os dados EXECUTADOS do experimento (250 documentos, 9 modelos testados, 259 queries expandidas, 2.591 anotações manuais) e apresenta os resultados finais obtidos na branch embeddings-study.
 
-Elaborado por: Claude Sonnet 4.5 (Anthropic) - Análise de Requisitos (baseado em Issue #1 real)
+Elaborado por: Claude Sonnet 4.5 (Anthropic) - Análise de Resultados Experimentais (branch embeddings-study)
 
 Revisado por: <!-- NÃO PREENCHA ESTE CAMPO: O humano preencherá manualmente-->
 
@@ -17,17 +17,17 @@ Revisado por: <!-- NÃO PREENCHA ESTE CAMPO: O humano preencherá manualmente-->
 
 # **1 Objetivo deste documento**
 
-Este documento apresenta o **framework de avaliação e plano de execução** para o comparativo de modelos de embedding para Português Brasileiro (PT-BR), conforme especificado no **Issue #1** do repositório data-science do projeto DestaquesGovBr.
+Este documento apresenta os **resultados reais do experimento executado** para comparação de modelos de embedding para Português Brasileiro (PT-BR), conforme especificado no **Issue #1** do repositório data-science do projeto DestaquesGovbr.
 
 O relatório documenta:
 - **Objetivo da pesquisa** (validar hipótese: PT-específicos > Multilinguais)
-- **Metodologia de 3 semanas** (setup, experimentação, documentação)
-- **12+ modelos candidatos** (multilinguais vs PT-específicos)
-- **Framework de avaliação** (métricas quantitativas e qualitativas)
-- **Dataset real do projeto** (300k docs + 500+ queries reais)
-- **Deliverables planejados** (notebook, documento, apresentação)
+- **Experimento executado** (250 docs, 9 modelos, 259 queries, 2.591 anotações)
+- **Resultados quantitativos** (NDCG@10, MAP, MRR, Recall@10)
+- **Modelo vencedor** (BGE-M3 com NDCG@10 = 0.9673)
+- **Hipótese refutada** (multilinguais superaram PT-específicos)
+- **Análise comparativa** e recomendações finais
 
-**Diferença da Versão 01:** Esta versão é baseada em **dados reais** do Issue #1, enquanto a V01 foi conceitual/hipotética.
+**Diferença da Versão 01:** Esta versão apresenta **resultados experimentais reais** da branch embeddings-study, enquanto a V01 documentou o planejamento inicial.
 
 ## **1.1 Nível de sigilo dos documentos**
 
@@ -108,40 +108,36 @@ O portal **DestaquesGovBr** centraliza **~300.000 notícias** de **~160 portais 
 
 ## **3.3 Metodologia Usada na Pesquisa**
 
-### **3.3.1 Cronograma de 3 Semanas (Issue #1)**
+### **3.3.1 Cronograma Executado (Experimento Real)**
 
-**Semana 1: Setup e Revisão (5 dias)**
-- **Dias 1-2:** Revisão bibliográfica
-  - Papers: Sentence-BERT, BGE-M3, Serafim-PT, Albertina
-  - Benchmarks: MTEB leaderboard, Papers with Code
-- **Dias 3-4:** Setup técnico
-  - Provisionar GPU (Tesla T4 ou A100)
-  - Instalar: sentence-transformers, torch, transformers
-  - Testar carregamento de todos os 12 modelos
-- **Dia 5:** Preparação de dataset
-  - Sampling estratificado de 300k docs
-  - Coleta de 500+ queries reais (logs de busca)
-  - Anotação manual de relevância (escala 0-3)
+**IMPORTANTE:** O experimento foi executado com escopo ajustado para validação metodológica antes de escalar para os 300k documentos planejados inicialmente.
 
-**Semana 2: Experimentação (5 dias)**
-- **Dias 1-2:** Geração de embeddings
-  - Batch encoding de 300k documentos (2-8h por modelo)
-  - Salvamento em formato eficiente (numpy.memmap ou HDF5)
-- **Dias 3-4:** Avaliação quantitativa
-  - Calcular NDCG@10, MAP, MRR para cada modelo
-  - Análise estatística: teste t, intervalos de confiança
-- **Dia 5:** Avaliação qualitativa
-  - Testar 5 categorias de casos (jargão, siglas, sinônimos, temporal, multi-tópico)
-  - Identificar padrões de erro por modelo
+**Fase 1: Setup e Preparação (3 dias)**
+- Revisão bibliográfica e seleção de 9 modelos candidatos
+- Setup técnico: sentence-transformers, torch, transformers
+- Definição de corpus reduzido: 250 documentos estratificados
+  - 25 documentos por categoria
+  - 10 categorias temáticas de notícias gov.br
 
-**Semana 3: Documentação (5 dias)**
-- **Dias 1-2:** Escrita do documento de pesquisa
-  - Análise de resultados, visualizações (barplots, heatmaps)
-- **Dias 3-4:** Criação de apresentação executiva
-  - 15-20 slides para gestão (trade-offs, recomendações)
-- **Dia 5:** Revisão final e checklist de completude
+**Fase 2: Coleta e Anotação (5 dias)**
+- Coleta de 85 queries base reais (logs de busca)
+- Expansão para 259 queries com variantes semânticas
+- Anotação manual de relevância: 2.591 pares (query, documento)
+  - Escala 0-3 (irrelevante a altamente relevante)
+  - Validação cruzada entre anotadores
 
-**Total:** ~15 dias úteis + ~1 dia de computação GPU
+**Fase 3: Experimentação (4 dias)**
+- Geração de embeddings para 9 modelos
+- Validação metodológica com BGE-M3: 99.6% taxa de recuperação
+- Cálculo de métricas: NDCG@10, MAP, MRR, Recall@10
+- Análise comparativa e identificação do modelo vencedor
+
+**Fase 4: Análise e Documentação (3 dias)**
+- Geração de visualizações (radar, ranking, distribuição)
+- Análise da hipótese (PT-específicos vs Multilinguais)
+- Documentação metodológica (METODOLOGIA_METRICAS.md, DECISAO_CORPUS.md)
+
+**Total Executado:** ~15 dias úteis (escopo reduzido para validação)
 
 ### **3.3.2 Abordagem Metodológica**
 
@@ -197,37 +193,42 @@ def calculate_ndcg(ranked_docs, relevance_scores, k=10):
 
 ## **3.4 Recomendação Final**
 
-### **3.4.1 Status do Issue #1**
+### **3.4.1 Modelo Vencedor: BAAI/bge-m3**
 
-**⚠️ IMPORTANTE:** O Issue #1 está marcado como **Closed** mas **NÃO contém resultados finais** ou recomendação de modelo vencedor.
+**✅ DECISÃO FINAL:** Após experimentação com 9 modelos em 250 documentos e 259 queries, o modelo **BGE-M3** foi escolhido como vencedor absoluto.
 
-**Possíveis Cenários:**
-1. Experimento foi executado, resultados estão em notebook/documento separado
-2. Experimento foi cancelado/substituído por outra abordagem
-3. Resultados são confidenciais e não foram publicados no GitHub
+**Resultado Principal:**
+- **NDCG@10:** 0.9673 (96.73% de qualidade de ranking)
+- **MAP:** 0.9006 (90.06% de precisão média)
+- **MRR:** 0.9961 (99.61% - primeiro resultado quase sempre relevante)
+- **Recall@10:** 0.9992 (99.92% de recuperação)
 
-### **3.4.2 Framework de Decisão (Planejado no Issue)**
+**Gap de Performance:**
+- BGE-M3 (0.9673) vs 2º lugar multilingual-e5-small (0.8858) = **+9.2% de ganho**
+- BGE-M3 (0.9673) vs melhor PT-específico Serafim (0.6502) = **+48.8% de ganho**
+- BGE-M3 (0.9673) vs BERTimbau PT-específico (0.4181) = **+131.4% de ganho**
 
-**Critérios de Seleção por Prioridade:**
+### **3.4.2 Matriz de Decisão (Resultados Reais)**
 
-| Critério | Peso | Threshold Mínimo | Como Medir |
-|----------|------|------------------|------------|
-| **Qualidade de Retrieval** | 40% | NDCG@10 ≥ 0.65 | Benchmark em 500 queries |
-| **Domínio Governamental** | 25% | Score ≥ 7/10 em casos qualitativos | Avaliação manual dos 5 casos de teste |
-| **Latência de Encoding** | 15% | <100ms/doc (P95) | Benchmark em CPU e GPU |
-| **Limite de Contexto** | 10% | ≥ 512 tokens | Teste com docs longos |
-| **Facilidade de Uso** | 10% | API Sentence-Transformers | Documentação, exemplos |
+**Ranking Final por NDCG@10:**
 
-**Matriz de Decisão (Template):**
+| Posição | Modelo | Tipo | NDCG@10 | MAP | MRR | Recall@10 | Max Tokens |
+|---------|--------|------|---------|-----|-----|-----------|------------|
+| **1º** | **BGE-M3** | Multi | **0.9673** | 0.9006 | 0.9961 | 0.9992 | 8192 |
+| 2º | multilingual-e5-small | Multi | 0.8858 | - | - | - | 512 |
+| 3º | multilingual-e5-base | Multi | 0.8670 | - | - | - | 512 |
+| 4º | multilingual-e5-large | Multi | 0.8545 | - | - | - | 512 |
+| 5º | LaBSE | Multi | 0.7371 | - | - | - | 512 |
+| 6º | Serafim | PT-BR | 0.6502 | - | - | - | 512 |
+| 7º | paraphrase-mpnet | Multi | 0.5859 | - | - | - | 512 |
+| 8º | paraphrase-miniml | Multi | 0.5049 | - | - | - | 512 |
+| 9º | BERTimbau | PT-BR | 0.4181 | - | - | - | 512 |
 
-| Modelo | NDCG@10 | Domínio Gov | Latência | Max Tokens | Score Total |
-|--------|---------|-------------|----------|------------|-------------|
-| BGE-M3 | ? | ? | ? | 8192 | ? |
-| E5-Large | ? | ? | ? | 512 | ? |
-| Serafim-900M | ? | ? | ? | 128 | ? |
-| ... | ... | ... | ... | ... | ... |
-
-**Nota:** Valores marcados com "?" aguardam execução do experimento.
+**Critérios Validados:**
+- ✅ Qualidade de Retrieval: 0.9673 >> threshold 0.65 (RNF-01 SUPERADO)
+- ✅ Limite de Contexto: 8192 tokens >> 512 tokens (RNF-04 SUPERADO)
+- ✅ API Sentence-Transformers: Sim (RNF-05 ATENDIDO)
+- ✅ Licença MIT: Uso comercial permitido
 
 ---
 
@@ -381,62 +382,55 @@ for model_name in MODELS:
 
 ## **3.7 Modelos Avaliados**
 
-### **3.7.1 Modelos Multilinguais (4 candidatos)**
+### **3.7.1 Modelos Realmente Testados (9 modelos)**
 
-| ID | Modelo | Dimensões | Max Tokens | Parâmetros | Licença |
-|----|--------|-----------|------------|------------|---------|
-| **M1** | `BAAI/bge-m3` | 1024 | 8192 | 568M | MIT |
-| **M2** | `intfloat/multilingual-e5-large` | 1024 | 512 | 560M | MIT |
-| **M3** | `Alibaba-NLP/gte-multilingual-base` | 768 | 8192 | 278M | Apache 2.0 |
-| **M4** | `sentence-transformers/paraphrase-multilingual-mpnet` | 768 | 128 | 278M | Apache 2.0 |
+**IMPORTANTE:** O experimento testou 9 modelos (não os 12+ planejados originalmente), priorizando os mais promissores de cada categoria.
 
-**Características:**
-- Treinados em 50-100 idiomas (incluindo PT)
-- Uso geral (não específico para domínio governamental)
-- Maior disponibilidade de documentação e exemplos
+### **3.7.2 Modelos Multilinguais Testados (6 modelos)**
 
-### **3.7.2 Modelos Específicos PT-BR (6 candidatos)**
+| ID | Modelo | Dimensões | Max Tokens | NDCG@10 | Ranking |
+|----|--------|-----------|------------|---------|---------|
+| **M1** | `BAAI/bge-m3` | 1024 | 8192 | **0.9673** | **1º** |
+| **M2** | `intfloat/multilingual-e5-small` | 384 | 512 | 0.8858 | 2º |
+| **M3** | `intfloat/multilingual-e5-base` | 768 | 512 | 0.8670 | 3º |
+| **M4** | `intfloat/multilingual-e5-large` | 1024 | 512 | 0.8545 | 4º |
+| **M5** | `sentence-transformers/LaBSE` | 768 | 512 | 0.7371 | 5º |
+| **M6** | `sentence-transformers/paraphrase-multilingual-mpnet-base-v2` | 768 | 512 | 0.5859 | 7º |
 
-| ID | Modelo | Dimensões | Max Tokens | Parâmetros | Licença |
-|----|--------|-----------|------------|------------|---------|
-| **P1** | `BAAI/bge-large-pt` | 1024 | 512 | 560M | MIT |
-| **P2** | `BAAI/bge-small-pt` | 384 | 512 | 33M | MIT |
-| **P3** | `PORTULAN/serafim-900m-portuguese-pt` | 1536 | 128 | 900M | MIT |
-| **P4** | `PORTULAN/serafim-335m-portuguese-pt` | 1024 | 128 | 335M | MIT |
-| **P5** | `jinaai/jina-embeddings-v2-base-pt` | 768 | 8192 | 137M | Apache 2.0 |
-| **P6** | `neuralmind/bert-base-portuguese-cased` | 768 | 512 | 110M | MIT |
+**Observações:**
+- BGE-M3 dominou todos os outros modelos com margem significativa (+9.2% sobre o 2º)
+- Família E5 (small, base, large) teve performance consistente e competitiva
+- LaBSE, apesar de multilingual, teve performance mediana
 
-**Características:**
-- Treinados exclusivamente em corpus brasileiro
-- P3 (Serafim-900M): Maior modelo da lista (1536 dimensões)
-- P2 (BGE-small-PT): Menor modelo (33M params, 384-dim) para edge deployment
+### **3.7.3 Modelos Específicos PT-BR Testados (2 modelos)**
 
-### **3.7.3 Modelos Base (Não Fine-tunados para Sentence Embeddings)**
+| ID | Modelo | Dimensões | Max Tokens | NDCG@10 | Ranking |
+|----|--------|-----------|------------|---------|---------|
+| **P1** | `PORTULAN/serafim-900m-portuguese-pt` | 1536 | 512 | 0.6502 | 6º |
+| **P2** | `neuralmind/bert-base-portuguese-cased` (BERTimbau) | 768 | 512 | 0.4181 | 9º |
 
-| ID | Modelo | Notas |
-|----|--------|-------|
-| **B1** | `PORTULAN/albertina-900m-portuguese-ptbr` | DeBERTa vanilla - Requer mean pooling manual |
-| **B2** | `rufimelo/Legal-BERTimbau` | Domínio jurídico/legal - Pode ajudar em portarias/decretos |
+**Observações Críticas:**
+- ❌ **Hipótese REFUTADA:** PT-específicos tiveram performance INFERIOR aos multilinguais
+- Serafim (900M params, 1536-dim): 6º lugar, superado por 5 multilinguais
+- BERTimbau: Último lugar (9º), NDCG 56.8% inferior ao vencedor
 
-**Nota:** B1 e B2 **não são modelos de sentence embeddings nativos**. Requerem pooling customizado:
+### **3.7.4 Modelo Adicional Testado (1 modelo)**
 
-```python
-def mean_pooling(model_output, attention_mask):
-    token_embeddings = model_output[0]
-    input_mask_expanded = attention_mask.unsqueeze(-1).expand(token_embeddings.size()).float()
-    return torch.sum(token_embeddings * input_mask_expanded, 1) / torch.clamp(input_mask_expanded.sum(1), min=1e-9)
-```
+| ID | Modelo | Dimensões | Max Tokens | NDCG@10 | Ranking |
+|----|--------|-----------|------------|---------|---------|
+| **A1** | `sentence-transformers/paraphrase-multilingual-MiniLM-L12-v2` | 384 | 512 | 0.5049 | 8º |
 
-### **3.7.4 Comparação Resumida**
+### **3.7.5 Comparação Resumida (Resultados Reais)**
 
-| Aspecto | Multilinguais | PT-Específicos |
-|---------|---------------|----------------|
-| **Cobertura de Idiomas** | 50-100+ | PT-BR apenas |
-| **Corpus de Treino** | Genérico (Wikipedia, Common Crawl) | Brasileiro (news, web, gov.br) |
-| **Domínio Governamental** | Não especializado | Potencialmente melhor |
-| **Max Tokens** | 128-8192 | 128-8192 |
-| **Dimensões** | 768-1024 | 384-1536 |
-| **Tamanho** | 278M-568M | 33M-900M |
+| Aspecto | Multilinguais (Top 5) | PT-Específicos (Testados) |
+|---------|----------------------|---------------------------|
+| **NDCG@10 Médio** | 0.8093 | 0.5342 |
+| **Melhor Performance** | BGE-M3: 0.9673 (1º) | Serafim: 0.6502 (6º) |
+| **Pior Performance** | paraphrase-miniml: 0.5049 (8º) | BERTimbau: 0.4181 (9º) |
+| **Gap vs Vencedor** | -0.06 a -0.46 | -0.32 a -0.55 |
+| **Conclusão** | ✅ Superiores | ❌ Inferiores |
+
+**Insight Principal:** Modelos multilinguais modernos (BGE-M3, E5-family) **superaram significativamente** os PT-específicos testados, refutando a hipótese inicial.
 
 ---
 
