@@ -3,7 +3,7 @@ Data: 05/06/2026
 PROMPT: 
 Atuando como analista de requisitos, usando as melhores práticas de engenharia de requisitos, analise documentação e codigos presentes no repositório "C:\Users\joserm\Documents\Projetos\Inspire\Meta-7\Git\data-science\" e 
 gere um relatório técnico sobre o trabalho
-realizado sobre "Comparativo de Modelos de Embedding PT-BR" para ser utilizado como base de referencia de um sistema de portal de notícias do governo brasileiro, 
+realizado "Comparativo de Modelos de Embedding PT-BR" para ser utilizado como base de referencia de um sistema de portal de notícias do governo brasileiro, 
 conforme contexto abaixo:
 
 Execute em etapas para não perder o contexto.
@@ -48,9 +48,18 @@ Revisado por: <!-- NÃO PREENCHA ESTE CAMPO: O humano preencherá manualmente-->
 
 # **1 Objetivo deste documento**
 
-Este documento apresenta uma **análise comparativa detalhada de modelos de embedding para Português Brasileiro (PT-BR)**, realizada sob a perspectiva de engenharia de requisitos para suportar o sistema de busca semântica do portal **DestaquesGovBr**. 
+**⚠️ IMPORTANTE - NATUREZA DESTE DOCUMENTO:**
 
-O relatório documenta o processo de avaliação, critérios de seleção, trade-offs técnicos e a recomendação final do modelo de embedding mais adequado para o contexto de notícias governamentais brasileiras, considerando requisitos funcionais e não-funcionais específicos do projeto.
+Este documento é uma **ANÁLISE CONCEITUAL/HIPOTÉTICA** baseada em conhecimento geral sobre embeddings e melhores práticas de engenharia de requisitos. **NÃO é baseado em dados reais do projeto DestaquesGovBr**.
+
+**Para o relatório baseado em dados reais do Issue #1 do projeto, consulte:**
+📄 **[Relatório-Ciencia-de-Dados-Embeddings-26-05-Versao-02.md](Relatório-Ciencia-de-Dados-Embeddings-26-05-Versao-02.md)** (baseado no Issue #1: 12 modelos reais, 300k docs, 500+ queries)
+
+---
+
+Este documento apresenta uma **análise comparativa CONCEITUAL de modelos de embedding para Português Brasileiro (PT-BR)**, realizada sob a perspectiva de engenharia de requisitos para suportar o sistema de busca semântica do portal **DestaquesGovBr**. 
+
+O relatório documenta um **framework teórico** de avaliação, critérios de seleção, trade-offs técnicos e recomendações baseadas em literatura e melhores práticas, mas **não em experimentos reais do projeto**.
 
 ## **1.1 Nível de sigilo dos documentos**
 
