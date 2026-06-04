@@ -57,10 +57,12 @@ nav:
     - ADRs:
       - Índice: arquitetura/adrs/index.md
       - "ADR-001: Arquitetura de Dados Medallion": arquitetura/adrs/adr-001-arquitetura-dados-medallion.md
+      - "ADR-002: Fachada GraphQL": arquitetura/adrs/adr-002-fachada-graphql.md
   - Módulos:
     - Data Platform: modulos/data-platform.md
     - Scraper: modulos/scraper.md
     - Portal: modulos/portal.md
+    - GraphQL API: modulos/graphql-api.md
     - Cogfy/LLM: modulos/cogfy-integracao.md
     - Árvore Temática: modulos/arvore-tematica.md
     - Órgãos: modulos/agencies.md

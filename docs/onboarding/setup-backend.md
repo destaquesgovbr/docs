@@ -378,6 +378,25 @@ poetry install --sync
 
 ---
 
+## GraphQL API — fachada de dados
+
+O acesso a dados dos consumidores (portal e, em migração, os workers) passa pela
+fachada [`graphql-api`](../modulos/graphql-api.md) (Strawberry + FastAPI). Se for
+trabalhar nela ou no portal:
+
+```bash
+git clone https://github.com/destaquesgovbr/graphql-api.git
+cd graphql-api
+make bootstrap-env   # puxa secrets do GCP Secret Manager para .env.local
+make dev             # uvicorn em :8000 (Firestore/Postgres/Typesense reais)
+```
+
+- Setup dev local completo (portal :3000 + graphql-api :8000 + Keycloak Cloud Run)
+  está no `CLAUDE.md` de cada repo.
+- **Gate de validação:** Playwright no browser (`portal/e2e/graphql/`), nunca só
+  `curl` — `curl` mascara CSP e o código do cliente. Ver
+  [ADR-002](../arquitetura/adrs/adr-002-fachada-graphql.md).
+
 ## Próximos Passos
 
 1. Leia o código do `webscraper.py` para entender o scraping

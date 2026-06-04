@@ -133,6 +133,25 @@ flowchart TB
 - VPC Connector para acesso ao PostgreSQL
 - GPU opcional para maior throughput
 
+### 4b. Cloud Run (GraphQL API)
+
+| Propriedade | Valor |
+|-------------|-------|
+| Serviço | `destaquesgovbr-graphql-api` |
+| Região | `southamerica-east1` |
+| Stack | Strawberry GraphQL + FastAPI (Python 3.12) |
+| Min instances | 0 |
+
+**Características:**
+
+- Fachada de dados única (Firestore + PostgreSQL + Typesense) — ver
+  [ADR-002](../arquitetura/adrs/adr-002-fachada-graphql.md) e o
+  [módulo GraphQL API](../modulos/graphql-api.md).
+- Auth: JWT do Keycloak (usuários) + OIDC do Google (service accounts/workers).
+- Env vars geridas pelo Terraform; SSE em `/graphql/stream` para o agente de IA.
+- IAM: a SA do portal e a SA do graphql-api têm `roles/run.invoker` onde
+  necessário (ex.: graphql-api → clipping worker para o passthrough do agente).
+
 ### 5. Compute Engine (Typesense)
 
 | Propriedade | Valor |
@@ -161,6 +180,7 @@ flowchart TB
 - `portal` - Imagem do portal Next.js
 - `data-platform` - Imagem do data platform
 - `embeddings-api` - Imagem da API de embeddings
+- `destaquesgovbr-graphql-api` - Imagem da fachada GraphQL
 
 ### 7. Secret Manager
 

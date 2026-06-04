@@ -42,6 +42,30 @@ flowchart LR
 
 ---
 
+## Acesso a dados via GraphQL (migração R1)
+
+Além da busca de notícias (Typesense), o portal oferece funcionalidades dinâmicas
+— **clippings**, **marketplace**, **notificações push**, **widgets** e o **agente
+de IA**. Na migração R1 (2026) esse acesso a dados deixou de usar rotas REST
+internas + Firebase Admin direto e passou a consumir a fachada
+[`graphql-api`](graphql-api.md):
+
+- Cliente **urql** com *auth-exchange* que envia o `Authorization: Bearer <JWT>`
+  (token do Keycloak exposto na sessão NextAuth).
+- Roteamento por **feature flag** (GrowthBook `graphql.*`): cada feature alterna
+  entre a implementação GraphQL e o fallback REST legado, removível no cleanup.
+- O **CSP** do portal precisa incluir a origin do graphql-api em `connect-src`
+  (senão o browser bloqueia o fetch) — foi a causa-raiz nº 1 da migração.
+- O **agente** transmite via SSE em `/graphql/stream` (não `/graphql`).
+
+!!! warning "Gate de validação: E2E no browser, nunca só curl"
+    A validação da migração é feita com **Playwright** dirigindo o browser real
+    contra portal + graphql-api (`portal/e2e/graphql/`). `curl` headless mascara
+    o CSP e o código TypeScript do cliente — foi assim que um drift de schema
+    passou despercebido. Ver [ADR-002](../arquitetura/adrs/adr-002-fachada-graphql.md).
+
+---
+
 ## Estrutura do Repositório
 
 ```
