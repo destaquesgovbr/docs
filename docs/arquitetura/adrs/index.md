@@ -7,3 +7,4 @@ Cada ADR documenta o contexto, a decisão tomada, as alternativas consideradas e
 | ADR | Título | Status | Data |
 |-----|--------|--------|------|
 | [ADR-001](adr-001-arquitetura-dados-medallion.md) | Arquitetura de Dados Medallion com Feature Store JSONB | Proposta | 2026-03-01 |
+| [ADR-002](adr-002-fachada-graphql.md) | Fachada GraphQL única para acesso a dados | Aceita | 2026-06-04 |

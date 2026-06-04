@@ -2,7 +2,7 @@
 
 ## Resumo
 
-O DestaquesGovbr é uma plataforma de agregação e enriquecimento de notícias governamentais composta por 7 camadas principais, com **arquitetura event-driven** e **pipeline Medallion**:
+O DestaquesGovbr é uma plataforma de agregação e enriquecimento de notícias governamentais composta por 8 camadas principais, com **arquitetura event-driven** e **pipeline Medallion**:
 
 1. **Coleta** - Raspagem automatizada de ~160 sites gov.br via Scraper API
 2. **Armazenamento Medallion** - Bronze (GCS Parquet) → Silver (PostgreSQL) → Gold (BigQuery + Feature Store)
@@ -11,6 +11,16 @@ O DestaquesGovbr é uma plataforma de agregação e enriquecimento de notícias 
 5. **Indexação** - Typesense para busca full-text e vetorial (atualizado via workers Pub/Sub)
 6. **Distribuição** - HuggingFace para dados abertos + Federação ActivityPub (Mastodon/Misskey)
 7. **Apresentação** - Portal Next.js, Streamlit App e Bots (Telegram)
+8. **Fachada de Dados** - GraphQL API unificada entre consumidores e backends
+
+!!! info "Fachada GraphQL (migração R1, 2026)"
+    Os consumidores (portal e, progressivamente, os workers) deixaram de acessar
+    Firestore/PostgreSQL/Typesense **diretamente** e passaram a usar uma fachada
+    GraphQL única — o serviço [`graphql-api`](../modulos/graphql-api.md). Isso
+    desacopla os consumidores do formato dos backends e centraliza a
+    autenticação. Ver [ADR-002](adrs/adr-002-fachada-graphql.md). O pipeline de
+    **ingestão** (camadas 1–6) segue acessando o PostgreSQL diretamente; migrar
+    os workers para a fachada é um passo de desacoplamento em andamento.
 
 **Mudança Arquitetural (Fev-Mar 2026)**: Pipeline migrado de **batch** (DAGs cron) para **event-driven** (Pub/Sub), reduzindo latência de **~45 min para ~15 segundos**.
 
@@ -289,11 +299,35 @@ Configurado para:
 
 | App | Tecnologia | URL | Descrição |
 |-----|------------|-----|-----------|
-| **Portal** | Next.js 15 + Typesense | [portal-klvx64dufq-rj.a.run.app](https://portal-klvx64dufq-rj.a.run.app/) | Interface web principal com busca, clippings, widgets |
+| **Portal** | Next.js 15 (busca via Typesense; clippings/marketplace/push/widgets via GraphQL) | [portal-klvx64dufq-rj.a.run.app](https://portal-klvx64dufq-rj.a.run.app/) | Interface web principal com busca, clippings, widgets |
 | **Streamlit** | Python + Altair | [HuggingFace Spaces](https://huggingface.co/spaces/nitaibezerra/govbrnews) | Análises exploratórias sobre o dataset |
 | **Telegram Bot** | Python + Aiogram | - | Bot para scraping sob demanda e alertas |
 
 → Detalhes do portal em [../modulos/portal.md](../modulos/portal.md)
+
+### 8. Fachada de Dados (`graphql-api`)
+
+Camada introduzida na migração R1 (2026). Um serviço Cloud Run
+([Strawberry GraphQL + FastAPI](../modulos/graphql-api.md)) que expõe um schema
+tipado único e intermedeia o acesso aos backends, em vez de cada consumidor
+falar direto com Firestore/PostgreSQL/Typesense.
+
+```mermaid
+flowchart LR
+    portal[Portal Next.js] -->|HTTP + JWT| api
+    workers[Workers de dados<br/>migração em andamento] -.->|HTTP + OIDC| api
+    embed[Widgets embarcáveis] -->|HTTP público| api
+    api[graphql-api<br/>Strawberry + FastAPI] --> fs[(Firestore)]
+    api --> pg[(PostgreSQL)]
+    api --> ts[(Typesense)]
+```
+
+- **Portal**: clippings, marketplace, push, widgets e busca via GraphQL (atrás de
+  feature flags `graphql.*`); o agente de IA transmite por SSE (`/graphql/stream`).
+- **Workers**: têm uma superfície interna (`newsForTypesense`, `upsertFeatures`, …)
+  pronta para migrarem do acesso direto ao Postgres.
+- Detalhes, schema e exemplos: [módulo GraphQL API](../modulos/graphql-api.md) e
+  a [documentação profunda do serviço](https://destaquesgovbr.github.io/graphql-api/).
 
 ## Event Mesh (Cloud Pub/Sub)
 
