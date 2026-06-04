@@ -38,7 +38,7 @@ No frontend, o Clipping Marketplace surgiu como feature completa num único PR d
 
 O sistema de follow foi reescrito de seguidor-cria-clone para broadcast ([portal#142](https://github.com/destaquesgovbr/portal/pull/142)): o autor despacha uma vez e o fan-out entrega a todos os seguidores. No backend, o worker passou a resolver a subcollection `marketplace/{id}/followers` e entregar via os canais configurados por cada seguidor ([clipping#18](https://github.com/destaquesgovbr/clipping/pull/18)).
 
-Capas de imagem e melhorias de UX na prateleira de clippings fecharam o ciclo ([portal#144](https://github.com/destaquesgovbr/portal/pull/144)), apoiadas por uma nova infraestrutura de image-worker com Cloud Run, GCS e Pub/Sub ([infra#160](https://github.com/destaquesgovbr/infra/pull/160)).
+Capas de imagem e melhorias de UX na galeria de clippings fecharam o ciclo ([portal#144](https://github.com/destaquesgovbr/portal/pull/144)), apoiadas por uma nova infraestrutura de image-worker com Cloud Run, GCS e Pub/Sub ([infra#160](https://github.com/destaquesgovbr/infra/pull/160)).
 
 ### Convites virais e pré-lançamento
 
