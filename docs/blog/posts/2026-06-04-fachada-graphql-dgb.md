@@ -98,18 +98,18 @@ Quanto mais o time pensar "isso é uma query no schema" em vez de "isso é uma l
 
 ## Follow-ups: desacoplar o resto
 
-O portal já fala GraphQL. O paradigma só se completa quando **nenhum** consumidor toca o banco direto. Os próximos passos, em ordem de impacto:
+O portal já fala GraphQL. O paradigma só se completa quando **nenhum** consumidor toca o banco direto. Os próximos passos estão rastreados no Epic [**docs#46 — Desacoplamento GraphQL (pós-R1)**](https://github.com/destaquesgovbr/docs/issues/46), em ordem de impacto:
 
 ### 1. Tirar os workers de dados do Postgres direto
 
 A superfície interna que eles precisam **já existe** no schema (`newsById`, `newsBatch`, `newsForTypesense`, `newsBatchForBigquery`, `upsertFeatures`, `batchUpsertFeatures`, `updateTypesenseField`) — veja em [exemplos › queries internas](https://destaquesgovbr.github.io/graphql-api/exemplos/) — e [data-platform#168](https://github.com/destaquesgovbr/data-platform/pull/168) já tornou a migração **opt-in**. Falta promover a default e cortar o acesso direto.
 
-| Worker | Acesso hoje | Operação GraphQL | O que falta |
-|--------|-------------|------------------|-------------|
-| **feature-worker** | `DATABASE_URL` → `news` (asyncpg) | `upsertFeatures` / `batchUpsertFeatures` | promover opt-in → default; remover `DATABASE_URL`; revogar IAM Cloud SQL |
-| **typesense-sync-worker** | `DATABASE_URL` → JOIN `news`+`themes`+`features`+embeddings | `newsForTypesense` | idem |
-| **bronze-writer** | `DATABASE_URL` → `news`+`themes` → GCS | `newsById` / `newsBatchForBigquery` | idem |
-| **umami-sync** | `DATABASE_URL` → analytics | — | **não migrar** — domínio distinto, baixo acoplamento; fica como está |
+| Worker | Acesso hoje | Operação GraphQL | Issue |
+|--------|-------------|------------------|-------|
+| **feature-worker** | `DATABASE_URL` → `news` (asyncpg) | `upsertFeatures` / `batchUpsertFeatures` | [data-platform#171](https://github.com/destaquesgovbr/data-platform/issues/171) |
+| **typesense-sync-worker** | `DATABASE_URL` → JOIN `news`+`themes`+`features`+embeddings | `newsForTypesense` | [data-platform#172](https://github.com/destaquesgovbr/data-platform/issues/172) |
+| **bronze-writer** | `DATABASE_URL` → `news`+`themes` → GCS | `newsById` / `newsBatchForBigquery` | [data-platform#173](https://github.com/destaquesgovbr/data-platform/issues/173) |
+| **umami-sync** | `DATABASE_URL` → analytics | — | **não migrar** — domínio distinto, baixo acoplamento |
 
 Receita por worker (uma de cada vez, com validação de paridade entre os dois caminhos):
 
@@ -120,7 +120,7 @@ Receita por worker (uma de cada vez, com validação de paridade entre os dois c
 
 ### 2. Encerrar o período de transição no portal
 
-Enquanto as flags não estão 100% e estáveis, o portal mantém dois caminhos — e o legado mascara problemas. Cleanup (RUNBOOK-R1 §9):
+Enquanto as flags não estão 100% e estáveis, o portal mantém dois caminhos — e o legado mascara problemas. Cleanup (RUNBOOK-R1 §9), rastreado em [portal#237](https://github.com/destaquesgovbr/portal/issues/237):
 
 - **Remover as rotas REST legadas** (`/api/clipping`, `/api/clippings`, `/api/push`, `/api/widgets`).
 - **Tirar o SSR que lê o Firestore direto** (`firebase-admin`) nas páginas de detalhe/edição de clipping (`/minha-conta/clipping/[id]` e `[id]/editar`) e na galeria. Hoje elas leem a coleção legada e produzem "falso verde" — um clipping criado pela fachada pode não aparecer pelo caminho SSR.
@@ -130,7 +130,7 @@ Enquanto as flags não estão 100% e estáveis, o portal mantém dois caminhos �
 ### 3. Higiene de infraestrutura
 
 - **Revogar o binding IAM de dev** no clipping worker, trocando por uma service account de dev impersonável ([infra#185](https://github.com/destaquesgovbr/infra/issues/185)).
-- **Restringir o CORS** do graphql-api em produção (hoje `*` para suportar widgets embarcáveis) à lista de origens conhecidas onde fizer sentido.
+- **Restringir o CORS** do graphql-api em produção (hoje `*` para suportar widgets embarcáveis) à lista de origens conhecidas onde fizer sentido ([infra#186](https://github.com/destaquesgovbr/infra/issues/186)).
 
 ### 4. Daqui pra frente
 
