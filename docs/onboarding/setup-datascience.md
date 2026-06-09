@@ -498,6 +498,7 @@ Agora que seu ambiente está configurado, continue com a trilha Data Science:
 
 Ou explore outros recursos:
 
+- [MLflow DGB](../modulos/mlflow.md): Tracking de experimentos, Model Registry e GenAI no servidor compartilhado
 - [Roteiro de Onboarding](./roteiro-onboarding.md): Visão geral das trilhas
 - [Troubleshooting](./troubleshooting.md): Solução de problemas comuns
 

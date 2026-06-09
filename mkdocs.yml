@@ -70,6 +70,7 @@ nav:
     - Umami Analytics: modulos/umami.md
     - GrowthBook: modulos/growthbook.md
     - Streamlit: modulos/spaces-streamlit.md
+    - MLflow: modulos/mlflow.md
   - Workflows:
     - Pipeline Scraper: workflows/scraper-pipeline.md
     - Deploy Portal: workflows/portal-deploy.md
