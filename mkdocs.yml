@@ -71,6 +71,9 @@ nav:
     - GrowthBook: modulos/growthbook.md
     - Streamlit: modulos/spaces-streamlit.md
     - MLflow: modulos/mlflow.md
+  - Apresentações:
+    - Visão Geral: apresentacoes/index.md
+    - MLflow no DGB: apresentacoes/mlflow-no-dgb/index.md
   - Workflows:
     - Pipeline Scraper: workflows/scraper-pipeline.md
     - Deploy Portal: workflows/portal-deploy.md

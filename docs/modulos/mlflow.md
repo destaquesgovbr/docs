@@ -417,6 +417,7 @@ Guia detalhado: [`ml-platform/docs/06-troubleshooting.md`](https://github.com/de
 
 ## Links relacionados
 
+- [Slides: MLflow no DGB](../apresentacoes/mlflow-no-dgb/index.md) — apresentação (20 slides) da plataforma
 - [Repositório `ml-platform`](https://github.com/destaquesgovbr/ml-platform) — código do servidor, cliente e exemplos
 - [Documentação completa do MLflow DGB](https://github.com/destaquesgovbr/ml-platform/tree/main/docs) — 7 tutoriais (PC, VM, IAP, registry, GenAI, troubleshooting)
 - [Exemplos executáveis](https://github.com/destaquesgovbr/ml-platform/tree/main/examples) — ML tradicional e GenAI
