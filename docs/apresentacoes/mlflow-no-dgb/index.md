@@ -15,7 +15,7 @@ no GCS) e como começar a usar hoje. São **20 slides**, 16:9.
           style="position:absolute;inset:0;width:100%;height:100%;border:0;"></iframe>
 </div>
 
-[:material-fullscreen: Abrir os slides em tela cheia →](deck.html){target=_blank}
+<p><a href="deck.html" target="_blank" rel="noopener">⛶ Abrir os slides em tela cheia →</a></p>
 
 ---
 
