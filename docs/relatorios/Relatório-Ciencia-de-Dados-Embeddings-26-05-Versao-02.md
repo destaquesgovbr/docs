@@ -1,15 +1,14 @@
-# Relatório Técnico - Comparativo de Modelos de Embedding PT-BR
+# Relatório Técnico - Comparativo de Modelos de Embedding PT-BR (Issues #1 e #2)
 
-**Data:** 26/05/2026
+**Data:** 26/05/2026  
+**Versão:** 02 (Inclui Issue #1: Comparativo de Modelos + Issue #2: Fine-Tuning)
 
 **Elaborado por:** Claude Sonnet 4.5 (Anthropic)
 
 **Prompt do Usuário:**
 
 Atuando como analista de requisitos, utilize as melhores práticas de engenharia de requisitos, para analisar as documentaçõe e codigos presentes na origem repositório "https://github.com/destaquesgovbr/data-science/tree/main/docs/01_issue1_embeddings" ,
-colete os resultados finais da execução do experimento do plano estabelecidorealizado 
-sobre "Comparativo de Modelos de Embedding PT-BR" estabelecido no Issue #1 e 
-gere um relatório técnico sobre o trabalho realizado sobre "Comparativo de Modelos de Embedding PT-BR" que foi utilizado como base de referencia de um sistema de portal de notícias do governo brasileiro, conforme contexto abaixo:
+colete os resultados finais da execução do experimento do plano estabelecido e realizado sobre "Comparativo de Modelos de Embedding PT-BR" estabelecido no Issue #1 e gere um relatório técnico sobre o trabalho realizado nesta pesquisa, a qual foi também utilizada como base de referencia para o desenvolvimento do sistema portal de notícias do governo brasileiro, conforme contexto abaixo:
 
 1. Contexto de Negócio: Qual problema da empresa motivou essa pesquisa?
 
@@ -58,8 +57,7 @@ gere um relatório técnico sobre o trabalho realizado sobre "Comparativo de Mod
 23. Gere ao final do documento no trecho "Apêndice" com "Terminologias e Abreviações", 
 e também elabore de direta uma breve conceituação sobre "Embeddings", abordar também o "Por que os Embeddings são tão importantes hoje" e como "Como funciona na prática"? 
 
-Execute essa tarefa em etapas para não perder o contexto, e ao final gere no arquivo  "relatorios\Relatório-Ciencia-de-Dados-Embeddings-26-05.md", 
-usando como base o template "docs\relatorios\Template-Relatório Técnico INSPIRE.md"
+Execute essa tarefa em etapas para não perder o contexto, e ao final gere no arquivo "relatorios\Relatório-Ciencia-de-Dados-Embeddings-26-05-Versao-01.md", usando como base o template "docs\relatorios\Template-Relatório Técnico INSPIRE.md".
 
 
 CONTEXTO DISPONÍVEL:
@@ -84,9 +82,11 @@ DADOS PRINCIPAIS JÁ COLETADOS:
 
 ## Sumário Executivo
 
-Este relatório técnico documenta os resultados do **Issue #1 - Comparativo de Modelos de Embedding PT-BR**, executado na branch `embeddings-study` do repositório data-science do projeto DestaquesGovbr.
+Este relatório técnico documenta os resultados dos **Issues #1 e #2** do repositório data-science do projeto DestaquesGovbr:
+- **Issue #1:** Comparativo de Modelos de Embedding PT-BR
+- **Issue #2:** Fine-Tuning de Embedding Model
 
-### Principais Resultados:
+### Principais Resultados - Issue #1:
 
 1. **Modelo Vencedor:** BAAI/bge-m3 com NDCG@10 de 0.9673 (96.73% de qualidade de ranking)
 2. **Hipótese Refutada:** Modelos multilinguais superaram modelos PT-específicos em +48.8%
@@ -94,24 +94,40 @@ Este relatório técnico documenta os resultados do **Issue #1 - Comparativo de 
 4. **Taxa de Recuperação:** 99.6% com BGE-M3 (249/250 documentos)
 5. **Gap de Performance:** +9.2% sobre o 2º colocado, +131.4% sobre o pior modelo
 
+### Principais Resultados - Issue #2:
+
+1. **Baseline Zero-shot:** NDCG@10 = 0.9567 (95.67%)
+2. **Few-shot (500 triplas):** NDCG@10 = 0.9660 (+0.97% de melhora)
+3. **Full Dataset (1.668 triplas):** NDCG@10 = 0.9313 (-2.66% de piora devido a max_seq_length=1024)
+4. **Decisão Final:** Manter BGE-M3 em modo zero-shot (sem fine-tuning)
+5. **Economia de Recursos:** ~$15k-20k/ano evitados em infraestrutura GPU e manutenção
+
 ### Recomendação Final:
 
-Implementar **BAAI/bge-m3** como modelo de embedding para busca semântica no portal DestaquesGovbr, com métricas excepcionais que superam todos os requisitos não-funcionais estabelecidos (RNF-01: NDCG@10 ≥ 0.65).
+Implementar **BAAI/bge-m3 em modo zero-shot** como modelo de embedding para busca semântica no portal DestaquesGovbr. Fine-tuning foi descartado pois o ganho marginal (+0.97%) não justifica custos de infraestrutura, engenharia e manutenção. O modelo zero-shot já apresenta métricas excepcionais (NDCG@10 = 95.67%) que superam amplamente todos os requisitos não-funcionais estabelecidos (RNF-01: NDCG@10 ≥ 0.65).
 
 ---
 
 # 1. Objetivo deste Documento
 
-Este documento apresenta os **resultados finais do experimento** de comparação de modelos de embedding para Português Brasileiro (PT-BR), conforme especificado no **Issue #1** do repositório data-science do projeto DestaquesGovbr.
+Este documento apresenta os **resultados finais dos experimentos** de comparação e fine-tuning de modelos de embedding para Português Brasileiro (PT-BR), conforme especificado nos **Issues #1 e #2** do repositório data-science do projeto DestaquesGovbr.
 
 ## 1.1 Escopo do Relatório
 
-O relatório documenta:
+O relatório documenta dois experimentos complementares:
+
+**Issue #1 - Comparativo de Modelos:**
 - **Objetivo da pesquisa** (validar hipótese: PT-específicos > Multilinguais)
 - **Experimento executado** (250 docs, 9 modelos, 259 queries, 2.591 anotações)
 - **Resultados quantitativos** (NDCG@10, MAP, MRR, Recall@10)
 - **Modelo vencedor** (BGE-M3 com NDCG@10 = 0.9673)
 - **Hipótese refutada** (multilinguais superaram PT-específicos)
+
+**Issue #2 - Fine-Tuning:**
+- **Objetivo** (avaliar se fine-tuning pode melhorar baseline >96%)
+- **Experimentos** (few-shot 500 triplas, full 1.668 triplas)
+- **Resultados** (ganho marginal +0.97% com few-shot, piora -2.66% com full)
+- **Decisão fundamentada** (manter zero-shot, economia $15k-20k/ano)
 - **Análise comparativa** e recomendações finais
 
 ## 1.2 Nível de Sigilo dos Documentos
@@ -1473,6 +1489,399 @@ Score = 0.40×100 + 0.25×100 + 0.15×62.5 + 0.10×44.4 + 0.10×100
 
 ---
 
+# 6. Issue #2 - Fine-Tuning de Embedding Model
+
+## 6.1 Contexto e Motivação
+
+### 6.1.1 Por Que Considerar Fine-Tuning?
+
+Após estabelecer BGE-M3 como modelo state-of-the-art no Issue #1 (NDCG@10 = 0.9673), a pergunta natural surgiu:
+
+> "Fine-tuning com dados de domínio específico (notícias governamentais brasileiras) pode melhorar a performance além de 96.73%?"
+
+**Questões de Pesquisa:**
+1. Modelos pré-treinados massivos ainda têm espaço para melhoria com adaptação de domínio?
+2. Qual volume mínimo de dados necessário para observar ganhos?
+3. O investimento em infraestrutura GPU justifica os ganhos potenciais?
+
+### 6.1.2 Baseline Estabelecido (Issue #1)
+
+| Métrica | Valor Baseline (Zero-shot) |
+|---------|----------------------------|
+| NDCG@10 | 0.9673 (96.73%) |
+| NDCG@5 | 0.9534 (95.34%) |
+| MAP | 0.9213 (92.13%) |
+| MRR | 0.9820 (98.20%) |
+| Recall@10 | 0.9961 (99.61%) |
+
+**Performance:** 99.6% de taxa de recuperação no Top-10 (256/258 queries)
+
+---
+
+## 6.2 Metodologia
+
+### 6.2.1 Extração de Triplas
+
+Utilizamos as 2.591 anotações manuais do Issue #1 para criar triplas de treinamento no formato **(query, positive, negative)**:
+
+**Critérios:**
+- **Positive:** documentos com relevância ≥ 2 (relevante ou muito relevante)
+- **Negative:** documentos com relevância = 0 (irrelevante)
+- **Mínimo:** 1 positive e 1 negative por query
+
+**Resultado da Extração:**
+- 257 queries válidas (99.2% das 259 originais)
+- 2.367 triplas extraíveis
+- Distribuição balanceada entre 10 categorias (Saúde, Educação, Economia, etc.)
+
+**Splits de Dados (estratificados por query base):**
+- **Train:** 1.668 triplas (70%)
+- **Validation:** 329 triplas (15%)
+- **Test:** 370 triplas (15%)
+
+### 6.2.2 Loss Function
+
+**Multiple Negatives Ranking Loss:**
+- Aproxima embedding da query ao documento positivo
+- Afasta embedding da query dos documentos negativos
+- Batch serve como negatives adicionais (in-batch negatives)
+- Estado da arte para fine-tuning de embeddings
+
+### 6.2.3 Infraestrutura
+
+**Hardware:** AWS G6.2xlarge
+- GPU: NVIDIA L4 (24GB VRAM)
+- 8 vCPUs, 32GB RAM
+- Custo: $1.15/hora
+
+**Justificativa:** Google Colab T4 (15GB VRAM) insuficiente para BGE-M3 (568M parâmetros) com batch size adequado.
+
+### 6.2.4 Estratégia Iterativa
+
+1. **Few-shot (500 triplas):** Validar pipeline e avaliar ROI antes de escalar
+2. **Full dataset (1.668 triplas):** Escalar apenas se few-shot mostrar ganhos significativos
+
+---
+
+## 6.3 Experimento 1: Few-shot (500 triplas)
+
+### 6.3.1 Configuração de Treinamento
+
+```python
+modelo_base = "BAAI/bge-m3"
+max_seq_length = 2048  # Mantém capacidade do modelo
+batch_size = 8
+gradient_accumulation_steps = 4  # Batch efetivo = 32
+epochs = 2
+learning_rate = 2e-5
+warmup_steps = 100
+gradient_checkpointing = True  # Reduz uso de memória
+```
+
+**Tempo de Treinamento:** 7 minutos e 44 segundos  
+**Loss Final:** 0.349 (convergência adequada)
+
+### 6.3.2 Resultados Completos
+
+| Métrica | Baseline (Zero-shot) | Few-shot | Δ Absoluto | Δ % |
+|---------|---------------------|----------|------------|-----|
+| **NDCG@10** | 0.9567 | **0.9660** | +0.0092 | **+0.97%** |
+| **NDCG@5** | 0.9322 | 0.9484 | +0.0162 | +1.74% |
+| **MAP** | 0.8876 | 0.9013 | +0.0138 | +1.55% |
+| **MRR** | 0.9955 | 1.0000 | +0.0045 | +0.45% |
+| **Recall@5** | 0.8510 | 0.8670 | +0.0160 | +1.88% |
+| **Recall@10** | 0.9688 | 0.9669 | -0.0019 | -0.19% |
+
+### 6.3.3 Interpretação
+
+**Ganhos marginais mas consistentes:**
+- NDCG@10 aumentou apenas 0.97 pontos percentuais
+- Baseline já muito forte (95.67%) deixa pouco espaço para melhoria
+- MRR atingiu 1.0000 (perfeito) → documento relevante sempre em 1º lugar
+
+**Conclusão Preliminar:** Ganho existe mas é marginal. Avaliar se justifica custo.
+
+---
+
+## 6.4 Experimento 2: Full Dataset (1.668 triplas)
+
+### 6.4.1 Hipótese
+
+Com 3.3x mais dados de treinamento, esperávamos:
+- Capturar mais variações linguísticas do domínio governamental
+- Melhorar generalização para queries não vistas
+- NDCG@10 aumentar para +2-3% (vs +0.97% do few-shot)
+
+### 6.4.2 Desafios de Memória
+
+Dataset maior causou **OOM (Out of Memory)** com configurações do few-shot.
+
+**Solução Aplicada:**
+```python
+max_seq_length = 1024  # Reduzido de 2048 (-50% de memória)
+batch_size = 2         # Reduzido de 8
+gradient_accumulation_steps = 16  # Aumentado para compensar
+epochs = 3
+```
+
+**Tempo de Treinamento:** 51.5 minutos  
+**Loss Final:** 0.0965 (convergência excelente, talvez excessiva)
+
+### 6.4.3 Resultados Completos
+
+| Métrica | Baseline | Few-shot | **Full** | Δ (Full vs Baseline) |
+|---------|----------|----------|----------|---------------------|
+| **NDCG@10** | 0.9567 | 0.9660 | **0.9313** | **-2.66%** ❌ |
+| **NDCG@5** | 0.9322 | 0.9484 | 0.9188 | -1.44% ❌ |
+| **MAP** | 0.8876 | 0.9013 | 0.8496 | -4.28% ❌ |
+| **Recall@5** | 0.8510 | 0.8670 | 0.8160 | -4.11% ❌ |
+| **Recall@10** | 0.9688 | 0.9669 | 0.8977 | -7.34% ❌ |
+
+**Resultado Inesperado:** Piora significativa em TODAS as métricas principais.
+
+### 6.4.4 Análise de Por Que Piorou
+
+**Hipótese Principal: Max Sequence Length Inadequado**
+- Few-shot treinou com 2048 tokens → ganho marginal
+- Full treinou com 1024 tokens (limitação GPU) → piora
+- Documentos truncados perderam contexto crítico
+- BGE-M3 zero-shot foi pré-treinado com 8192 tokens
+- **Conclusão:** Fine-tuning com 1024 "desaprendeu" documentos longos
+
+**Hipótese Secundária: Overfitting**
+- Loss muito baixo (0.0965) sugere overfitting
+- 3 épocas podem ser excessivas para 1.668 triplas
+- Modelo memorizou padrões específicos que não generalizam para test set
+
+**Hipótese Terciária: Distribuição de Test Set**
+- Test set pode conter queries/documentos que dependem de contexto >1024 tokens
+- Truncamento afetou desproporcionalmente performance no test set
+
+---
+
+## 6.5 Análise Comparativa
+
+### 6.5.1 Ranking Final de Performance
+
+**Por NDCG@10:**
+
+| Posição | Abordagem | NDCG@10 | Δ vs Baseline |
+|---------|-----------|---------|---------------|
+| **1º** | Few-shot (500 triplas, seq=2048) | **0.9660** | +0.97% ✅ |
+| **2º** | Zero-shot baseline (BGE-M3) | **0.9567** | 0% (referência) |
+| **3º** | Full (1.668 triplas, seq=1024) | **0.9313** | -2.66% ❌ |
+
+**Conclusão:** Volume de dados NÃO é fator limitante. Configuração de `max_seq_length` é crítica.
+
+### 6.5.2 Por Que Baseline é Difícil de Superar?
+
+**BGE-M3 é modelo multilíngue massivo treinado em:**
+- Centenas de milhões de pares de texto
+- 50+ idiomas incluindo português
+- Diversos domínios (jornalístico, governamental, acadêmico, conversacional)
+
+Com NDCG@10 = 95.67%, já captura:
+- ✅ Sinônimos e variações linguísticas
+- ✅ Jargão governamental brasileiro
+- ✅ Semântica de comunicação oficial
+
+### 6.5.3 Dataset Pequeno vs Modelo Grande
+
+**Desafio de Fine-tuning:**
+- **BGE-M3:** 568M parâmetros
+- **Dataset:** 1.668 triplas (muito pequeno para modelo grande)
+- **Risco:** Overfitting alto
+- **Resultado:** Ganho marginal não compensa risco
+
+### 6.5.4 Limitações de Hardware
+
+Para `max_seq_length = 8192` (ideal), seria necessário:
+- GPU com >40GB VRAM (ex: NVIDIA A100)
+- Custo: $4-8/hora (vs $1.15/hora do L4)
+- **ROI questionável:** Investir 3.5-7x mais para ganho potencial <1%
+
+---
+
+## 6.6 Decisão Final e Justificativa
+
+### 6.6.1 Decisão: Manter BGE-M3 em Modo Zero-shot
+
+**Justificativa em 7 Pontos:**
+
+1. **Performance Excelente:** NDCG@10 = 95.67% já supera amplamente meta (>85%)
+2. **Ganho Marginal:** +0.97% com few-shot é praticamente imperceptível para usuários finais
+3. **Zero Custo de Treinamento:** Não requer GPU, engenharia de ML, ou tempo de computação
+4. **Zero Manutenção:** Não precisa re-treinar periodicamente com novos dados
+5. **Zero Risco de Regressão:** Fine-tuning pode piorar (como visto no experimento full)
+6. **Simplicidade Operacional:** Basta atualizar versão do modelo quando disponível
+7. **Custo-Benefício Negativo:** Infraestrutura + engenharia + monitoramento > ganho de 0.97%
+
+### 6.6.2 Alternativas Consideradas e Descartadas
+
+**LoRA (Low-Rank Adaptation):**
+- ❌ Se full fine-tuning piora, LoRA provavelmente também
+- Eficiência de memória não resolve problema fundamental de ganho marginal
+
+**QLoRA (Quantized LoRA):**
+- ❌ Mesma lógica - técnica de eficiência não muda ROI negativo
+
+**Coletar Mais Dados (10k-100k triplas):**
+- ❌ Custo-benefício péssimo
+- Anotar 10k+ pares manualmente para ganhar ~1% é inviável
+- Few-shot (500) já mostrou ganho marginal → mais dados não resolve
+
+**Transfer Learning de Outro Domínio:**
+- ❌ BGE-M3 zero-shot já superior a modelos PT-BR específicos (Issue #1)
+- Serafim (PT-específico) teve NDCG@10 = 0.6502 (-32% vs BGE-M3)
+
+### 6.6.3 Economia de Recursos
+
+**Ao não implementar fine-tuning, economizamos:**
+
+| Recurso | Custo Evitado |
+|---------|---------------|
+| Infraestrutura GPU | ~$500-1000/mês |
+| Engenharia de treinamento | ~40 horas/sprint |
+| Manutenção e monitoramento | ~20 horas/mês |
+| Re-treino periódico | ~80 horas/ano |
+| **Total estimado** | **~$15k-20k/ano** |
+
+---
+
+## 6.7 Lições Aprendidas
+
+### 6.7.1 Técnicas
+
+1. **Max Sequence Length é Crítico**
+   - Truncamento pode destruir performance
+   - Manter comprimento original do pré-treino sempre que possível
+   - Reduzir de 2048 para 1024 causou piora de -2.66%
+
+2. **Baseline Forte é Difícil de Superar**
+   - Modelos pré-treinados massivos capturam muito conhecimento
+   - Fine-tuning só vale se baseline <90%
+   - Acima de 95%, ganho marginal não justifica
+
+3. **Volume de Dados Importa Menos Que Configuração**
+   - 500 vs 1.668 triplas não fez diferença decisiva
+   - Max_seq_length e hiperparâmetros são mais críticos
+
+4. **Validação Iterativa Economiza Recursos**
+   - Few-shot antes de full evitou desperdício de tempo/dinheiro
+   - Se few-shot mostrar ganho <2%, não escalar
+
+### 6.7.2 Infraestrutura
+
+1. **Google Colab T4 Insuficiente:** Modelos médios (500M+) não cabem com batch_size adequado
+2. **AWS G6/L4 Bom Custo-Benefício:** $1.15/hora adequado para experimentos de pesquisa
+3. **Gradient Checkpointing Essencial:** Reduz ~50% uso de memória (permite modelos maiores)
+4. **Mixed Precision Instável:** fp16 nem sempre vale o trade-off (problemas de convergência)
+
+### 6.7.3 Processo
+
+1. **Documentar Experimentos Negativos:** Evita repetição de erros por outros times
+2. **Estabelecer Critério de Sucesso Antes:** Se ganho <2%, não vale investimento
+3. **Considerar Custo Total:** Treino + manutenção + monitoramento + re-treino periódico
+
+---
+
+## 6.8 Impacto nas Issues Subsequentes
+
+### 6.8.1 Issue #3 (Classification)
+
+**Decisão:** Usar embeddings BGE-M3 zero-shot como features para classificação hierárquica.
+
+**Impacto:** Embeddings de alta qualidade (95.67% NDCG) garantem boas features para downstream tasks como classificação de notícias em categorias.
+
+### 6.8.2 Issue #5 (RAG Q&A)
+
+**Decisão:** BGE-M3 zero-shot no retrieval pipeline do sistema RAG.
+
+**Impacto:** 95.67% de precisão no ranking garante contexto de alta qualidade para generation step. Retrieval robusto é crítico para qualidade de respostas LLM.
+
+---
+
+## 6.9 Recomendações para Futuro
+
+### 6.9.1 Se Precisar Melhorar (ROI Questionável)
+
+**Coletar Dados de Produção:**
+- Logs de cliques reais de usuários
+- Feedback implícito (tempo de leitura, scrolling)
+- Queries reformuladas por usuários (indicam insatisfação)
+
+**Reavaliar Periodicamente:**
+- BGE lança versões novas (M3 → M4 no futuro?)
+- OpenAI text-embedding-3 melhorando continuamente
+- Cohere Embed v3 competitivo
+
+**Considerar Ensembles:**
+- Combinar BGE-M3 + E5-Large (top-2 do Issue #1)
+- Média ponderada de embeddings
+- Pode ganhar 1-2% sem fine-tuning
+
+### 6.9.2 Otimizações de Sistema (ROI Melhor)
+
+Em vez de melhorar embeddings, focar em:
+
+**1. Reranking:** Cross-encoder para refinar top-10 (ex: ms-marco-MiniLM-L-12-v2)
+**2. Filtros Inteligentes:** Metadados de data, categoria, agência governamental
+**3. Query Expansion:** Sinônimos automáticos, correção de typos
+**4. Feedback Loop:** Aprender com usuários (cliques, reformulações)
+
+**Justificativa:** Essas otimizações têm ROI melhor que fine-tuning (ganho >2% com custo <10% de fine-tuning).
+
+---
+
+## 6.10 Conclusões do Issue #2
+
+### 6.10.1 Principais Contribuições
+
+1. **Validação Empírica:** Fine-tuning não melhora modelos já muito fortes (>95%)
+2. **Análise de ROI:** Documentação rigorosa de custo vs benefício para decisões futuras
+3. **Recomendação Fundamentada:** Zero-shot suficiente para produção com evidências
+4. **Lições de Infraestrutura:** GPU requirements e trade-offs documentados para equipe
+
+### 6.10.2 Afirmação Final
+
+A Issue #2 demonstrou **cientificamente** que fine-tuning não é necessário quando baseline zero-shot já é superior a 95%. A decisão de manter BGE-M3 sem adaptação de domínio é fundamentada em:
+- Evidências empíricas (dois experimentos controlados)
+- Análise rigorosa de custo-benefício (economia de $15k-20k/ano)
+- Alinhamento com Issues subsequentes (#3, #5)
+
+Este estudo serve como **referência** para decisões similares em projetos futuros onde baseline já é muito forte.
+
+---
+
+## 6.11 Referências do Issue #2
+
+1. **Reimers, N., & Gurevych, I. (2019)**  
+   Sentence-BERT: Sentence Embeddings using Siamese BERT-Networks  
+   arXiv:1908.10084  
+   (Base de contrastive learning para embeddings)
+
+2. **Karpukhin, V., et al. (2020)**  
+   Dense Passage Retrieval for Open-Domain Question Answering  
+   arXiv:2004.04906  
+   (Multiple Negatives Ranking Loss)
+
+3. **Gao, T., Yao, X., & Chen, D. (2021)**  
+   SimCSE: Simple Contrastive Learning of Sentence Embeddings  
+   arXiv:2104.08821  
+   (State-of-the-art em contrastive learning)
+
+4. **Sentence Transformers Documentation**  
+   Training Overview  
+   https://www.sbert.net/docs/training/overview.html  
+   (Guias de fine-tuning)
+
+5. **Hu, E. J., et al. (2021)**  
+   LoRA: Low-Rank Adaptation of Large Language Models  
+   arXiv:2106.09685  
+   (Alternativa eficiente ao full fine-tuning)
+
+---
+
 # Apêndice A - Terminologias e Abreviações
 
 ## A.1 Terminologias e Abreviações
@@ -1495,6 +1904,12 @@ Score = 0.40×100 + 0.25×100 + 0.15×62.5 + 0.10×44.4 + 0.10×100
 | **API** | Application Programming Interface | Interface de programação |
 | **GPU** | Graphics Processing Unit | Unidade de processamento gráfico |
 | **CPU** | Central Processing Unit | Unidade de processamento central |
+| **ROI** | Return on Investment | Retorno sobre investimento |
+| **OOM** | Out of Memory | Erro de memória insuficiente |
+| **LoRA** | Low-Rank Adaptation | Técnica eficiente de fine-tuning |
+| **QLoRA** | Quantized LoRA | LoRA com quantização para reduzir memória |
+| **VRAM** | Video Random Access Memory | Memória da GPU |
+| **RAG** | Retrieval-Augmented Generation | Geração aumentada por recuperação |
 
 ## A.2 Conceitos de Embeddings
 
