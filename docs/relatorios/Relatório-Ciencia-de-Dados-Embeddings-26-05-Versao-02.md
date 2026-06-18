@@ -7,74 +7,14 @@
 
 **Prompt do Usuário:**
 
-Atuando como analista de requisitos, utilize as melhores práticas de engenharia de requisitos, para analisar as documentaçõe e codigos presentes na origem repositório "https://github.com/destaquesgovbr/data-science/tree/main/docs/01_issue1_embeddings" ,
-colete os resultados finais da execução do experimento do plano estabelecido e realizado sobre "Comparativo de Modelos de Embedding PT-BR" estabelecido no Issue #1 e gere um relatório técnico sobre o trabalho realizado nesta pesquisa, a qual foi também utilizada como base de referencia para o desenvolvimento do sistema portal de notícias do governo brasileiro, conforme contexto abaixo:
+Analise as documentações e codigos presentes na origem repositório "https://github.com/destaquesgovbr/data-science/blob/main/docs/02_issue2_finetuning/" ,
+colete os resultados finais da execução do experimento do plano estabelecido realizado 
+sobre "Issue #2 - Fine-Tuning de Embedding Model", e gere uma nova versão do relatório técnico "relatorios\Relatório-Ciencia-de-Dados-Embeddings-26-05-Versao-02.md" acrescentando ao final do documento, 
+antes do trecho sobre "Apêndice A - Terminologias e Abreviações", os resultados deste trabalho de pesquisa, atualize também 
+o trecho "Terminologias e Abreviações", dos termos do conteúdo provienentes deste no estudo.
 
-1. Contexto de Negócio: Qual problema da empresa motivou essa pesquisa?
-
-2. Objetivo da Pesquisa: Avaliar a eficácia, custo e viabilidade dos principais modelos de embedding para o Português Brasileiro.
-
-3. Metodologia usada na pesquisa.
-
-4. Recomendação Final: Qual modelo foi o vencedor para o nosso cenário e o porquê.
-
-5. Escopo da Avaliação (O que foi testado). Utilize dados que foram prodizidos durantes os testes realizados.
-
-6. Como foi realizado o estudo feito pelo Cientista de Dados.
-
-7. Modelos Avaliados
-
-8. Critérios de Sucesso (Requisitos Não-Funcionais): O que pesou na balança?
-
-9. Acurácia Semântica.
-
-10. Latência de cada modelo testado e demora para gerar o vetor.
-
-11. Custo/Infraestrutura: Custo por milhão de tokens (se API) ou custo de servidor/GPU (se Open Source).
-
-12. Privacidade e Governança de Dados: Exigências de conformidade (LGPD) para dados sensíveis.
-
-13. Metodologia do Experimento: Uma explicação breve e de alto nível sobre como o Cientista de Dados validou os modelos.
-
-14. Massa de Dados Usada: Quantos documentos/frases foram testados? Eram dados reais da nossa empresa ou um dataset público (como o MTEB)?
-
-15. Métrica de Avaliação.
-
-16. Análise Comparativa e Resultados (O Coração do Relatório): Transformar dados técnicos em tabelas e gráficos visuais de fácil digestão.
-
-17. Tabela Comparativa Matriz: Uma visão cruzada dos critérios.
-
-18. Gráficos de Tendência:Ex: Gráfico de dispersão mostrando - Acurácia vs. Custo  ou Acurácia vs. Velocidade.
-
-19. Análise de Trade-offs (Prós e Contras).
-
-20. Recomendação e Próximos Passos.
-
-21. Conclusão lógica baseada nos requisitos levantados.
-
-22. Modelo Escolhido: Declaração explícita de qual modelo deve ser adotado para a Fase 1 (MVP). Evite o uso de termos como "o modelo X performou muito melhor". Substitua por dados tangíveis de requisitos: "o modelo X apresentou um ganho de 18% em precisão semântica com um acréscimo de apenas 5ms na latência". 
-
-23. Gere ao final do documento no trecho "Apêndice" com "Terminologias e Abreviações", 
-e também elabore de direta uma breve conceituação sobre "Embeddings", abordar também o "Por que os Embeddings são tão importantes hoje" e como "Como funciona na prática"? 
-
-Execute essa tarefa em etapas para não perder o contexto, e ao final gere no arquivo "relatorios\Relatório-Ciencia-de-Dados-Embeddings-26-05-Versao-01.md", usando como base o template "docs\relatorios\Template-Relatório Técnico INSPIRE.md".
-
-
-CONTEXTO DISPONÍVEL:
-1. Relatório Final Issue #1 (relatorio_final_issue1.md) - JÁ LIDO
-2. README Issue #1 - JÁ LIDO
-3. Metodologia de Métricas - JÁ LIDO
-4. Validação de Ranking - JÁ LIDO
-5. Análise de Corpus - JÁ LIDO
-
-DADOS PRINCIPAIS JÁ COLETADOS:
-- Modelo vencedor: BAAI/bge-m3 (99.6% recuperação, MRR 0.982)
-- 9 modelos testados (6 multilíngues, 2 PT-BR específicos, 1 adicional)
-- Corpus: 250 documentos, 259 queries, 2.591 anotações
-- Hipótese testada e REFUTADA: PT-específicos NÃO superaram multilinguais
-- Validação: 100% alinhamento com MTEB e BEIR benchmarks
-- Ranking completo disponível nas tabelas já lidas
-```
+Execute essa tarefa em etapas para não perder o contexto, usando como base o template 
+"docs\relatorios\Template-Relatório Técnico INSPIRE.md"
 
 **Revisado por:** <!-- NÃO PREENCHA ESTE CAMPO: O humano preencherá manualmente-->
 

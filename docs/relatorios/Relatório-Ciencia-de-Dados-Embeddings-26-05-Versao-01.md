@@ -6,8 +6,8 @@
 
 **Prompt do Usuário:**
 
-Atuando como analista de requisitos, utilize as melhores práticas de engenharia de requisitos, para analisar as documentaçõe e codigos presentes na origem repositório "https://github.com/destaquesgovbr/data-science/tree/main/docs/01_issue1_embeddings" ,
-colete os resultados finais da execução do experimento do plano estabelecido e realizado sobre "Comparativo de Modelos de Embedding PT-BR" estabelecido no Issue #1 e gere um relatório técnico sobre o trabalho realizado nesta pesquisa, a qual foi também utilizada como base de referencia para o desenvolvimento do sistema portal de notícias do governo brasileiro, conforme contexto abaixo:
+Atuando como analista de requisitos, utilize as melhores práticas de engenharia de requisitos, para analisar as documentaçõe e códigos presentes na origem repositório "https://github.com/destaquesgovbr/data-science/tree/main/docs/01_issue1_embeddings" ,
+colete os resultados finais da execução do experimento do plano estabelecido e realizado sobre "Comparativo de Modelos de Embedding PT-BR" estabelecido no Issue #1 e gere um relatório técnico sobre o trabalho realizado nesta pesquisa, a qual foi também utilizada como base de referência para o desenvolvimento do sistema portal de notícias do governo brasileiro, conforme contexto abaixo:
 
 1. Contexto de Negócio: Qual problema da empresa motivou essa pesquisa?
 
@@ -17,7 +17,7 @@ colete os resultados finais da execução do experimento do plano estabelecido e
 
 4. Recomendação Final: Qual modelo foi o vencedor para o nosso cenário e o porquê.
 
-5. Escopo da Avaliação (O que foi testado). Utilize dados que foram prodizidos durantes os testes realizados.
+5. Escopo da Avaliação (O que foi testado). Utilize dados que foram produzidos durante os testes realizados.
 
 6. Como foi realizado o estudo feito pelo Cientista de Dados.
 
@@ -47,7 +47,7 @@ colete os resultados finais da execução do experimento do plano estabelecido e
 
 19. Análise de Trade-offs (Prós e Contras).
 
-20. Recomendação e Próximos Passos.
+20. Recomendação e próximos passos.
 
 21. Conclusão lógica baseada nos requisitos levantados.
 
