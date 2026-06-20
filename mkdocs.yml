@@ -71,6 +71,7 @@ nav:
     - GrowthBook: modulos/growthbook.md
     - Streamlit: modulos/spaces-streamlit.md
     - MLflow: modulos/mlflow.md
+    - Gobus MCP: modulos/gobus-mcp.md
   - Apresentações:
     - Visão Geral: apresentacoes/index.md
     - MLflow no DGB: apresentacoes/mlflow-no-dgb/index.md
