@@ -1244,6 +1244,141 @@ metricas = avaliar_rouge(gen, ref)
 print(f"ROUGE-L: {metricas['rougeL']:.3f}")
 ```
 
+## **Apêndice D: Terminologias e Abreviações**
+
+### **Termos Técnicos de Sumarização**
+
+| Termo | Definição |
+|-------|-----------|
+| **Sumarização Automática** | Processo de redução de texto longo em versão concisa preservando informações essenciais, realizado por algoritmos de NLP ou modelos de linguagem. |
+| **Sumarização Extrativa** | Técnica que seleciona sentenças-chave do texto original e as concatena, sem gerar novo texto. Exemplos: TextRank, TF-IDF, LexRank. |
+| **Sumarização Abstrativa** | Técnica que gera novo texto parafraseando e condensando informações, similar à sumarização humana. Utiliza LLMs como Claude, Nova, Llama. |
+| **Prompt Engineering** | Técnica de design de instruções (prompts) para guiar LLMs a produzir saídas específicas. Inclui zero-shot, few-shot (N-shot) e chain-of-thought. |
+| **Few-Shot Prompting** | Estratégia onde se fornece N exemplos (pares entrada-saída) antes da tarefa real para calibrar comportamento do LLM. Ex: 3-shot = 3 exemplos. |
+| **Temperature** | Hiperparâmetro de LLMs que controla aleatoriedade da geração (0 = determinístico, 1 = criativo). Para sumarização factual, usa-se temperature=0. |
+| **Max Tokens** | Limite máximo de tokens (palavras/subpalavras) que o LLM pode gerar. Para resumos de 2-4 sentenças, tipicamente 100-150 tokens. |
+| **Truncamento** | Pós-processamento que limita resumo a N sentenças, cortando excesso. Garante conformidade com requisito "2-4 sentenças". |
+
+### **Métricas de Avaliação**
+
+| Termo | Definição |
+|-------|-----------|
+| **ROUGE (Recall-Oriented Understudy for Gisting Evaluation)** | Família de métricas que compara resumo gerado vs referência (ground truth) medindo overlap de n-gramas. Padrão de facto para avaliar sumarização. |
+| **ROUGE-1** | Mede overlap de unigramas (palavras individuais) entre gerado e referência. Captura cobertura lexical básica. |
+| **ROUGE-2** | Mede overlap de bigramas (pares de palavras consecutivas). Indica fluência e coerência local. |
+| **ROUGE-L** | Mede Longest Common Subsequence (LCS) entre gerado e referência. Captura estrutura e ordem das palavras, métrica mais importante deste estudo. |
+| **F1-Score** | Média harmônica entre Precision (% do gerado que está na referência) e Recall (% da referência capturada pelo gerado). Balanceia concisão e completude. |
+| **Baseline** | Modelo de referência usado para comparação. Neste estudo: Enhanced TextRank com ROUGE-L=0.381. |
+| **Delta (Δ)** | Diferença relativa entre modelo avaliado e baseline. Ex: +36% = modelo é 36% superior ao baseline. |
+| **Aceitabilidade** | Métrica qualitativa binária (Aceito/Rejeitado) avaliada por humanos. Critérios: fidelidade factual, completude, concisão, clareza. |
+
+### **Modelos e Técnicas**
+
+| Termo | Definição |
+|-------|-----------|
+| **LLM (Large Language Model)** | Modelo de linguagem de larga escala treinado em bilhões de tokens (ex: Claude, Nova, Llama), capaz de gerar texto coerente e executar tarefas de NLP. |
+| **Amazon Nova Pro V2** | Modelo LLM multimodal da AWS (dez/2024) otimizado para tarefas de raciocínio e geração. Vencedor deste estudo com ROUGE-L=0.518. |
+| **Claude Haiku 3.5** | Modelo LLM da Anthropic focado em velocidade e eficiência. Versão compacta da família Claude 3.5. |
+| **Llama 3.3 70B** | Modelo LLM open-source da Meta AI com 70 bilhões de parâmetros, executável localmente via Ollama. |
+| **Mistral Large 2 (123B)** | Modelo LLM europeu (Mistral AI) com 123 bilhões de parâmetros, multilingue e open-weights. |
+| **Gemma 2 27B** | Modelo LLM compacto do Google, otimizado para eficiência em hardware consumer. |
+| **TextRank** | Algoritmo extrativo baseado em grafos que ranqueia sentenças por importância usando PageRank adaptado. Baseline do estudo. |
+| **TF-IDF (Term Frequency - Inverse Document Frequency)** | Métrica que pondera importância de palavras: alta frequência no documento + baixa frequência no corpus = relevante. |
+| **Enhanced TextRank** | Variante de TextRank com pré-processamento português (stopwords, stemming) e normalização de scores melhorada. |
+| **Ollama** | Runtime open-source para execução local de LLMs com otimizações de inferência (quantização, batching). |
+| **AWS Bedrock** | Serviço gerenciado da AWS para inferência de LLMs proprietários (Nova, Claude, Titan) via API serverless pay-per-use. |
+
+### **Custos e Infraestrutura**
+
+| Termo | Definição |
+|-------|-----------|
+| **TCO (Total Cost of Ownership)** | Custo total incluindo infraestrutura, licenças, manutenção e operação. Para LLMs: compute + tokens + storage + DevOps. |
+| **Custo por Resumo** | Métrica econômica: custo total dividido por volume de resumos gerados. Ex: $0,00026/resumo (Nova Pro V2) vs $0/resumo (Llama local). |
+| **Pay-per-use** | Modelo de precificação cloud onde se paga apenas pelo volume consumido (tokens processados), sem custos fixos. Ideal para volume variável. |
+| **Pricing Tiers** | Camadas de preço diferenciadas por modelo: Input tokens (leitura) vs Output tokens (geração). Output tipicamente 3-5x mais caro. |
+| **Break-even** | Ponto de equilíbrio onde custo fixo (infra local) iguala custo variável (API cloud). Calculado como: custo_fixo ÷ custo_por_chamada. |
+| **Escalabilidade Linear** | Propriedade de APIs serverless onde custo cresce proporcionalmente ao volume, sem overhead de provisionamento. |
+| **Inference Profile** | Endpoint otimizado do AWS Bedrock que roteia requests entre regiões para minimizar latência e custo. |
+
+### **Conceitos de NLP e Linguística Computacional**
+
+| Termo | Definição |
+|-------|-----------|
+| **Token** | Unidade mínima de processamento de LLMs: palavras, subpalavras ou caracteres. 1 token ≈ 4 caracteres em português (BPE tokenization). |
+| **N-grama** | Sequência de N tokens consecutivos. Unigrama=1 palavra, Bigrama=2 palavras, Trigrama=3 palavras. Base das métricas ROUGE. |
+| **Stopwords** | Palavras funcionais de alta frequência e baixo valor semântico (artigos, preposições): "o", "de", "para". Removidas no pré-processamento. |
+| **Stemming** | Redução de palavras à raiz morfológica: "governamental" → "govern". Melhora matching em ROUGE e TF-IDF. |
+| **Embeddings** | Representações vetoriais densas de texto que capturam significado semântico. Não usado neste estudo (foco em sumarização abstrativa). |
+| **Ground Truth** | Resumo de referência criado por humanos, usado como padrão-ouro para comparação. Dataset contém 300 pares (notícia, resumo_referencia). |
+| **Fidelidade Factual** | Grau de correspondência entre resumo gerado e fatos do texto original. Meta: zero alucinações (invenção de informações inexistentes). |
+| **Alucinação (Hallucination)** | Fenômeno onde LLM gera informação factualmente incorreta ou ausente no texto original. Crítico em contexto governamental. |
+| **Concisão** | Propriedade de resumo que expressa máxima informação com mínimas palavras. Métrica: compression ratio = tamanho_original ÷ tamanho_resumo. |
+| **Completude** | Grau em que resumo captura todas informações essenciais do original. Trade-off clássico com concisão. |
+
+### **Validação e Experimentação**
+
+| Termo | Definição |
+|-------|-----------|
+| **Dataset** | Conjunto de dados usado para treino/validação. Neste estudo: 300 notícias gov.br com resumos de referência (média 3.400 caracteres/notícia). |
+| **Corpus** | Coleção de textos representativa do domínio. Aqui: notícias de 160 portais gov.br sobre políticas públicas, programas sociais, obras. |
+| **Split** | Divisão de dataset em subconjuntos: treino (ajuste de prompts), validação (comparação de modelos), teste (avaliação final). |
+| **Fase Experimental** | Etapa isolada do estudo testando hipótese específica. Realizadas 5 fases: Baseline → Prompts → LLMs API → LLMs Local → Validação Humana. |
+| **Variação de Prompt** | Técnica de testar múltiplas formulações de instrução (V1 zero-shot, V2 3-shot, V3 chain-of-thought) para identificar melhor abordagem. |
+| **Análise Ablation** | Método de remover/adicionar componentes isoladamente para medir impacto. Ex: few-shot vs zero-shot (+6.3pp ROUGE-L). |
+| **Validação Qualitativa** | Avaliação humana manual de amostra (15 resumos) segundo critérios subjetivos: fidelidade, completude, clareza, concisão. |
+| **Taxa de Aceitação** | Percentual de resumos aprovados por validadores humanos. Resultado: 100% (15/15) para Nova Pro V2. |
+
+### **Infraestrutura e DevOps**
+
+| Termo | Definição |
+|-------|-----------|
+| **API (Application Programming Interface)** | Interface de programação que permite aplicações se comunicarem. AWS Bedrock expõe LLMs via REST API. |
+| **Latência** | Tempo de resposta de chamada API, medido em segundos. Nova Pro V2: ~2-3s/resumo. Crítico para UX em produção. |
+| **Throughput** | Volume de resumos processados por unidade de tempo. APIs serverless escalam automaticamente para alto throughput. |
+| **Rate Limit** | Limite de requests por minuto/segundo imposto por API. AWS Bedrock: 200 req/min (quotas negociáveis). |
+| **Retry Logic** | Estratégia de retentar chamadas falhadas com exponential backoff (2^n segundos). Crítico para resiliência. |
+| **Pipeline de Produção** | Fluxo automatizado end-to-end: ingestão notícia → sumarização → validação → publicação. Implementado em Airflow/Dagster. |
+| **Monitoramento** | Observabilidade de métricas em produção: latência, custo/dia, taxa de erro, ROUGE médio. Ferramentas: CloudWatch, Datadog. |
+
+### **Regulamentação e Compliance**
+
+| Termo | Definição |
+|-------|-----------|
+| **LGPD (Lei Geral de Proteção de Dados)** | Lei brasileira 13.709/2018 que regula tratamento de dados pessoais. Relevante para notícias com nomes de cidadãos. |
+| **DPA (Data Processing Agreement)** | Acordo de processamento de dados entre cliente e provedor cloud (AWS, Anthropic) garantindo conformidade LGPD/GDPR. |
+| **Soberania de Dados** | Requisito de manter dados sensíveis em infraestrutura nacional ou controlada. Modelos locais (Llama) atendem, APIs cloud não. |
+| **Auditoria** | Capacidade de rastrear origem de cada resumo: timestamp, modelo usado, prompt, custo, ROUGE score. Essencial para compliance. |
+
+### **Abreviações**
+
+| Abreviação | Significado Completo |
+|------------|---------------------|
+| **LLM** | Large Language Model |
+| **NLP** | Natural Language Processing |
+| **ROUGE** | Recall-Oriented Understudy for Gisting Evaluation |
+| **TF-IDF** | Term Frequency - Inverse Document Frequency |
+| **TCO** | Total Cost of Ownership |
+| **API** | Application Programming Interface |
+| **AWS** | Amazon Web Services |
+| **CPQD** | Centro de Pesquisa e Desenvolvimento em Telecomunicações |
+| **MGI** | Ministério da Gestão e da Inovação |
+| **Finep** | Financiadora de Estudos e Projetos |
+| **LGPD** | Lei Geral de Proteção de Dados |
+| **DPA** | Data Processing Agreement |
+| **JSON** | JavaScript Object Notation |
+| **REST** | Representational State Transfer |
+| **CPU** | Central Processing Unit |
+| **GPU** | Graphics Processing Unit |
+| **RAM** | Random Access Memory |
+| **SLA** | Service Level Agreement |
+| **UX** | User Experience |
+| **E2E** | End-to-End (ponta a ponta) |
+| **ML** | Machine Learning |
+| **AI** | Artificial Intelligence |
+| **IA** | Inteligência Artificial |
+| **LCS** | Longest Common Subsequence |
+| **BPE** | Byte Pair Encoding |
+
 ---
 
 **Fim do Relatório Técnico**
