@@ -18,23 +18,21 @@ A) DIRETRIZES DE ENTREGA
 B) ESTRUTURA OBRIGATÓRIA DO RELATÓRIO
 Consolide os pontos solicitados organizando-os estritamente nas seções abaixo, extraindo os dados do arquivo "contexto_projeto.md" e demais arquivos de dados do repositório de origem:
 
-1. Introdução e Contexto de Negócio
+1.Introdução e Contexto de Negócio
 - Contexto de Negócio: Qual problema da instituição motivou essa pesquisa?
 - Objetivo da Pesquisa: Fundamentar a consolidação da escolha do modelo ROUGE-L para classificar notícias governamentais brasileiras.
 
-2. Escopo da Avaliação e Engenharia de Requisitos
+2.Escopo da Avaliação e Engenharia de Requisitos
     - Escopo da Avaliação: O que foi testado ?
-
     - Critérios de Sucesso (Requisitos Não-Funcionais): O que pesou na balança para a tomada de decisão, Validações Qualitativas?
-
     - Privacidade e Governança de Dados: Exigências de conformidade com a LGPD para o tratamento de dados sensíveis/governamentais.
 
-3. Metodologia do Experimento
+3.Metodologia do Experimento
     - Abordagem do Cientista de Dados: Como o estudo e a validação foram conduzidos.
     - Massa de Dados Utilizada: Volume de documentos/frases testados. Especificar se foram dados reais extraídos da organização ou datasets públicos (ex: MTEB).
     - Métricas de Avaliação: Definição das métricas utilizadas.
 
-4. Análise Comparativa de Modelos e Resultados
+4.Análise Comparativa de Modelos e Resultados
     - Modelos Avaliados
     - Performance e Eficiência
     - Custo e Infraestrutura
@@ -43,12 +41,14 @@ Consolide os pontos solicitados organizando-os estritamente nas seções abaixo,
   
         * Gráficos de Tendência (Representados via tabelas comparativas de dispersão ou eixos de trade-off).
 
-5. Análise de Trade-offs e Conclusão
+5.Análise de Trade-offs e Conclusão
     - Análise de Prós e Contras: Limitações e vantagens de cada abordagem.
     - Recomendação Final: Qual modelo foi o vencedor para o cenário proposto e a justificativa técnica/econômica do porquê.
     - Próximos Passos e Conclusão: Plano de ação lógico baseado nos requisitos levantados.
 
-6. MODO DE EXECUÇÃO
+6.Gere ao final do documento no trecho "Apêndice", conteúdo sobre Terminologias e Abreviações.
+
+7.MODO DE EXECUÇÃO
 Trabalhe em etapas internas para garantir que nenhum dado real gerado nos testes do repositório seja perdido ou modificado. Não invente dados; caso falte alguma métrica específica no repositório, aponte como "Não documentado no experimento original".
 
 

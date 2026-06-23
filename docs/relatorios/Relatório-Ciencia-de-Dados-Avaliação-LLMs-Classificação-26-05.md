@@ -13,21 +13,21 @@ A) DIRETRIZES DE ENTREGA
 B) ESTRUTURA OBRIGATÓRIA DO RELATÓRIO
 Consolide os pontos solicitados organizando-os estritamente nas seções abaixo, extraindo os dados do arquivo "contexto_projeto.md" e demais arquivos de dados do repositório de origem:
 
-1. Introdução e Contexto de Negócio
+1.Introdução e Contexto de Negócio
 - Contexto de Negócio: Qual problema da instituição motivou essa pesquisa?
 - Objetivo da Pesquisa: Avaliar modelos LLM (APIs comerciais vs. Open Source locais) para classificar notícias governamentais brasileiras em uma taxonomia hierárquica de 500 categorias (3 níveis) com acurácia viável para produção.
 
-2. Escopo da Avaliação e Engenharia de Requisitos
+2.Escopo da Avaliação e Engenharia de Requisitos
     - Escopo da Avaliação: O que foi testado (Embeddings, LLMs, Classificação)?
     - Critérios de Sucesso (Requisitos Não-Funcionais): O que pesou na balança para a tomada de decisão (ex: Latência aceitável, limites de custo, independência tecnológica)?
     - Privacidade e Governança de Dados: Exigências de conformidade com a LGPD para o tratamento de dados sensíveis/governamentais.
 
-3. Metodologia do Experimento
+3.Metodologia do Experimento
     - Abordagem do Cientista de Dados: Como o estudo e a validação foram conduzidos.
     - Massa de Dados Utilizada: Volume de documentos/frases testados. Especificar se foram dados reais extraídos da organização ou datasets públicos (ex: MTEB).
     - Métricas de Avaliação: Definição das métricas utilizadas (Acurácia Semântica, F1-Score, etc.).
 
-4. Análise Comparativa de Modelos e Resultados
+4.Análise Comparativa de Modelos e Resultados
     - Modelos Avaliados: Relação das soluções comerciais e open-source testadas.
     - Performance e Eficiência: Apresentar a acurácia por nível taxonômico, latência de cada modelo e tempo de geração de vetores (embeddings).
     - Custo e Infraestrutura: Comparativo de custo por milhão de tokens (para APIs) vs. custo de servidores/Gpus dedicadas (para modelos locais).
@@ -35,12 +35,14 @@ Consolide os pontos solicitados organizando-os estritamente nas seções abaixo,
         . Tabela Comparativa Matriz: Visão cruzada integrando os critérios técnicos, financeiros e de governança.
         . Gráficos de Tendência (Representados via tabelas comparativas de dispersão ou eixos de trade-off): Relação Acurácia vs. Custo e Acurácia vs. Velocidade.
 
-5. Análise de Trade-offs e Conclusão
+5.Análise de Trade-offs e Conclusão
     - Análise de Prós e Contras: Limitações e vantagens de cada abordagem.
     - Recomendação Final: Qual modelo foi o vencedor para o cenário proposto e a justificativa técnica/econômica do porquê.
     - Próximos Passos e Conclusão: Plano de ação lógico baseado nos requisitos levantados.
 
-6. MODO DE EXECUÇÃO
+6.Gere ao final do documento no trecho "Apêndice", conteúdo sobre Terminologias e Abreviações.
+
+7.MODO DE EXECUÇÃO
 Trabalhe em etapas internas para garantir que nenhum dado real gerado nos testes do repositório seja perdido ou modificado. Não invente dados; caso falte alguma métrica específica no repositório, aponte como "Não documentado no experimento original".
 
 Revisado por: <!-- NÃO PREENCHA ESTE CAMPO: O humano preencherá manualmente-->
