@@ -253,7 +253,9 @@ flowchart TD
 - LLM menciona temporalidade nas respostas
 
 ### **Fase 7: Produção com Ollama**
+
 **Benchmark 6 modelos**:
+
 | Modelo | Latência | Qualidade | VRAM |
 |--------|----------|-----------|------|
 | Granite 4.1 3B | 2.7s | 8/10 | 4GB |
