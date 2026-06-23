@@ -2,11 +2,47 @@
 
 Data: 18/06/2026
 
-PROMPT: Atue como um especialista em análise de Requisitos e Analista de Dados Sênior. Analise as documentações, códigos e dados presentes no repositório público: "<https://github.com/destaquesgovbr/data-science/tree/main/docs/05_issue5_rag>"
+PROMPT: Faça um plano, quebrando em etapas para não perder o contexto, da seguinte tarefa:
+Atue como um especialista em análise de Requisitos e Analista de Dados Sênior. 
+Analise as documentações, códigos e dados presentes no repositório público:
+"https://github.com/destaquesgovbr/data-science/tree/main/docs/05_issue5_rag"
 
-O objetivo é coletar os resultados reais da execução do experimento do plano estabelecido no Issue #5 ("RAG para Q&A sobre Notícias Governamentais") para gerar um artefato técnico de alta maturidade destinado à Finep (Financiadora de Estudos e Projetos), servindo como base de referência e tomada de decisão para o desenvolvimento do Portal de Notícias Governamentais Brasileiras.
+O objetivo é coletar os resultados reais da execução do experimento do plano estabelecido no Issue #5 ("RAG para Q&A sobre Notícias Governamentais") para gerar um artefato técnico de alta maturidade.
 
-Elaborado por: Equipe de Ciência de Dados - DestaquesGovBr / CPQD
+A) DIRETRIZES DE ENTREGA
+    - Destinatário Final: Finep (Financiadora de Estudos e Projetos). O tom deve ser estritamente profissional, técnico, fluido e sem redundâncias.
+    - Impacto do Documento: Estes resultados servirão como base de referência e tomada de decisão para o desenvolvimento do Portal de Notícias Governamentais Brasileiras.
+    - Arquivo de Saída: "docs\relatorios\Relatorio-Ciencia-de-Dados-RAG-QA-Noticias Governamentais-26-05.md"
+    - Modelo/Template Base: Use estritamente a estrutura e estilo contidos em "docs\relatorios\Template-Relatório Técnico INSPIRE.md"
+
+B) ESTRUTURA OBRIGATÓRIA DO RELATÓRIO
+Consolide os pontos solicitados organizando-os estritamente nas seções abaixo, extraindo os dados do arquivo "contexto_projeto.md" e demais arquivos de dados do repositório de origem:
+
+1.Introdução e Contexto de Negócio
+-Contexto de Negócio: Qual problema da instituição motivou essa pesquisa?
+-Objetivo da Pesquisa
+
+2.Escopo da Avaliação e Engenharia de Requisitos
+    - Escopo da Avaliação: O que foi testado ?
+    - Critérios de Sucesso (Requisitos Não-Funcionais): O que pesou na balança para a tomada de decisão, Validações Qualitativas?
+3.Metodologia do Experimento
+    - Abordagem do Cientista de Dados: Como o estudo e a validação foram conduzidos.
+    - Massa de Dados Utilizada: Volume de documentos/frases testados. Especificar se foram dados reais extraídos da organização ou datasets públicos (ex: MTEB).
+    - Métricas de Avaliação: Definição das métricas utilizadas.
+4.Análise Comparativa de Modelos e Resultados
+    - Modelos Avaliados
+    - Performance e Eficiência
+    - Custo e Infraestrutura
+    - Artefatos Visuais em Markdown:
+        * Tabela Comparativa Matriz: Visão cruzada integrando os critérios técnicos.
+  
+        * Gráficos de Tendência (Representados via tabelas comparativas de dispersão ou eixos de trade-off).
+5.Análise de Trade-offs e Conclusão
+    - Análise de Prós e Contras: Limitações e vantagens de cada abordagem.
+    - Recomendação Final: Qual modelo foi o vencedor para o cenário proposto e a justificativa técnica/econômica do porquê.
+    - Próximos Passos e Conclusão: Plano de ação lógico baseado nos requisitos levantados.
+6.MODO DE EXECUÇÃO
+Trabalhe em etapas internas para garantir que nenhum dado real gerado nos testes do repositório seja perdido ou modificado. Não invente dados; caso falte alguma métrica específica no repositório, aponte como "Não documentado no experimento original".
 
 Revisado por: <!-- NÃO PREENCHA ESTE CAMPO: O humano preencherá manualmente-->
 
