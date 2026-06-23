@@ -621,6 +621,108 @@ Este estudo demonstrou a **viabilidade técnica e econômica de um sistema RAG m
 - ✅ Completude: Informação principal + contexto adicional (% execução, crescimento)
 - ✅ Clareza: Linguagem objetiva, sem jargão técnico
 
+# **Apêndice B: Terminologias e Abreviações**
+
+## **Termos Técnicos de RAG e Recuperação**
+
+| Termo | Definição |
+|-------|-----------|
+| **RAG (Retrieval-Augmented Generation)** | Arquitetura que combina recuperação de documentos relevantes (retrieval) com geração de respostas via LLM, reduzindo alucinações e fornecendo respostas fundamentadas em fontes verificáveis. |
+| **Vector Search (Busca Vetorial)** | Técnica de recuperação baseada em embeddings que representa documentos e queries como vetores de alta dimensionalidade (1024 dim), comparados via similaridade cosseno. |
+| **Full-Text Search (Busca Textual)** | Método tradicional de recuperação baseado em correspondência exata de palavras-chave, usando índices invertidos e ranking TF-IDF ou BM25. |
+| **Hybrid Search (Busca Híbrida)** | Combinação de vector search + full-text search para maximizar recall, capturando tanto similaridade semântica quanto matches exatos de termos. |
+| **Embeddings** | Representações vetoriais densas de texto (ex: 1024 dimensões) que capturam significado semântico, permitindo comparação por similaridade matemática. |
+| **Chunking** | Processo de divisão de documentos longos em segmentos menores (chunks) para indexação e recuperação mais eficiente, preservando contexto local. |
+| **Semantic Chunking** | Estratégia de chunking que agrupa sentenças por similaridade semântica (threshold 0.8), respeitando limites min/max (200-2000 chars), superior a chunking por tamanho fixo. |
+
+## **Métricas e Avaliação**
+
+| Termo | Definição |
+|-------|-----------|
+| **Precision@K** | Proporção de documentos relevantes entre os top K resultados recuperados. Ex: Precision@10 = 93.3% significa 9-10 docs relevantes nos top 10. |
+| **Recall** | Proporção de todos documentos relevantes do corpus que foram recuperados. Alta recall garante que informação importante não é perdida. |
+| **Latência P50/P95/P99** | Percentis de latência: P50 (mediana), P95 (95% das queries), P99 (99%). P95 é crítico para SLA de produção. |
+| **Category Match** | Métrica customizada: percentual de documentos recuperados que pertencem à mesma categoria temática da query. Proxy para relevância semântica. |
+| **ROUGE-L** | Métrica de avaliação de sumarização baseada em longest common subsequence entre texto gerado e referência. Não usada neste estudo (foco em Q&A). |
+| **Fidelidade Factual** | Grau de correspondência entre resposta gerada e fatos presentes no contexto recuperado. Meta: zero alucinações detectáveis. |
+
+## **Técnicas de Ranking e Re-ranking**
+
+| Termo | Definição |
+|-------|-----------|
+| **RRF (Reciprocal Rank Fusion)** | Algoritmo de fusão que combina rankings de múltiplas fontes (vector + full-text) usando fórmula `score = 1/(k + rank)` com k=60, sem necessidade de normalização de scores. |
+| **Re-ranking** | Estágio de refinamento que re-ordena os top K candidatos (ex: 50→10) usando modelo mais sofisticado (cross-encoder) para maximizar precisão. |
+| **Cross-Encoder** | Arquitetura de re-ranking que processa pares (query, documento) conjuntamente via transformer, capturando interações semânticas complexas. Superior a bi-encoders para precisão. |
+| **Bi-Encoder** | Arquitetura de embeddings que codifica query e documentos independentemente (ex: BGE-M3), permitindo pré-computação e busca eficiente via similaridade cosseno. |
+| **IVFFlat Index** | Índice vetorial do pgvector que divide espaço em listas (inverted file) para busca aproximada. Parâmetros: 100 listas, 10 probes. Escala até ~3M vetores. |
+| **HNSW (Hierarchical Navigable Small World)** | Estrutura de índice vetorial hierárquica com melhor performance que IVFFlat para corpus grande (>100k docs). Não implementado neste estudo. |
+
+## **Modelos e Infraestrutura**
+
+| Termo | Definição |
+|-------|-----------|
+| **LLM (Large Language Model)** | Modelo de linguagem de larga escala treinado em bilhões de tokens (ex: Claude, Llama, Granite) capaz de gerar texto coerente e responder perguntas. |
+| **BGE-M3** | Modelo de embeddings multilíngue (BAAI General Embedding v3) que gera vetores de 1024 dimensões, otimizado para retrieval em 100+ idiomas incluindo português. |
+| **Ollama** | Runtime open-source para execução local de LLMs com otimizações de inferência (quantização, batching), suportando modelos Llama, Granite, Gemma, Qwen. |
+| **AWS Bedrock** | Serviço gerenciado da AWS para inferência de LLMs proprietários (Claude, Titan) via API pay-per-use, sem gestão de infraestrutura. |
+| **pgvector** | Extensão do PostgreSQL para armazenamento e busca de vetores de alta dimensionalidade, suportando índices IVFFlat e HNSW, operadores de distância (cosseno, L2, IP). |
+| **GPU (Graphics Processing Unit)** | Acelerador de hardware (ex: NVIDIA L4 24GB) essencial para inferência eficiente de LLMs locais e geração de embeddings. 35x speedup vs CPU observado. |
+| **VRAM (Video RAM)** | Memória dedicada da GPU usada para armazenar pesos do modelo durante inferência. Modelos 3B requerem ~4GB, modelos 14B requerem ~12GB. |
+| **EC2 g6.xlarge** | Instância AWS com 1x NVIDIA L4 GPU (24GB VRAM), 4 vCPU, 16GB RAM. Custo: $511/mês (on-demand, us-east-1). Ideal para modelos até 14B parâmetros. |
+
+## **Custos e Métricas Operacionais**
+
+| Termo | Definição |
+|-------|-----------|
+| **TCO (Total Cost of Ownership)** | Custo total de propriedade incluindo infraestrutura (compute, storage, network), licenças, manutenção e operação ao longo do ciclo de vida. |
+| **Break-even** | Ponto de equilíbrio onde custo fixo (EC2 local) iguala custo variável (Bedrock cloud). Calculado como: break-even = custo_fixo ÷ custo_por_query. |
+| **Pay-per-use** | Modelo de precificação cloud onde se paga apenas pelo volume consumido (ex: tokens processados), sem custos fixos. Ideal para volume baixo ou variável. |
+| **Inference Profile** | Endpoint otimizado do AWS Bedrock que roteia requests entre regiões para minimizar latência e maximizar throughput. Ex: `us.anthropic.claude-haiku-4-5`. |
+| **Tokens** | Unidades de texto processadas por LLMs (1 token ≈ 4 caracteres em português). Precificação cloud é por milhão de tokens (input/output separados). |
+
+## **Conceitos de Arquitetura**
+
+| Termo | Definição |
+|-------|-----------|
+| **Pipeline Multi-Estágio** | Arquitetura RAG com 3 estágios sequenciais: (1) Retrieval híbrido, (2) Re-ranking, (3) Geração. Cada estágio refina saída do anterior. |
+| **Context Assembly** | Processo de formatação dos top K documentos recuperados em contexto estruturado para o LLM, incluindo metadados (título, data, categoria, source ID). |
+| **Prompt Engineering** | Design sistemático de instruções (system prompt + user prompt) para guiar comportamento do LLM, incluindo formato de saída, tom, e uso de citações. |
+| **Stateless System** | Sistema sem memória conversacional entre requests: cada query é independente. Simplifica escalabilidade mas impede follow-up questions. |
+| **Alucinação (Hallucination)** | Fenômeno onde LLM gera informação factualmente incorreta ou não presente no contexto fornecido. RAG reduz alucinações via grounding em documentos. |
+| **Citações (Citations)** | Referências explícitas [1], [2] na resposta gerada que mapeiam para documentos recuperados, permitindo verificação e transparência. |
+| **Soberania de Dados** | Requisito de manter dados sensíveis dentro de infraestrutura controlada (on-premise ou cloud privada), crítico para setores governamentais. |
+
+## **Abreviações**
+
+| Abreviação | Significado Completo |
+|------------|---------------------|
+| **RAG** | Retrieval-Augmented Generation |
+| **LLM** | Large Language Model |
+| **GPU** | Graphics Processing Unit |
+| **VRAM** | Video Random Access Memory |
+| **TCO** | Total Cost of Ownership |
+| **RRF** | Reciprocal Rank Fusion |
+| **BGE** | BAAI General Embedding |
+| **CPQD** | Centro de Pesquisa e Desenvolvimento em Telecomunicações |
+| **MGI** | Ministério da Gestão e da Inovação |
+| **Finep** | Financiadora de Estudos e Projetos |
+| **API** | Application Programming Interface |
+| **REST** | Representational State Transfer |
+| **JSON** | JavaScript Object Notation |
+| **YAML** | YAML Ain't Markup Language |
+| **CPU** | Central Processing Unit |
+| **NLP** | Natural Language Processing |
+| **TF-IDF** | Term Frequency - Inverse Document Frequency |
+| **BM25** | Best Matching 25 (algoritmo de ranking textual) |
+| **P50/P95/P99** | Percentil 50/95/99 (métricas de latência) |
+| **E2E** | End-to-End (ponta a ponta) |
+| **SLA** | Service Level Agreement |
+| **HA** | High Availability |
+| **FTE** | Full-Time Equivalent (equivalente tempo integral) |
+| **ROI** | Return on Investment |
+| **Q&A** | Question & Answering |
+| **UX** | User Experience |
+
 ---
 
 **Fim do Relatório Técnico**
