@@ -671,6 +671,149 @@ def avaliar_acuracia_hierarquica(predicoes, ground_truth):
     }
 ```
 
+## **E. Terminologias e Abreviações**
+
+### **Termos Técnicos de Classificação**
+
+| Termo | Definição |
+|-------|-----------|
+| **Classificação Hierárquica** | Tarefa de atribuir categorias organizadas em múltiplos níveis (L1→L2→L3), onde cada nível inferior é subcategoria do superior. Ex: "Administração Pública" → "Governo Digital" → "Ciência de Dados". |
+| **Taxonomia** | Estrutura hierárquica de categorias que organiza conhecimento de forma sistemática. Neste estudo: 25 áreas L1, 115 subcategorias L2, 500 tópicos L3. |
+| **Classificação Multi-Label** | Tarefa onde um documento pode pertencer a múltiplas categorias simultaneamente. Não aplicável neste estudo (classificação single-label). |
+| **Zero-Shot Classification** | Capacidade do LLM classificar sem exemplos prévios, apenas com descrição das categorias. Usado na Fase 1 (APIs comerciais). |
+| **Few-Shot Classification** | Técnica de fornecer N exemplos (pares notícia-categoria) antes da classificação real para calibrar modelo. Testado mas sem ganho significativo (+2pp). |
+| **Prompt Engineering** | Design sistemático de instruções para guiar LLM a produzir saídas no formato desejado (JSON estruturado com códigos L1/L2/L3). |
+| **JSON Schema Enforcement** | Técnica de forçar LLM a responder em formato JSON válido através de instruções explícitas e validação de parsing. |
+| **Confidence Score** | Métrica de confiança do modelo na predição (0.0-1.0). Modelos API retornam scores, modelos locais não (limitação identificada). |
+
+### **Métricas de Avaliação**
+
+| Termo | Definição |
+|-------|-----------|
+| **Acurácia (Accuracy)** | Proporção de predições corretas sobre total de predições. Calculada separadamente para L1, L2 e L3. Ex: Acc L3 = 80.5% significa 161/200 notícias corretamente classificadas no nível mais específico. |
+| **Acurácia L1/L2/L3** | Acurácia em cada nível da hierarquia. L1 é mais fácil (25 opções), L3 é mais difícil (500 opções). Gap típico: 15-20pp entre L1 e L3. |
+| **F1-Score** | Média harmônica entre Precision (% de predições corretas) e Recall (% de categorias capturadas). Balanceia classes desbalanceadas. |
+| **F1 Macro** | F1-score calculado por categoria e depois média não-ponderada. Trata todas categorias igualmente, penaliza desempenho em classes raras. |
+| **F1 Weighted** | F1-score calculado por categoria e depois média ponderada por frequência. Favorece desempenho em classes frequentes. |
+| **Baseline** | Modelo de referência para comparação. Neste estudo: TF-IDF + Logistic Regression (Acc L3 = 45%). |
+| **Gap de Performance** | Diferença entre melhor LLM (Haiku 80.5%) e baseline (45%). Neste estudo: 35.5 pontos percentuais. |
+| **Latência P50/P95** | Percentis de latência: P50 (mediana), P95 (95% das queries). P95 usado para SLA de produção pois captura tail latencies. |
+
+### **Modelos e Infraestrutura**
+
+| Termo | Definição |
+|-------|-----------|
+| **LLM (Large Language Model)** | Modelo de linguagem treinado em bilhões de tokens capaz de entender e gerar texto. Exemplos: Claude, Nova, Llama, Mistral. |
+| **Claude 3 Haiku** | Modelo LLM compacto da Anthropic otimizado para velocidade e custo. Vencedor deste estudo com Acc L3 = 80.5% e $0.65/200 docs. |
+| **Claude 3.5 Sonnet** | Modelo LLM intermediário da Anthropic com melhor raciocínio que Haiku. Acc L3 = 79.0% mas 3.3x mais caro ($2.12 vs $0.65). |
+| **Amazon Nova Pro/Lite/Micro** | Família de LLMs multimodais da AWS lançados em dez/2024. Nova Pro oferece melhor custo-benefício local: Acc L3 = 72.5% por $0.18. |
+| **Llama 3.1/3.2/3.3** | Família de LLMs open-source da Meta AI. Llama 3.3 70B: Acc L3 = 68.0%, executável localmente via Ollama. |
+| **Mistral Large 2** | Modelo LLM europeu (Mistral AI) de 123B parâmetros. Desempenho inferior a Claude em classificação PT-BR (gap cultural/linguístico). |
+| **Gemma 2** | Modelo LLM compacto do Google (9B/27B parâmetros). Desempenho limitado em português (Acc L3 = 38-52%). |
+| **Qwen 2.5** | Modelo LLM chinês (Alibaba) com boa performance multilíngue. Qwen 14B: Acc L3 = 58.5%, melhor modelo local compacto. |
+| **Phi-3** | Modelo LLM ultra-compacto da Microsoft (3.8B parâmetros). Desempenho inadequado para classificação (Acc L3 = 28%). |
+| **Ollama** | Runtime open-source para execução local de LLMs com otimizações: quantização (Q4_K_M), batching, GPU acceleration. |
+| **AWS Bedrock** | Serviço gerenciado da AWS para inferência de LLMs proprietários via API serverless com DPA (Data Processing Agreement) para compliance LGPD. |
+| **Quantização (Q4_K_M)** | Técnica de compressão de pesos do modelo de FP16 (16 bits) para INT4 (4 bits), reduzindo VRAM 4x com perda mínima de qualidade (~2-3pp). |
+
+### **Custos e Performance**
+
+| Termo | Definição |
+|-------|-----------|
+| **TCO (Total Cost of Ownership)** | Custo total incluindo infraestrutura (GPU, storage), licenças, energia, DevOps. Para LLMs locais: hardware amortizado + manutenção. |
+| **Custo por Documento** | Métrica econômica para APIs: custo total dividido por volume processado. Ex: Haiku $0.65/200 docs = $0.00325/doc. |
+| **Pay-per-use** | Modelo de precificação cloud onde se paga por tokens processados. Ideal para volume variável. Bedrock cobra input+output separadamente. |
+| **Break-even** | Ponto onde custo fixo (GPU local) iguala custo variável (API cloud). Calculado como: custo_mensal_GPU ÷ custo_por_doc_API. |
+| **Pricing Tiers** | Camadas de preço por modelo: Haiku ($0.80/$4.00 per 1M tokens) vs Sonnet ($3/$15). Output tokens 5x mais caros que input. |
+| **Throughput** | Volume de classificações por unidade de tempo. APIs escaláveis: 1000s req/min. GPU local: limitado por VRAM (10-50 req/s). |
+| **VRAM Budget** | Memória GPU necessária para carregar modelo. Modelos 7B Q4 = 4-5GB, 70B Q4 = 40GB. Limita tamanho de modelo executável localmente. |
+| **Inference Profile** | Endpoint otimizado do AWS Bedrock que roteia entre regiões para minimizar latência e custo. Ex: `us.anthropic.claude-haiku-3`. |
+
+### **Técnicas de Otimização**
+
+| Termo | Definição |
+|-------|-----------|
+| **Prompt Optimization** | Processo iterativo de refinar instruções para maximizar acurácia. Testados: zero-shot, few-shot, chain-of-thought, JSON enforcement. |
+| **Temperature** | Hiperparâmetro de aleatoriedade (0=determinístico, 1=criativo). Para classificação, usa-se temperature=0 para respostas consistentes. |
+| **Max Tokens** | Limite de tokens gerados. Para classificação JSON, tipicamente 100-200 tokens são suficientes. Limitar reduz custo e latência. |
+| **Structured Output** | Forçar LLM a responder em formato estruturado (JSON, YAML). Crítico para parsing automático e integração em pipelines. |
+| **Retry Logic** | Estratégia de retentar chamadas falhadas com exponential backoff (2^n segundos). Essencial para resiliência contra rate limits e timeouts. |
+| **Batch Processing** | Processar múltiplas notícias em paralelo para maximizar throughput. Limitado por rate limits de API (200 req/min Bedrock). |
+| **Model Caching** | Manter modelo carregado em VRAM entre requests. Ollama mantém últimos 2 modelos em cache para reduzir cold-start latency. |
+| **GPU Acceleration** | Usar GPU (CUDA/ROCm) para inferência 10-100x mais rápida que CPU. Essencial para modelos >7B parâmetros. |
+
+### **Conceitos de NLP e Taxonomia**
+
+| Termo | Definição |
+|-------|-----------|
+| **Token** | Unidade de processamento de LLM: palavra, subpalavra ou caractere. 1 token ≈ 4 caracteres em português (BPE tokenization). |
+| **Embedding** | Representação vetorial densa de texto que captura semântica. LLMs usam embeddings internos, mas não testado standalone neste estudo. |
+| **Feature Engineering** | Criação manual de atributos para ML clássico (TF-IDF, n-gramas). LLMs eliminam necessidade de feature engineering. |
+| **TF-IDF** | Term Frequency - Inverse Document Frequency. Métrica estatística para relevância de palavras. Usado no baseline (Acc L3 = 45%). |
+| **Logistic Regression** | Algoritmo de ML clássico para classificação. Baseline usa TF-IDF + Logistic Regression, superado por LLMs (+35.5pp). |
+| **Hierarquia de Categorias** | Estrutura em árvore onde categorias filhas herdam contexto das pais. L1 → L2 → L3. Erro em L1 propaga para L2 e L3. |
+| **Class Imbalance** | Desbalanceamento entre frequências de categorias. Taxonomia gov.br tem categorias raras (<10 docs) e frequentes (>200 docs). |
+| **Multilingual Transfer** | Capacidade de LLM treinado em múltiplos idiomas transferir conhecimento para português. Claude e Nova superam modelos PT-only. |
+| **Semantic Understanding** | Capacidade de LLM entender significado além de keywords. Permite classificar "auxílio-gás" em "Assistência Social" sem ver termo exato. |
+
+### **Validação e Deployment**
+
+| Termo | Definição |
+|-------|-----------|
+| **Dataset** | Conjunto de 200 notícias gov.br com categorias ground-truth validadas manualmente por especialistas em políticas públicas. |
+| **Ground Truth** | Classificação de referência criada por humanos especialistas, usada como padrão-ouro para avaliar LLMs. |
+| **Train/Test Split** | Divisão de dados: não aplicável (zero-shot). Todos 200 docs usados para avaliação. Modelo não treina, apenas classifica. |
+| **Fase Experimental** | Etapa isolada testando hipótese específica. Realizadas 2 fases: Fase 1 (APIs comerciais 12 modelos) + Fase 2 (Locais 8 modelos). |
+| **Análise Ablation** | Método de remover componentes isoladamente para medir impacto. Ex: few-shot vs zero-shot mostrou +2pp (não justifica complexidade). |
+| **Production Pipeline** | Fluxo automatizado end-to-end: ingestão notícia → classificação LLM → validação → publicação. Implementado em Airflow/Dagster. |
+| **CI/CD** | Continuous Integration/Deployment. Pipeline automatizado para testar e deployar novos modelos sem downtime. |
+| **A/B Testing** | Comparação simultânea de 2 modelos em produção com tráfego real. Ex: 80% Haiku (stable) + 20% Nova Pro (challenger). |
+| **Monitoring** | Observabilidade de métricas em produção: acurácia diária, latência P95, custo, drift de distribuição. Ferramentas: CloudWatch, Datadog. |
+| **Model Drift** | Degradação de performance ao longo do tempo devido a mudanças no domínio (novas políticas públicas, novos termos). Requer re-avaliação periódica. |
+
+### **Regulamentação e Compliance**
+
+| Termo | Definição |
+|-------|-----------|
+| **LGPD (Lei Geral de Proteção de Dados)** | Lei brasileira 13.709/2018 que regula tratamento de dados pessoais. Notícias podem conter nomes de cidadãos beneficiários de programas. |
+| **DPA (Data Processing Agreement)** | Acordo entre cliente e provedor cloud (AWS, Anthropic) garantindo conformidade LGPD/GDPR. Bedrock possui DPA válido para Brasil. |
+| **Soberania de Dados** | Requisito de manter dados sensíveis em infraestrutura controlada. Modelos locais (Ollama) atendem, APIs cloud dependem de DPA. |
+| **Auditoria** | Rastreamento de decisões: qual notícia, qual modelo, qual categoria atribuída, timestamp, confiança. Essencial para compliance. |
+| **Explicabilidade** | Capacidade de justificar classificação. LLMs podem gerar explicações textuais (não implementado neste estudo para reduzir custo/latência). |
+
+### **Abreviações**
+
+| Abreviação | Significado Completo |
+|------------|---------------------|
+| **LLM** | Large Language Model |
+| **NLP** | Natural Language Processing |
+| **API** | Application Programming Interface |
+| **AWS** | Amazon Web Services |
+| **CPQD** | Centro de Pesquisa e Desenvolvimento em Telecomunicações |
+| **MGI** | Ministério da Gestão e da Inovação |
+| **Finep** | Financiadora de Estudos e Projetos |
+| **LGPD** | Lei Geral de Proteção de Dados |
+| **DPA** | Data Processing Agreement |
+| **TCO** | Total Cost of Ownership |
+| **TF-IDF** | Term Frequency - Inverse Document Frequency |
+| **GPU** | Graphics Processing Unit |
+| **VRAM** | Video Random Access Memory |
+| **CPU** | Central Processing Unit |
+| **RAM** | Random Access Memory |
+| **JSON** | JavaScript Object Notation |
+| **YAML** | YAML Ain't Markup Language |
+| **REST** | Representational State Transfer |
+| **CI/CD** | Continuous Integration / Continuous Deployment |
+| **SLA** | Service Level Agreement |
+| **P50/P95/P99** | Percentil 50/95/99 (métricas de latência) |
+| **E2E** | End-to-End (ponta a ponta) |
+| **ML** | Machine Learning |
+| **AI** | Artificial Intelligence |
+| **IA** | Inteligência Artificial |
+| **L1/L2/L3** | Nível 1/2/3 da taxonomia hierárquica |
+| **Acc** | Acurácia (Accuracy) |
+| **BPE** | Byte Pair Encoding |
+
 ---
 
 **Fim do Relatório Técnico**
