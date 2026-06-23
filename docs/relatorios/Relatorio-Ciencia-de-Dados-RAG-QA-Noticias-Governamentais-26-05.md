@@ -35,13 +35,14 @@ Consolide os pontos solicitados organizando-os estritamente nas seções abaixo,
     - Custo e Infraestrutura
     - Artefatos Visuais em Markdown:
         * Tabela Comparativa Matriz: Visão cruzada integrando os critérios técnicos.
-  
         * Gráficos de Tendência (Representados via tabelas comparativas de dispersão ou eixos de trade-off).
 5.Análise de Trade-offs e Conclusão
     - Análise de Prós e Contras: Limitações e vantagens de cada abordagem.
     - Recomendação Final: Qual modelo foi o vencedor para o cenário proposto e a justificativa técnica/econômica do porquê.
     - Próximos Passos e Conclusão: Plano de ação lógico baseado nos requisitos levantados.
-6.MODO DE EXECUÇÃO
+6. Elabore e gere ao final do documento no trecho "Apêndice" conteúdo, usando liguagem de fácil assimilação e direta, uma breve conceituação sobre "RAG", como "Como funciona na prática"? e abordando também "Quando o uso do RAG é ideal?"  
+7. Gere ao final do documento no trecho "Apêndice", conteúdo sobre Terminologias e Abreviações.
+8.MODO DE EXECUÇÃO
 Trabalhe em etapas internas para garantir que nenhum dado real gerado nos testes do repositório seja perdido ou modificado. Não invente dados; caso falte alguma métrica específica no repositório, aponte como "Não documentado no experimento original".
 
 Revisado por: <!-- NÃO PREENCHA ESTE CAMPO: O humano preencherá manualmente-->
