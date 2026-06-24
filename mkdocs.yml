@@ -75,6 +75,7 @@ nav:
   - Apresentações:
     - Visão Geral: apresentacoes/index.md
     - MLflow no DGB: apresentacoes/mlflow-no-dgb/index.md
+    - DGB × SECOM (jun/2026): apresentacoes/secom-jun2026/index.md
   - Workflows:
     - Pipeline Scraper: workflows/scraper-pipeline.md
     - Deploy Portal: workflows/portal-deploy.md
