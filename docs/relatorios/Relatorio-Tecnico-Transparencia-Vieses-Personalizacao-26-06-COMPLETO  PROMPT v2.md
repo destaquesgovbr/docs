@@ -1,6 +1,24 @@
 Data: 26/06/2026
 
-PROMPT: Gerar Documento Técnico de Requisitos para o Portal DestaquesGovbr destinado à FINEP, com foco em: (1) Visão Geral e Arquitetura de Conteúdo; (2) Transparência e Mitigação de Vieses; (3) Explicabilidade (XAI) e Ciclo de Ajustes; (4) Personalização Ética e Ambiente Sandbox. Seguindo template INSPIRE e Marco Legal da IA no Brasil.
+PROMPT: Atue como Engenheiro de Requisitos, analise os arquivos deste diretório (e repositórios de origem, se necessário) e crie um PLANO DE EXECUÇÃO EM PARTES para gerar um Documento Técnico de Requisitos (.md).
+
+O documento final será submetido à FINEP e deve seguir estritamente o template local:
+"C:\Users\cesarv\Documents\Projetos\INSPIRE-7\repo\Template-Relatório Técnico INSPIRE.md"
+
+# Diretrizes de Escrita e Formatação
+- Tom estritamente profissional, técnico, fluido e sem redundâncias.
+- Alinhamento com o Marco Legal da IA no Brasil, LGPD e Governança Pública Digital.
+- Uso de tabelas para mapeamento de RFs/RNFs e diagramas Mermaid para arquitetura/fluxos.
+- Especificidade técnica (evitar jargões vagos em Engenharia de Software e Ciência de Dados).
+
+# Escopo Obrigatório do Documento
+1. Visão Geral e Arquitetura: Pipeline de PLN, agregação de bases, busca e taxonomia (25 temas/3 níveis). Requisitos Não-Funcionais (Confiabilidade, Escalabilidade, LGPD).
+2. Transparência e Mitigação de Vieses: Isenção na coleta/indexação e salvaguardas algorítmicas contra vieses ideológicos ou institucionais.
+3. Explicabilidade (XAI) e Ciclo de Ajustes: Métodos de rastreabilidade (SHAP/LIME), painel de auditoria (logs imutáveis) e fluxo "Human-in-the-Loop" para curadoria humana.
+4. Personalização Ética e Sandbox: Motor de recomendação livre de bolhas ideológicas (filter bubbles) e ambiente de teste (Sandbox) para simulação de personas (ex: estudante, produtor rural).
+
+# Sua Primeira Tarefa:
+Não escreva o documento ainda. Com base no escopo acima e no template indicado, apresente apenas o cronograma de entrega dividido em partes (Ex: Parte 1, Parte 2...) para que possamos gerar o relatório de forma incremental, mantendo o contexto e o rigor técnico. Aguardo o plano.
 
 Elaborado por: Claude Sonnet 4.5 (Anthropic) - Engenheiro de Requisitos Sr
 

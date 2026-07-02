@@ -1,6 +1,39 @@
 Data: 25/06/2026
 
-PROMPT: Gerar relatório técnico sobre Avaliação de Transparência, Mitigação de Vieses e Algoritmos de Personalização do DestaquesGovbr, com foco em: (1) Framework de detecção e mitigação de vieses algorítmicos; (2) Explicabilidade dos modelos de IA (classificação e embeddings); (3) Motor de recomendação híbrido e interface de teste.
+PROMPT: Atuando como um Engenheiro de Requisitos Sr, Analise a documentacao deste diretorio, se necessário busca nos repositóios de origem e gere um plano em partes, para nao perder contexto e não demorar muito, para um documento técnico de requisitos no formato .md, usando a base no template C:\Users\cesarv\Documents\Projetos\INSPIRE-7\repo\Template-Relatório Técnico INSPIRE.md.
+Inclua também os diagramas mermaid.
+
+O objetivo central do projeto é desenvolver uma plataforma integrada de agregação inteligente de bases de notícias e publicações governamentais brasileiras. O portal deve democratizar o acesso à informação pública por meio de IA, garantindo total confiabilidade, busca inteligente e classificação automática do conteúdo em 25 temas principais, estruturados em até 3 níveis de detalhamento (hierarquia taxonômica).
+
+. Este documento deverá ser destinado ao Finep (Financiadora de Estudos e Projetos), o  tom deve ser estritamente profissional, técnico, fluido e sem redundâncias.
+
+. Organize o texto utilizando tópicos claros, tabelas se necessário (ex: para mapear RFs e RNFs) e destaques em negrito.
+
+. Evite jargões vagos; seja específico quanto a técnicas de engenharia de software e ciência de dados.
+
+. O documento deve ser formal, técnico e focar rigorosamente nos três pilares abaixo. Estruture o relatório seguindo as seções descritas:
+
+1.Visão Geral do Sistema e Arquitetura de Conteúdo
+a.Requisitos Funcionais (RF):Detalhar como funcionará a agregação das bases de notícias governamentais, o motor de busca inteligente e o pipeline de Processamento de Linguagem Natural (PLN) para classificação automática nos 25 temas e 3 níveis de profundidade.
+
+b.Requisitos Não-Funcionais (RNF Definir critérios de confiabilidade da informação, segurança dos dados LGPD), escalabilidade e integridade das fontes oficiais.
+
+2.Avaliação de Transparência e Mitigação de Vieses
+ a.Transparência por Design: Requisitos para garantir a isonomia na coleta e indexação das notícias, impedindo a super-representação ou sub-representação involuntária de órgãos, regiões ou pautas políticas.
+
+ b.Mitigação de Vieses: Especificação de salvaguardas algorítmicas, auditorias de dados de treino e validações para neutralizar vieses ideológicos, institucionais ou de linguagem no modelo de classificação.
+
+3.Requisitos de Explicabilidade (XAI) e Ciclo de Ajustes
+ a.Módulo de Explicabilidade (Explainable AI): Requisitos técnicos para a implementação de métodos (como SHAP, LIME ou grafos de decisão) que permitam rastrear e justificar "por que" o algoritmo classificou determinada publicação em um tema específico.
+
+ b.Relatório de Vieses e Ajustes: Especificação de um painel de auditoria para os gestores públicos, contendo logs imutáveis e alertas de desvios.
+
+ c.Mecanismo "Human-in-the-Loop": Definição de fluxos e interfaces para que curadores humanos possam realizar ajustes supervisionados e re-treinamentos pontuais no modelo caso erros de classificação sejam detectados.
+
+4.Algoritmos de Personalização e Interface de Teste (Ambiente de Sandbox)
+ a.Motor de Recomendação Ética: Requisitos para a sugestão de conteúdos relevantes baseados no perfil autodeclarado do cidadão e histórico de navegação, com travas algorítmicas para evitar a criação de "bolhas de informação" (filter bubbles) e garantir a pluralidade.
+
+ b.Interface de Teste e Simulação (Sandbox): Requisitos para um ambiente controlado voltado aos desenvolvedores e auditores do governo. O painel deve permitir simular a experiência de diferentes personas (ex: estudante, produtor rural, empresário) e validar se a IA entrega o conteúdo de forma precisa, equilibrada e sem desvios de finalidade.
 
 Elaborado por: Claude Sonnet 4.5 (Anthropic)
 
