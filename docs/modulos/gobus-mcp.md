@@ -53,34 +53,52 @@ O Gobus MCP é a interface de IA do Destaques Gov.BR:
 | Camada | Tecnologia |
 |--------|-----------|
 | Protocolo | FastMCP 3.x (MCP) |
-| Transport | stdio (local) · HTTP streamable-http (Cloud Run) |
+| Transport | stdio (local) · Streamable HTTP stateless em `/mcp` (Cloud Run) |
 | Cliente GraphQL | httpx async |
 | Config | pydantic-settings (prefixo `GOBUS_`) |
 | Deploy | Cloud Run, env vars via Terraform |
 
 ## Conectar ao servidor
 
-=== "Claude Desktop / Code"
+=== "Claude Code"
 
-    Adicione ao `.mcp.json` do projeto ou ao settings global:
+    ```bash
+    claude mcp add --transport http gobus https://destaquesgovbr-gobus-mcp-klvx64dufq-rj.a.run.app/mcp -s user
+    ```
+
+    O comando grava no `~/.claude.json` (ou use o mesmo bloco no `.mcp.json` do projeto):
 
     ```json
     {
       "mcpServers": {
         "gobus": {
-          "transport": "http",
-          "url": "https://destaquesgovbr-gobus-mcp-klvx64dufq-rj.a.run.app/mcp/"
+          "type": "http",
+          "url": "https://destaquesgovbr-gobus-mcp-klvx64dufq-rj.a.run.app/mcp"
         }
       }
     }
     ```
 
+    A chave é `type` (não `transport`) e a URL vai **sem barra final**: `/mcp/` responde 307. Confira com `claude mcp get gobus` ("Connected").
+
+    O endpoint `/sse` foi removido do servidor em novembro de 2026. Se a sua config ainda tem `"type": "sse"` em `.../sse`, remova a entrada (`claude mcp remove gobus -s <escopo>`) e rode o `claude mcp add` acima.
+
+=== "Claude Desktop / claude.ai"
+
+    Adicione um conector remoto (custom connector) com a URL:
+
+    ```
+    https://destaquesgovbr-gobus-mcp-klvx64dufq-rj.a.run.app/mcp
+    ```
+
 === "Local (stdio)"
+
+    Para desenvolver o servidor; o nome `gobus-local` evita colisão com o `gobus` remoto.
 
     ```json
     {
       "mcpServers": {
-        "gobus": {
+        "gobus-local": {
           "command": "python",
           "args": ["-m", "gobus_mcp"],
           "env": {
