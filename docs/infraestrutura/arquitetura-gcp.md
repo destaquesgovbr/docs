@@ -28,7 +28,7 @@ flowchart TB
         end
 
         subgraph "Orchestration"
-            CC[Cloud Composer 3<br/>Airflow 3.x]
+            CC[Compute Engine<br/>Airflow 3.1 próprio<br/>LB HTTPS + IAP]
         end
 
         subgraph "Storage & Registry"
@@ -80,22 +80,26 @@ flowchart TB
 
 → Veja detalhes em [PostgreSQL](../arquitetura/postgresql.md)
 
-### 2. Cloud Composer (Airflow)
+### 2. Airflow próprio (Compute Engine)
 
 | Propriedade | Valor |
 |-------------|-------|
-| Ambiente | `destaquesgovbr-composer` |
-| Versão | Composer 3 / Airflow 3.x |
-| Região | `southamerica-east1` |
-| Tipo | Small |
+| VM | `destaquesgovbr-airflow` (e2-standard-2, Debian 12, sem IP público) |
+| Versão | Airflow 3.1.8, LocalExecutor, em docker compose |
+| Zona | `southamerica-east1-a` |
+| UI | `https://airflow.dgb.app.gov.br` (LB HTTPS + IAP) |
+| Bucket | `gs://destaquesgovbr-airflow` (`dags/`, `plugins/`, `logs/`) |
+| Service Account | `destaquesgovbr-composer` (nome herdado do Composer) |
 
-**DAGs:**
-- `sync_postgres_to_huggingface` - Sync diário para HuggingFace (6AM UTC)
+**DAGs** (todas em BRT):
+- `scrape_agencies` e `scrape_ebc`: scraping a cada 2 h, das 06h às 22h
+- DAGs do `data-platform` (trending, clusters, grafo de entidades, syncs para o BigQuery, backfills), `dispatch_clippings` (clipping) e `sync_postgres_to_huggingface` (data-publishing, 06h)
 
 **Características:**
-- Orquestração de pipelines de dados
-- Monitoramento e alertas integrados
-- Retry automático de tarefas
+- Substituiu o Cloud Composer em 18/11/2026 (~US$ 738/mês → ~US$ 110/mês)
+- GitOps: compose, env e startup-script vêm do Terraform pelo metadata da VM
+- Postgres de metadados num disco de dados com snapshot diário
+- Alerta "Airflow sem heartbeat" e alertas de memória/disco (Ops Agent) no Telegram
 
 → Veja detalhes em [Airflow DAGs](../workflows/airflow-dags.md)
 
@@ -227,7 +231,7 @@ flowchart LR
             VC[VPC Connector]
             TS[Compute Engine<br/>Typesense<br/>10.0.0.x]
             PG[(Cloud SQL<br/>PostgreSQL<br/>10.0.0.y)]
-            CC[Cloud Composer<br/>Airflow]
+            CC[Compute Engine<br/>Airflow próprio]
         end
     end
 
@@ -247,7 +251,7 @@ flowchart LR
 | Componente | Custo/mês |
 |------------|-----------|
 | Cloud SQL (PostgreSQL) | ~$48 |
-| Cloud Composer (Airflow) | ~$100-150 |
+| Airflow próprio (VM + discos + LB) | ~$106-113 |
 | Compute Engine (Typesense) | ~$64 |
 | Cloud Run (Portal) | ~$10 |
 | Cloud Run (Embeddings API) | ~$5 |
@@ -268,7 +272,7 @@ flowchart LR
 | Subnet | southamerica-east1 |
 | Cloud SQL | southamerica-east1 |
 | Cloud Run | southamerica-east1 |
-| Cloud Composer | southamerica-east1 |
+| Airflow (VM) | southamerica-east1-a |
 | Compute Engine | southamerica-east1-a |
 | Artifact Registry | southamerica-east1 |
 
@@ -327,23 +331,21 @@ gcloud sql connect destaquesgovbr-postgres --user=admin
 
 ---
 
-## Acesso ao Composer (Airflow)
+## Acesso ao Airflow
+
+UI: [https://airflow.dgb.app.gov.br](https://airflow.dgb.app.gov.br), pelo IAP, com conta Google da equipe.
+
+A VM não tem IP público: a CLI do Airflow só é alcançada por SSH via IAP, no container do scheduler.
 
 ```bash
-# Abrir UI do Airflow
-gcloud composer environments describe destaquesgovbr-composer \
-  --location=southamerica-east1 \
-  --format='value(config.airflowUri)'
+gcloud compute ssh destaquesgovbr-airflow --zone=southamerica-east1-a \
+  --project=inspire-7-finep --tunnel-through-iap
 
-# Listar DAGs
-gcloud composer environments run destaquesgovbr-composer \
-  --location=southamerica-east1 \
-  dags list
+# Na VM: listar DAGs
+sudo docker exec airflow-airflow-scheduler-1 airflow dags list
 
-# Trigger manual de DAG
-gcloud composer environments run destaquesgovbr-composer \
-  --location=southamerica-east1 \
-  dags trigger -- sync_postgres_to_huggingface
+# Na VM: trigger manual de DAG (muda estado; combine com a equipe)
+sudo docker exec airflow-airflow-scheduler-1 airflow dags trigger sync_postgres_to_huggingface
 ```
 
 ---
@@ -370,15 +372,18 @@ gcloud run services describe portal --region=southamerica-east1
 gcloud run services logs read portal --region=southamerica-east1
 ```
 
-### Cloud Composer
+### Airflow (VM)
 
 ```bash
-# Status do ambiente
-gcloud composer environments describe destaquesgovbr-composer \
-  --location=southamerica-east1
+# Status da VM
+gcloud compute instances describe destaquesgovbr-airflow --zone=southamerica-east1-a
 
-# Logs (via Console)
-# Console > Composer > destaquesgovbr-composer > Logs
+# Logs dos containers (scheduler, dag-processor, api-server)
+gcloud logging read 'logName="projects/inspire-7-finep/logs/gcplogs-docker-driver"' \
+  --project=inspire-7-finep --freshness=1h --limit=20 --format='value(timestamp,jsonPayload.message)'
+
+# Logs das tasks (GCS, 30 dias)
+gcloud storage ls gs://destaquesgovbr-airflow/logs/
 ```
 
 ### Compute Engine
@@ -431,10 +436,10 @@ gcloud compute scp typesense-server:/tmp/typesense-backup.tar.gz . --zone=southa
 - **Read replicas**: Disponível se necessário
 - **Disk auto-resize**: Habilitado (até 500GB)
 
-### Cloud Composer
+### Airflow (VM)
 
-- **Horizontal**: Adicionar workers
-- **Vertical**: Upgrade de tipo de ambiente
+- **Vertical**: trocar `airflow_machine_type` (ex.: e2-highmem-2 se a memória apertar), com stop/start
+- **Concorrência**: `parallelism` do LocalExecutor (8) e limites por DAG (ex.: 4 agências ao mesmo tempo no scraping)
 
 ### Cloud Run
 
@@ -486,7 +491,7 @@ gcloud compute scp typesense-server:/tmp/typesense-backup.tar.gz . --zone=southa
 | `main.tf` | Providers e configurações globais |
 | `network.tf` | VPC, subnets, firewall |
 | `cloud_sql.tf` | PostgreSQL |
-| `composer.tf` | Cloud Composer |
+| `airflow-base.tf`, `airflow.tf`, `airflow-lb.tf` | Airflow próprio: bucket, Artifact Registry, secrets, VM, disco de dados, LB HTTPS + IAP |
 | `cloud_run.tf` | Portal e Embeddings API |
 | `compute.tf` | Typesense VM |
 | `iam.tf` | Service accounts e Workload Identity |

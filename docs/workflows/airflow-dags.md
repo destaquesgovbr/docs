@@ -1,122 +1,225 @@
-# Airflow DAGs (Cloud Composer)
+# Airflow DAGs (Airflow próprio)
 
-O projeto utiliza **Cloud Composer 3** (Apache Airflow gerenciado) para orquestração de pipelines de dados: scraping de notícias (repo `scraper`), sincronização entre PostgreSQL e HuggingFace (repo `data-platform`), e reconciliação de eventos (repo `data-science`).
+O projeto usa um **Apache Airflow 3.1 próprio**, em docker compose numa VM do Compute Engine, para orquestrar os pipelines batch:
 
-!!! info "Cloud Composer"
-    **Ambiente**: `destaquesgovbr-composer`
-    **Região**: `us-central1`
-    **Versão**: Composer 3 / Airflow 3.x
+- scraping de notícias (repo `scraper`);
+- trending, clusters, grafo de entidades, backfills e syncs para o BigQuery (repo `data-platform`);
+- envio de clippings (repo `clipping`);
+- sync para o HuggingFace (repo `data-publishing`).
+
+!!! info "Airflow próprio (desde 18/11/2026)"
+    **VM**: `destaquesgovbr-airflow` (e2-standard-2, Debian 12, sem IP público), zona `southamerica-east1-a`<br/>
+    **Versão**: Airflow 3.1.8 (Python 3.11), LocalExecutor<br/>
+    **UI**: [https://airflow.dgb.app.gov.br](https://airflow.dgb.app.gov.br), atrás de um LB HTTPS com IAP<br/>
+    **Infra**: Terraform no repo `infra` (`terraform/airflow*.tf`, `terraform/templates/airflow/`, imagem em `infra/airflow/`)
+
+!!! note "Cloud Composer desligado"
+    Até nov/2026 o projeto usava o **Cloud Composer 3** (`destaquesgovbr-composer`). A troca pelo Airflow próprio economiza cerca de US$ 625/mês. Ela foi feita junto com a troca das ~147 DAGs `scrape_<agencia>`, de 10 em 10 min, por uma DAG só, a cada 2 h. O Composer foi desligado em 18/11/2026. Plano completo: `infra/_plan/migrar-composer-para-airflow-proprio.md`.
 
 ## Arquitetura
 
 ```mermaid
 graph TB
-    subgraph "Cloud Composer"
-        SCHED[Scheduler]
-        WORKER[Workers<br/>1-3 instâncias]
-        UI[Web UI]
-        TRIGGER[Triggerer]
-    end
+    USER[Equipe] -->|HTTPS + IAP| LB[LB HTTPS<br/>airflow.dgb.app.gov.br]
 
-    subgraph "DAGs (data-platform)"
-        DAG1[sync_postgres_to_huggingface]
-        DAG2[test_postgres_connection]
-    end
-
-    subgraph "DAGs (data-science)"
-        DAG5[reconciliation_dlq]
-        DAG6[replay_bronze_events]
-    end
-
-    subgraph "DAGs (scraper)"
-        DAG3[~158x scrape_agency]
-        DAG4[scrape_ebc]
+    subgraph "VM destaquesgovbr-airflow (docker compose)"
+        API[api-server<br/>UI + REST API]
+        SCHED[scheduler<br/>LocalExecutor, parallelism=8]
+        PROC[dag-processor]
+        META[(postgres:16<br/>metadados)]
+        SYNC[dag-sync<br/>a cada 60 s]
     end
 
     subgraph "Recursos GCP"
-        PG[(PostgreSQL<br/>Cloud SQL)]
-        SM[Secret Manager]
-        GCS[GCS Bucket<br/>DAGs]
-        BRONZE[(GCS Bronze<br/>Parquet)]
-        PUBSUB[Pub/Sub Topics]
+        GCS[gs://destaquesgovbr-airflow<br/>dags/ plugins/ logs/]
+        SM[Secret Manager<br/>Connections e Variables]
+        PG[(Cloud SQL<br/>PostgreSQL)]
+        CR[Cloud Run<br/>scraper-api, clipping, ...]
+        LOG[Cloud Logging]
     end
 
-    subgraph "Externos"
-        HF[(HuggingFace)]
-    end
-
-    GCS --> SCHED
-    SCHED --> WORKER
-    WORKER --> DAG1
-    WORKER --> DAG2
-    WORKER --> DAG3
-    WORKER --> DAG4
-    WORKER --> DAG5
-    WORKER --> DAG6
-    DAG1 --> PG
-    DAG1 --> HF
-    DAG3 -->|HTTP POST| CR[Cloud Run<br/>Scraper API]
-    DAG4 -->|HTTP POST| CR
-    DAG5 -->|Pub/Sub Pull| PUBSUB
-    DAG5 -->|Republish| PUBSUB
-    DAG6 -->|BigQuery Query| BRONZE
-    DAG6 -->|Republish| PUBSUB
-    CR --> PG
-    SM --> WORKER
+    LB --> API
+    GCS -->|rsync| SYNC
+    SYNC --> PROC
+    PROC --> META
+    SCHED --> META
+    API --> META
+    SM --> SCHED
+    SCHED -->|tasks| CR
+    SCHED -->|tasks| PG
+    SCHED -->|logs das tasks| GCS
+    SCHED -->|logs dos containers| LOG
 ```
+
+- **Sem triggerer**: nenhuma DAG é deferrable.
+- **SA da VM**: `destaquesgovbr-composer`, a mesma do Composer, que já tinha os papéis de que as DAGs precisam (`run.invoker` nos serviços, BigQuery, Secret Manager, GCS, Pub/Sub). O nome ficou o antigo.
+- **Dentro do Airflow**: `SimpleAuthManager` com todos como admin. O IAP do LB é a única porta de entrada.
+- **GitOps**: o Terraform entrega o compose, o env e o startup-script pelo metadata da VM, e a unit `airflow-reconcile` reaplica quando algum deles muda. Nada se configura por SSH.
 
 ## Organização de DAGs no Bucket
 
-O Composer armazena DAGs de múltiplos repos em subdiretórios do mesmo bucket:
+Cada repo publica suas DAGs numa subpasta de `gs://destaquesgovbr-airflow/dags/`, e o container `dag-sync` espelha o bucket na VM a cada 60 s:
 
 ```
-gs://{COMPOSER_BUCKET}/dags/
-├── data-platform/                    # DAGs do repo data-platform
-│   ├── sync_postgres_to_huggingface.py
-│   └── test_postgres_connection.py
-├── data-science/                     # DAGs do repo data-science
-│   ├── reconciliation_dlq.py
-│   └── replay_bronze_events.py
-└── scraper/                          # DAGs do repo scraper
-    ├── scrape_agencies.py            # ~158 DAGs dinâmicas
-    ├── scrape_ebc.py
-    └── config/
-        └── site_urls.yaml
+gs://destaquesgovbr-airflow/
+├── dags/
+│   ├── clipping/                     # repo clipping
+│   │   └── dispatch_clippings.py
+│   ├── data-platform/                # repo data-platform (12 DAGs)
+│   ├── data-publishing/              # repo data-publishing
+│   │   └── sync_postgres_to_huggingface.py
+│   ├── platform/                     # repo infra
+│   │   └── airflow_heartbeat.py
+│   └── scraper/                      # repo scraper
+│       ├── scrape_agencies.py        # 1 DAG, 1 task mapeada por agência
+│       ├── scrape_ebc.py
+│       ├── monitor_scraping_health.py
+│       ├── cleanup_old_scrape_runs.py
+│       ├── scraper_coverage_report.py
+│       ├── notify.py
+│       └── config/site_urls.yaml
+├── plugins/                          # pacotes importados pelas DAGs
+│   ├── data_platform/
+│   ├── data_publishing/
+│   └── pyphen/
+└── logs/                             # logs das tasks (30 dias)
 ```
-
-Cada repo tem seu próprio workflow `composer-deploy-dags.yaml` que faz `gsutil rsync` para seu subdiretório.
 
 ## DAGs Disponíveis
 
+Os crons usam o fuso padrão do Airflow, `America/Sao_Paulo` (BRT).
+
+| Repo | DAG | Schedule (BRT) | O que faz |
+|------|-----|----------------|-----------|
+| `scraper` | `scrape_agencies` | `0 6-22/2 * * *` | Raspa as agências gov.br ativas, uma task mapeada por agência |
+| `scraper` | `scrape_ebc` | `0 6-22/2 * * *` | Raspa Agência Brasil e TV Brasil |
+| `scraper` | `monitor_scraping_health` | `30 6-22/2 * * *` | Agências sem execução, falhas consecutivas e sem notícias novas |
+| `scraper` | `cleanup_old_scrape_runs` | `0 3 * * *` | Retenção do `scrape_runs` (90 dias) |
+| `scraper` | `scraper_coverage_report` | `0 8 * * *` | Cobertura das últimas 24 h |
+| `clipping` | `dispatch_clippings` | `*/10 * * * *` | Agenda os clippings que vencem (`POST /dispatch/schedule`) |
+| `data-publishing` | `sync_postgres_to_huggingface` | `0 6 * * *` | Sync incremental para o HuggingFace |
+| `data-platform` | `verify_news_integrity` | `*/30 * * * *` | Integridade de imagens e conteúdo |
+| `data-platform` | `compute_trending` | `0 */6 * * *` | Trending das notícias (BigQuery → PG) |
+| `data-platform` | `compute_entity_trending` | `0 */6 * * *` | Trending das entidades NER |
+| `data-platform` | `project_entity_graph` | `0 */6 * * *` | `news_entities` e `entity_edges` |
+| `data-platform` | `generate_video_thumbnails` | `0 */4 * * *` | Thumbnails de notícias de vídeo |
+| `data-platform` | `compute_clusters` | `30 7 * * *` | Notícias similares (pgvector) |
+| `data-platform` | `aggregate_engagement` | `0 8 * * *` | Pageviews do portal → `news_features` |
+| `data-platform` | `sync_pg_to_bigquery` | `0 7 * * *` | PostgreSQL → BigQuery |
+| `data-platform` | `sync_umami_to_bigquery` | `0 9 * * *` | Umami → BigQuery |
+| `data-platform` | `canonicalize_backfill`, `ner_backfill`, `enrichment_backfill` | várias | Backfills via Cloud Run Job, sob governador de cota (ligados só quando há backfill) |
+| `infra` | `airflow_heartbeat` | `*/15 * * * *` | Grava um heartbeat no Cloud Logging. Sem heartbeat por 45 min, o alerta "Airflow sem heartbeat" vai para o Telegram |
+
 ### DAGs do Scraper (repo `scraper`)
 
-#### `scrape_{agency_key}` (~158 DAGs dinâmicas)
+#### `scrape_agencies`
 
-Cada agência gov.br gera uma DAG de scraping independente.
+Uma DAG só para todas as agências gov.br. Até nov/2026 eram ~147 DAGs `scrape_<agencia>`, cada uma a cada 10 min. Elas eram 96,7% das execuções de task do Composer.
 
 | Configuração | Valor |
 |--------------|-------|
-| **Schedule** | `*/15 * * * *` (a cada 15 min) |
-| **Catchup** | Desabilitado |
-| **Retries** | 2 (com backoff de 5 min) |
-| **Timeout** | 15 min |
+| **Schedule** | `0 6-22/2 * * *` (06h às 22h BRT, 9 execuções por dia) |
+| **Tasks** | `scrape`, mapeada por agência ativa do `site_urls.yaml` (map index = sigla), mais a `summarize` |
+| **Concorrência** | 4 agências ao mesmo tempo (`SCRAPE_MAX_CONCURRENT_AGENCIES`); ~4 a 5 min por execução |
+| **Catchup / max_active_runs** | Desabilitado / 1 |
+| **Retries** | 2, a cada 5 min, só para erro passageiro. Erro permanente (`html_changed`, `url_broken`, `access_denied`, `anti_bot`) falha sem retry |
+| **Timeout** | 10 min por agência |
+| **Janela** | 9 h antes da execução. A das 06h cobre a madrugada. Params `start_date`/`end_date` servem para recuperação |
 
-Cada DAG faz HTTP POST para a Scraper API no Cloud Run (`POST /scrape/agencies` com a agência específica).
+Cada task mapeada faz HTTP POST para a Scraper API no Cloud Run (`POST /scrape/agencies` com uma agência), autenticada com ID token. A `summarize` só falha a execução se nenhuma agência funcionou ou se a fração de falhas passou de `scraper_max_failed_ratio` (padrão 10%). Uma agência quebrada fica vermelha só na task mapeada dela.
 
 #### `scrape_ebc`
 
-DAG para scraping dos sites EBC (Agência Brasil, TV Brasil).
+DAG para scraping dos sites EBC (Agência Brasil, TV Brasil). Usa a mesma agenda, a mesma janela e os mesmos params da `scrape_agencies`, com timeout de 30 min. Faz HTTP POST para `POST /scrape/ebc` no Cloud Run.
+
+→ Veja [Módulo Scraper](../modulos/scraper.md) para detalhes da API e do repo, e o [runbook do scraper](https://github.com/destaquesgovbr/scraper/blob/main/docs/runbook.md) para diagnóstico e recuperação.
+
+### DAGs do Data Publishing (repo `data-publishing`)
+
+#### `sync_postgres_to_huggingface`
+
+Sincroniza notícias do PostgreSQL para o HuggingFace diariamente.
 
 | Configuração | Valor |
 |--------------|-------|
-| **Schedule** | `*/15 * * * *` (a cada 15 min) |
-| **Retries** | 2 (com backoff de 5 min) |
+| **Schedule** | `0 6 * * *` (06h BRT) |
+| **Catchup** | Desabilitado |
+| **Retries** | 3 (com backoff exponencial) |
+| **Tags** | `sync`, `huggingface`, `postgres`, `daily` |
 
-Faz HTTP POST para `POST /scrape/ebc` no Cloud Run.
+Os módulos `data_publishing.hf` são publicados como plugin em `gs://destaquesgovbr-airflow/plugins/data_publishing/`.
 
-→ Veja [Módulo Scraper](../modulos/scraper.md) para detalhes da API e do repo.
+#### Fluxo de Execução
+
+```mermaid
+sequenceDiagram
+    participant A as Airflow
+    participant PG as PostgreSQL
+    participant API as HuggingFace API
+    participant HF as HuggingFace Dataset
+
+    A->>PG: Query notícias do dia anterior
+    PG-->>A: Registros (ex: 500)
+
+    A->>API: Consulta IDs existentes via Dataset Viewer
+    API-->>A: IDs já sincronizados (ex: 480)
+
+    Note over A: Filtra apenas novos (ex: 20)
+
+    A->>A: Cria parquet shard
+    A->>HF: Upload do shard
+    HF-->>A: Commit confirmado
+
+    A->>HF: Upload para dataset reduzido
+```
+
+#### Abordagem Incremental
+
+A DAG utiliza uma abordagem de **append incremental via parquet shards** para evitar problemas de memória:
+
+1. **Consulta IDs existentes** via Dataset Viewer API (sem baixar o dataset completo)
+2. **Cria parquet shard** apenas com novos registros
+3. **Upload direto** via `huggingface_hub`
+
+**Vantagens**:
+- Memória: ~10MB (apenas novos registros) vs ~1-2GB (dataset completo)
+- Deduplicação automática
+- Commits atômicos por dia
+
+#### Estrutura do Shard
+
+```
+data/train-{YYYY-MM-DD}-{HHMMSS}.parquet
+```
+
+Exemplo: `data/train-2025-01-10-060532.parquet`
+
+#### Colunas Sincronizadas
+
+```python
+HF_COLUMNS = [
+    "unique_id", "agency", "published_at", "updated_datetime", "extracted_at",
+    "title", "subtitle", "editorial_lead", "url", "content",
+    "image", "video_url", "category", "tags",
+    "theme_1_level_1", "theme_1_level_1_code", "theme_1_level_1_label",
+    "theme_1_level_2_code", "theme_1_level_2_label",
+    "theme_1_level_3_code", "theme_1_level_3_label",
+    "most_specific_theme_code", "most_specific_theme_label",
+    "summary"
+]
+```
+
+#### Datasets Atualizados
+
+| Dataset | Colunas | Uso |
+|---------|---------|-----|
+| `nitaibezerra/govbrnews` | Todas (24) | Análise completa |
+| `nitaibezerra/govbrnews-reduced` | 4 (published_at, agency, title, url) | Listagens rápidas |
 
 ### DAGs do Data Science (repo `data-science`)
+
+!!! warning "Não publicadas no Airflow de produção"
+    As DAGs abaixo existem no repo `data-science`, mas não estão no bucket `gs://destaquesgovbr-airflow`, que só tem `clipping`, `data-platform`, `data-publishing`, `platform` e `scraper`. Para usá-las, publique antes a pasta `dags/data-science/`.
 
 #### `reconciliation_dlq`
 
@@ -195,322 +298,160 @@ sequenceDiagram
 2. **Correção de lógica de enriquecimento**: Reprocessar com nova versão do worker
 3. **Backfill**: Processar dados históricos com novos workers
 
-**Exemplo de Trigger**:
-
-```python
-# Via Airflow CLI
-airflow dags trigger replay_bronze_events \
-  --conf '{"start_date": "2026-05-01", "end_date": "2026-05-05", "topic": "dgb.news.scraped"}'
-```
-
 → Veja [Bronze Layer GCS](../modulos/bronze-layer-gcs.md) para detalhes da arquitetura Bronze.
 
----
+## Configuração do Airflow próprio
 
-### DAGs do Data Platform (repo `data-platform`)
+### VM e containers
 
-#### `sync_postgres_to_huggingface`
+| Item | Valor |
+|------|-------|
+| VM | e2-standard-2 (2 vCPU, 8 GB) sob demanda, swap de 2 GB, sem IP público |
+| Discos | Boot de 30 GB e disco de dados de 20 GB (pd-balanced) para o Postgres de metadados. O disco de dados tem `prevent_destroy`, snapshot diário e 7 dias de retenção |
+| Rede | `destaquesgovbr-subnet` com Private Google Access e Cloud NAT. Cloud SQL pelo IP privado |
+| Containers | `postgres` (16), `airflow-init` (`airflow db migrate`), `airflow-apiserver`, `airflow-scheduler`, `airflow-dag-processor`, `dag-sync` |
+| Imagem | `infra/airflow/Dockerfile` (`apache/airflow:3.1.8-python3.11` + `requirements.txt` com constraints), publicada no Artifact Registry `destaquesgovbr-airflow` pelo workflow `airflow-image.yml` |
+| Manutenção | Timer semanal `airflow db clean` (30 dias). Ops Agent com alertas de memória e disco |
 
-Sincroniza notícias do PostgreSQL para o HuggingFace diariamente.
+**Trocar a imagem** (pacote novo para uma DAG ou upgrade do Airflow) é um PR no `infra` que muda `airflow_image_tag`. O `airflow-reconcile` aplica o novo compose, e o `airflow-init` migra o banco antes dos outros containers subirem.
 
-| Configuração | Valor |
-|--------------|-------|
-| **Schedule** | `0 6 * * *` (6 AM UTC) |
-| **Catchup** | Desabilitado |
-| **Retries** | 3 (com backoff exponencial) |
-| **Tags** | `sync`, `huggingface`, `postgres`, `daily` |
+### Configuração do Airflow
 
-#### Fluxo de Execução
-
-```mermaid
-sequenceDiagram
-    participant A as Airflow
-    participant PG as PostgreSQL
-    participant API as HuggingFace API
-    participant HF as HuggingFace Dataset
-
-    A->>PG: Query notícias do dia anterior
-    PG-->>A: Registros (ex: 500)
-
-    A->>API: Consulta IDs existentes via Dataset Viewer
-    API-->>A: IDs já sincronizados (ex: 480)
-
-    Note over A: Filtra apenas novos (ex: 20)
-
-    A->>A: Cria parquet shard
-    A->>HF: Upload do shard
-    HF-->>A: Commit confirmado
-
-    A->>HF: Upload para dataset reduzido
-```
-
-#### Abordagem Incremental
-
-A DAG utiliza uma abordagem de **append incremental via parquet shards** para evitar problemas de memória:
-
-1. **Consulta IDs existentes** via Dataset Viewer API (sem baixar o dataset completo)
-2. **Cria parquet shard** apenas com novos registros
-3. **Upload direto** via `huggingface_hub`
-
-**Vantagens**:
-- Memória: ~10MB (apenas novos registros) vs ~1-2GB (dataset completo)
-- Deduplicação automática
-- Commits atômicos por dia
-
-#### Estrutura do Shard
-
-```
-data/train-{YYYY-MM-DD}-{HHMMSS}.parquet
-```
-
-Exemplo: `data/train-2025-01-10-060532.parquet`
-
-#### Colunas Sincronizadas
-
-```python
-HF_COLUMNS = [
-    "unique_id", "agency", "published_at", "updated_datetime", "extracted_at",
-    "title", "subtitle", "editorial_lead", "url", "content",
-    "image", "video_url", "category", "tags",
-    "theme_1_level_1", "theme_1_level_1_code", "theme_1_level_1_label",
-    "theme_1_level_2_code", "theme_1_level_2_label",
-    "theme_1_level_3_code", "theme_1_level_3_label",
-    "most_specific_theme_code", "most_specific_theme_label",
-    "summary"
-]
-```
-
-#### Datasets Atualizados
-
-| Dataset | Colunas | Uso |
-|---------|---------|-----|
-| `nitaibezerra/govbrnews` | Todas (24) | Análise completa |
-| `nitaibezerra/govbrnews-reduced` | 4 (published_at, agency, title, url) | Listagens rápidas |
-
-#### `test_postgres_connection`
-
-DAG de teste para verificar conectividade com o PostgreSQL.
-
-| Configuração | Valor |
-|--------------|-------|
-| **Schedule** | Manual (`None`) |
-| **Uso** | Validação pós-deploy |
-
-## Configuração do Composer
-
-### Workloads
-
-| Componente | CPU | Memória | Storage | Instâncias |
-|------------|-----|---------|---------|------------|
-| Scheduler | 0.5 | 2GB | 2GB | 1 |
-| Web Server | 1 | 2GB | 2GB | 1 |
-| Worker | 1 | 2GB | 2GB | 1-3 (auto) |
-| Triggerer | 0.5 | 2GB | - | 1 |
-| DAG Processor | 0.5 | 2GB | 1GB | 1 |
-
-### Airflow Config Overrides
-
-```python
-{
-    # Secret Manager Backend
-    "secrets-backend": "airflow.providers.google.cloud.secrets.secret_manager.CloudSecretManagerBackend",
-    "secrets-backend_kwargs": {
-        "connections_prefix": "airflow-connections",
-        "variables_prefix": "airflow-variables",
-        "project_id": "inspire-7-finep"
-    },
-
-    # Timezone
-    "core-default_timezone": "America/Sao_Paulo",
-
-    # Web UI
-    "webserver-rbac": "True",
-    "webserver-authenticate": "True",
-}
-```
-
-### PyPI Packages
-
-```
-psycopg2-binary>=2.9.9
-apache-airflow-providers-postgres>=5.10.2
-apache-airflow-providers-google>=10.14.0
-google-cloud-pubsub>=2.18.0
-google-cloud-bigquery>=3.11.0
-sqlalchemy>=1.4.52
-requests>=2.31.0
-pyyaml>=6.0
-```
-
-### Environment Variables
+Valores do `terraform/templates/airflow/airflow.env.tftpl`:
 
 ```bash
-# PostgreSQL
-POSTGRES_HOST=10.x.x.x  # IP privado Cloud SQL
-POSTGRES_PORT=5432
-POSTGRES_DB=govbrnews
-
-# GCP
-GCP_PROJECT_ID=destaques-govbr
-GCP_REGION=southamerica-east1
-
-# Pub/Sub Topics (Event-Driven)
-PUBSUB_TOPIC_SCRAPED=dgb.news.scraped
-PUBSUB_TOPIC_ENRICHED=dgb.news.enriched
-PUBSUB_TOPIC_EMBEDDED=dgb.news.embedded
-
-# Bronze Layer (Medallion)
-GCS_BRONZE_BUCKET=destaques-govbr-bronze
-BIGQUERY_BRONZE_DATASET=bronze
-
-# External
-TYPESENSE_HOST=34.39.186.38
+AIRFLOW__CORE__EXECUTOR=LocalExecutor
+AIRFLOW__CORE__PARALLELISM=8
+AIRFLOW__CORE__DEFAULT_TIMEZONE=America/Sao_Paulo   # todos os crons em BRT
+AIRFLOW__CORE__LOAD_EXAMPLES=False
+AIRFLOW__CORE__DAGS_ARE_PAUSED_AT_CREATION=True
+AIRFLOW__DAG_PROCESSOR__REFRESH_INTERVAL=60          # arquivo novo entra em até ~2 min
+AIRFLOW__DAG_PROCESSOR__MIN_FILE_PROCESS_INTERVAL=180 # mudança numa DAG: até ~4 min
+AIRFLOW__CORE__AUTH_MANAGER=...SimpleAuthManager     # IAP é a única porta de entrada
+AIRFLOW__CORE__SIMPLE_AUTH_MANAGER_ALL_ADMINS=True
+AIRFLOW__LOGGING__REMOTE_LOGGING=True
+AIRFLOW__LOGGING__REMOTE_BASE_LOG_FOLDER=gs://destaquesgovbr-airflow/logs
+# Lidas pelas DAGs no parse
+GCP_PROJECT_ID, GCP_REGION, POSTGRES_HOST/PORT/DB, TYPESENSE_HOST/PORT, CANON_MODEL_ID
 ```
 
-## Connections
+O secrets backend é o mesmo do Composer: `CloudSecretManagerBackend`, com os prefixos `airflow-connections` e `airflow-variables`.
 
-As connections são gerenciadas via **Secret Manager**:
+## Connections e Variables
 
-| Connection ID | Tipo | Secret |
-|--------------|------|--------|
-| `postgres_default` | Postgres | `airflow-connections-postgres_default` |
-| `huggingface_default` | Generic | `airflow-connections-huggingface_default` |
-| `gcp_pubsub_default` | Google Cloud | `airflow-connections-gcp_pubsub_default` |
-| `bigquery_default` | Google BigQuery | `airflow-connections-bigquery_default` |
+As Connections e Variables vêm do **Secret Manager**. Variable que não está lá é lida do metastore. Exemplos:
 
-### Formato das Connections
-
-```json
-// postgres_default
-{
-    "conn_type": "postgres",
-    "host": "10.x.x.x",
-    "port": 5432,
-    "schema": "govbrnews",
-    "login": "govbrnews_app",
-    "password": "xxx"
-}
-
-// huggingface_default
-{
-    "conn_type": "generic",
-    "password": "hf_xxx"  // Token HuggingFace
-}
-
-// gcp_pubsub_default (usa Application Default Credentials)
-{
-    "conn_type": "google_cloud_platform",
-    "project_id": "destaques-govbr"
-}
-
-// bigquery_default (usa Application Default Credentials)
-{
-    "conn_type": "google_cloud_platform",
-    "project_id": "destaques-govbr",
-    "dataset": "bronze"
-}
-```
+| Tipo | Nome | Secret |
+|------|------|--------|
+| Connection | `postgres_default` | `airflow-connections-postgres_default` |
+| Connection | `huggingface_default` | `airflow-connections-huggingface_default` |
+| Variable | `scraper_api_url` | `airflow-variables-scraper_api_url` |
+| Variable | `clipping_service_url` | `airflow-variables-clipping_service_url` |
+| Variable | `typesense_api_key` | `airflow-variables-typesense_api_key` |
 
 ## Deploy de DAGs
 
 ### Via GitHub Actions
 
-Cada repo tem seu próprio workflow `composer-deploy-dags.yaml` que sincroniza para o subdiretório correspondente:
+Os repos de DAG (`scraper`, `clipping`, `data-publishing` e `data-platform`) chamam a reusable `destaquesgovbr/reusable-workflows/.github/workflows/airflow-deploy-dags.yml@v3` no push para a `main`. Ela:
 
-**Repo `data-platform`**:
-```bash
-gsutil -m rsync -r -d src/data_platform/dags/ gs://{BUCKET}/dags/data-platform/
+1. valida as DAGs com o Airflow 3.1.8 (o da imagem da VM), instalado com o arquivo de constraints;
+2. sincroniza a pasta de DAGs em `gs://destaquesgovbr-airflow/dags/<repo>/` (e, se houver, o pacote de plugins em `plugins/<pacote>/`) com `gcloud storage rsync --delete-unmatched-destination-objects`.
+
+No `scraper`, no `clipping` e no `data-publishing`, a lista de buckets é o default da reusable. O `data-platform` define a sua (`AIRFLOW_DAG_BUCKETS`) porque publica os plugins num job próprio, antes das DAGs.
+
+```yaml
+jobs:
+  deploy:
+    uses: destaquesgovbr/reusable-workflows/.github/workflows/airflow-deploy-dags.yml@v3
+    with:
+      dags_local_path: dags
+      dags_bucket_subdir: scraper
 ```
 
-**Repo `data-science`**:
-```bash
-gsutil -m rsync -r -d dags/ gs://{BUCKET}/dags/data-science/
-```
+Na VM, o `dag-sync` copia o bucket a cada 60 s. Uma DAG nova aparece em até ~2 min, e a mudança numa DAG existente vale em até ~4 min.
 
-**Repo `scraper`**:
-```bash
-gsutil -m rsync -r -d dags/ gs://{BUCKET}/dags/scraper/
-```
-
-### Manual via gcloud
+### Manual (só se o workflow estiver indisponível)
 
 ```bash
-# Descobrir bucket do Composer
-BUCKET=$(gcloud composer environments describe destaquesgovbr-composer \
-    --location us-central1 \
-    --format="value(config.dagGcsPrefix)")
-
-# Upload das DAGs do data-platform
-gsutil -m rsync -r -d src/data_platform/dags/ $BUCKET/data-platform/
-
-# Upload das DAGs do data-science
-gsutil -m rsync -r -d dags/ $BUCKET/data-science/
-
-# Upload das DAGs do scraper
-gsutil -m rsync -r -d dags/ $BUCKET/scraper/
+gcloud storage rsync --recursive --delete-unmatched-destination-objects \
+  dags/ gs://destaquesgovbr-airflow/dags/scraper/
 ```
 
 ## Monitoramento
 
-### Acessar Web UI
+### Web UI
+
+[https://airflow.dgb.app.gov.br](https://airflow.dgb.app.gov.br), pelo IAP, com conta Google da equipe (grupo `dev-team-inspire7`). Não há segundo login dentro do Airflow.
+
+### CLI e banco de metadados (SSH via IAP)
+
+A VM não tem IP público. A CLI do Airflow roda no container do scheduler:
 
 ```bash
-# Obter URL do Airflow
-gcloud composer environments describe destaquesgovbr-composer \
-    --location us-central1 \
-    --format="value(config.airflowUri)"
+gcloud compute ssh destaquesgovbr-airflow --zone=southamerica-east1-a \
+  --project=inspire-7-finep --tunnel-through-iap
+
+# na VM
+sudo docker exec airflow-airflow-scheduler-1 airflow dags list-runs scrape_agencies -o plain
+sudo docker exec airflow-airflow-scheduler-1 airflow dags list-import-errors
+
+# banco de metadados, somente leitura
+sudo docker exec -i -e PGOPTIONS='-c default_transaction_read_only=on' airflow-postgres-1 \
+  sh -c 'psql -U "$POSTGRES_USER" -d "$POSTGRES_DB"'
 ```
 
 ### Logs
 
-```bash
-# Ver logs de uma DAG run
-gcloud composer environments run destaquesgovbr-composer \
-    --location us-central1 \
-    dags list-runs -- -d sync_postgres_to_huggingface
-```
+- **Tasks**: no GCS (30 dias), legíveis sem SSH:
+  ```bash
+  gcloud storage cat --project=inspire-7-finep \
+    "gs://destaquesgovbr-airflow/logs/dag_id=scrape_agencies/run_id=<run_id>/task_id=scrape/map_index=<N>/attempt=1.log"
+  ```
+- **Containers** (scheduler, dag-processor, api-server): Cloud Logging, log `gcplogs-docker-driver` (recurso `gce_instance`):
+  ```bash
+  gcloud logging read 'logName="projects/inspire-7-finep/logs/gcplogs-docker-driver"
+    AND jsonPayload.container.name="/airflow-airflow-scheduler-1"' \
+    --project=inspire-7-finep --freshness=1h --limit=20 --format='value(timestamp,jsonPayload.message)'
+  ```
 
-### Métricas
+### Alertas
 
-O Composer exporta métricas para Cloud Monitoring:
-
-- `composer.googleapis.com/environment/dag_processing/total_parse_time`
-- `composer.googleapis.com/environment/worker/task_success_count`
-- `composer.googleapis.com/environment/worker/task_failed_count`
+| Alerta | Origem | O que pega |
+|--------|--------|------------|
+| Airflow sem heartbeat | DAG `airflow_heartbeat` + métrica de log (ausência por 45 min) | VM parada, scheduler morto, executor travado |
+| Memória e disco da VM | Ops Agent | Falta de memória ou disco cheio |
+| Saúde do scraping | `monitor_scraping_health` → Pub/Sub `dgb.ops.alerts` → Telegram | Agências sem execução, falhas consecutivas, sem notícias novas |
 
 ## Troubleshooting
 
 ### DAG não aparece na UI
 
-1. Verificar se o arquivo foi copiado para o bucket:
+1. Verificar se o arquivo está no bucket:
    ```bash
-   gsutil ls $BUCKET/dags/
+   gcloud storage ls gs://destaquesgovbr-airflow/dags/<repo>/
    ```
-
-2. Verificar logs do DAG Processor:
-   ```bash
-   gcloud composer environments run destaquesgovbr-composer \
-       --location us-central1 \
-       tasks log-read -- -d sync_postgres_to_huggingface -t sync_news_to_huggingface
-   ```
+2. Esperar até ~2 min (60 s do `dag-sync` + refresh do bundle) e procurar import errors na UI ou com `airflow dags list-import-errors` na VM.
+3. Pacote ausente na imagem: adicionar em `infra/airflow/requirements.txt` e trocar `airflow_image_tag`.
+4. DAG nova nasce **pausada** (`dags_are_paused_at_creation`): despausar na UI.
 
 ### Erro de conexão com PostgreSQL
 
-1. Verificar se a connection existe no Secret Manager
-2. Verificar se o Composer tem acesso ao Cloud SQL via VPC
+1. Verificar se a connection ou a Variable existe no Secret Manager.
+2. Testar de dentro do scheduler (a VM chega ao Cloud SQL pelo IP privado).
 
-### Erro de memória (OOM)
+### Agências sem execução ou DagRun preso
 
-- A abordagem incremental resolve isso
-- Se persistir, aumentar `memory_gb` dos workers no Terraform
+Ver o [runbook do scraper](https://github.com/destaquesgovbr/scraper/blob/main/docs/runbook.md), seção "Agências Sem Execução", que cobre a CLI na VM e o DagRun zumbi. A skill `/analisar-dags-scraper` (repo `project`) gera um diagnóstico somente leitura.
 
 ## Custos Estimados
 
 | Componente | Custo/mês |
 |------------|-----------|
-| Cloud Composer (SMALL) | ~$100-150 |
-| GCS (DAGs bucket) | ~$1 |
-| **Total** | **~$100-150** |
+| VM e2-standard-2 sob demanda | ~US$ 78 |
+| Discos (boot 30 GB + dados 20 GB) | ~US$ 7,5 |
+| LB HTTPS (forwarding rule) | ~US$ 18–25 |
+| Snapshots, Cloud NAT e GCS | ~US$ 3 |
+| **Total** | **~US$ 106–113** |
 
-!!! tip "Otimização de Custos"
-    O Composer está em `us-central1` (não `southamerica-east1`) para reduzir custos. A latência adicional é aceitável para jobs batch.
+No Composer, o custo era de ~US$ 738/mês.

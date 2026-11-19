@@ -7,7 +7,7 @@
 
 O pipeline de dados é baseado em **arquitetura event-driven** com Pub/Sub:
 
-1. **Scraping** (repo `scraper`): Via Airflow DAGs, a cada 15 minutos
+1. **Scraping** (repo `scraper`): Via Airflow (DAG `scrape_agencies`), a cada 2 horas das 06h às 22h (BRT)
 2. **Enriquecimento** (repo `data-science`): Via Enrichment Worker event-driven (Cloud Run)
 3. **Embeddings** (repo `embeddings`): Via Embeddings Worker event-driven (Cloud Run)
 4. **Indexação** (Typesense): Via Typesense Sync Worker event-driven (Cloud Run)
@@ -95,10 +95,10 @@ sequenceDiagram
 
 ### Etapa 1: Scraping gov.br
 
-**Repo**: `scraper` — via Airflow DAGs (a cada 15 min)
+**Repo**: `scraper` — via Airflow (a cada 2 h, das 06h às 22h BRT)
 
-- ~158 DAGs dinâmicas chamam `POST /scrape/agencies` na Scraper API (Cloud Run)
-- Cada agência é raspada independentemente
+- A DAG `scrape_agencies` tem uma task mapeada por agência (~147), e cada uma chama `POST /scrape/agencies` na Scraper API (Cloud Run), no máximo 4 ao mesmo tempo
+- Cada agência é raspada independentemente: uma agência quebrada falha só a task dela
 - Parse HTML → Markdown, gera `unique_id = MD5(agency + published_at + title)`
 - Insert no PostgreSQL + publicação de evento `dgb.news.scraped` no Pub/Sub
 
@@ -289,9 +289,9 @@ sequenceDiagram
 - DLQ monitoring para eventos falhados
 
 ### Airflow
-- Web UI do Cloud Composer para DAGs
-- Logs de execução por task
-- Alertas de falha via email
+- Web UI do Airflow próprio em `https://airflow.dgb.app.gov.br` (via IAP)
+- Logs das tasks no GCS (`gs://destaquesgovbr-airflow/logs`, 30 dias) e dos containers no Cloud Logging
+- Alertas no Telegram: saúde do scraping (`monitor_scraping_health`) e "Airflow sem heartbeat"
 
 ### Métricas
 - Quantidade de artigos raspados por execução
