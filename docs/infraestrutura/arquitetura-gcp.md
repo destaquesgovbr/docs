@@ -376,14 +376,15 @@ gcloud run services logs read portal --region=southamerica-east1
 
 ```bash
 # Status da VM
-gcloud compute instances describe destaquesgovbr-airflow --zone=southamerica-east1-a
+gcloud compute instances describe destaquesgovbr-airflow --zone=southamerica-east1-a \
+  --project=inspire-7-finep
 
 # Logs dos containers (scheduler, dag-processor, api-server)
 gcloud logging read 'logName="projects/inspire-7-finep/logs/gcplogs-docker-driver"' \
   --project=inspire-7-finep --freshness=1h --limit=20 --format='value(timestamp,jsonPayload.message)'
 
 # Logs das tasks (GCS, 30 dias)
-gcloud storage ls gs://destaquesgovbr-airflow/logs/
+gcloud storage ls --project=inspire-7-finep gs://destaquesgovbr-airflow/logs/
 ```
 
 ### Compute Engine

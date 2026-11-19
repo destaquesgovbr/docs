@@ -29,11 +29,11 @@ sequenceDiagram
     participant PS3 as Pub/Sub: embedded
     participant TSW as Typesense Sync Worker
     participant TS as Typesense
-    participant AF2 as Airflow (6AM UTC)
+    participant AF2 as Airflow (06h BRT)
     participant HF as HuggingFace
 
     rect rgb(227, 242, 253)
-        Note over AF,API: ETAPA 1: Scraping (a cada 15min, via Airflow)
+        Note over AF,API: ETAPA 1: Scraping (a cada 2 h, 06h–22h BRT, via Airflow)
         AF->>API: POST /scrape/agencies
         API->>GOV: Requisições HTTP (~155 sites)
         GOV-->>API: HTML das páginas
@@ -44,7 +44,7 @@ sequenceDiagram
     end
 
     rect rgb(255, 243, 224)
-        Note over AF,EBC: ETAPA 2: Scraping EBC (a cada 15min)
+        Note over AF,EBC: ETAPA 2: Scraping EBC (a cada 2 h, 06h–22h BRT)
         AF->>API: POST /scrape/ebc
         API->>EBC: Requisições HTTP (sites EBC)
         EBC-->>API: HTML das páginas
@@ -169,7 +169,7 @@ sequenceDiagram
 
 ### Etapa 6: Sync HuggingFace (Batch)
 
-**DAG Airflow**: `sync_postgres_to_huggingface` (6AM UTC)
+**DAG Airflow**: `sync_postgres_to_huggingface` (06h BRT, 09h UTC)
 
 **Processo**:
 

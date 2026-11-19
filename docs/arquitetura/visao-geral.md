@@ -271,7 +271,7 @@ Configurado para:
 **Dataset principal**: [nitaibezerra/govbrnews](https://huggingface.co/datasets/nitaibezerra/govbrnews)
 
 - ~300.000+ documentos
-- Sincronização diária via DAG Airflow `sync_postgres_to_huggingface` (6 AM UTC)
+- Sincronização diária via DAG Airflow `sync_postgres_to_huggingface` (06h BRT, 09h UTC)
 - Abordagem incremental (parquet shards)
 - Versionamento automático pelo HuggingFace
 
@@ -415,7 +415,7 @@ sequenceDiagram
     Airflow->>PG: query news_features
     Airflow->>BQ: insert analytics
 
-    Note over Airflow: DAG sync_postgres_to_huggingface (diário 6 AM)
+    Note over Airflow: DAG sync_postgres_to_huggingface (diário 06h BRT)
     Airflow->>PG: query novos registros
     Airflow->>HF: upload parquet shard
 
