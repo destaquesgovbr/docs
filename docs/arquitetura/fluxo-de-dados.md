@@ -7,7 +7,7 @@
 
 O pipeline de dados é baseado em **arquitetura event-driven** com Pub/Sub:
 
-1. **Scraping** (repo `scraper`): Via Airflow DAGs, a cada 15 minutos
+1. **Scraping** (repo `scraper`): Via Airflow (DAG `scrape_agencies`), a cada 2 horas das 06h às 22h (BRT)
 2. **Enriquecimento** (repo `data-science`): Via Enrichment Worker event-driven (Cloud Run)
 3. **Embeddings** (repo `embeddings`): Via Embeddings Worker event-driven (Cloud Run)
 4. **Indexação** (Typesense): Via Typesense Sync Worker event-driven (Cloud Run)
@@ -29,11 +29,11 @@ sequenceDiagram
     participant PS3 as Pub/Sub: embedded
     participant TSW as Typesense Sync Worker
     participant TS as Typesense
-    participant AF2 as Airflow (6AM UTC)
+    participant AF2 as Airflow (06h BRT)
     participant HF as HuggingFace
 
     rect rgb(227, 242, 253)
-        Note over AF,API: ETAPA 1: Scraping (a cada 15min, via Airflow)
+        Note over AF,API: ETAPA 1: Scraping (a cada 2 h, 06h–22h BRT, via Airflow)
         AF->>API: POST /scrape/agencies
         API->>GOV: Requisições HTTP (~155 sites)
         GOV-->>API: HTML das páginas
@@ -44,7 +44,7 @@ sequenceDiagram
     end
 
     rect rgb(255, 243, 224)
-        Note over AF,EBC: ETAPA 2: Scraping EBC (a cada 15min)
+        Note over AF,EBC: ETAPA 2: Scraping EBC (a cada 2 h, 06h–22h BRT)
         AF->>API: POST /scrape/ebc
         API->>EBC: Requisições HTTP (sites EBC)
         EBC-->>API: HTML das páginas
@@ -95,10 +95,10 @@ sequenceDiagram
 
 ### Etapa 1: Scraping gov.br
 
-**Repo**: `scraper` — via Airflow DAGs (a cada 15 min)
+**Repo**: `scraper` — via Airflow (a cada 2 h, das 06h às 22h BRT)
 
-- ~158 DAGs dinâmicas chamam `POST /scrape/agencies` na Scraper API (Cloud Run)
-- Cada agência é raspada independentemente
+- A DAG `scrape_agencies` tem uma task mapeada por agência (~147), e cada uma chama `POST /scrape/agencies` na Scraper API (Cloud Run), no máximo 4 ao mesmo tempo
+- Cada agência é raspada independentemente: uma agência quebrada falha só a task dela
 - Parse HTML → Markdown, gera `unique_id = MD5(agency + published_at + title)`
 - Insert no PostgreSQL + publicação de evento `dgb.news.scraped` no Pub/Sub
 
@@ -169,7 +169,7 @@ sequenceDiagram
 
 ### Etapa 6: Sync HuggingFace (Batch)
 
-**DAG Airflow**: `sync_postgres_to_huggingface` (6AM UTC)
+**DAG Airflow**: `sync_postgres_to_huggingface` (06h BRT, 09h UTC)
 
 **Processo**:
 
@@ -289,9 +289,9 @@ sequenceDiagram
 - DLQ monitoring para eventos falhados
 
 ### Airflow
-- Web UI do Cloud Composer para DAGs
-- Logs de execução por task
-- Alertas de falha via email
+- Web UI do Airflow próprio em `https://airflow.dgb.app.gov.br` (via IAP)
+- Logs das tasks no GCS (`gs://destaquesgovbr-airflow/logs`, 30 dias) e dos containers no Cloud Logging
+- Alertas no Telegram: saúde do scraping (`monitor_scraping_health`) e "Airflow sem heartbeat"
 
 ### Métricas
 - Quantidade de artigos raspados por execução

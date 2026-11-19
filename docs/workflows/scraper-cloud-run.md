@@ -6,18 +6,17 @@
 
 ## Visão Geral
 
-A **Scraper API** é um serviço HTTP que encapsula a lógica de scraping de sites governamentais brasileiros (~155 agências gov.br + EBC). A API roda no **Cloud Run** e é chamada por **~156 DAGs Airflow** (Cloud Composer) que distribuem o scraping ao longo do tempo.
+A **Scraper API** é um serviço HTTP que encapsula a lógica de scraping de sites governamentais brasileiros (~155 agências gov.br + EBC). A API roda no **Cloud Run** e é chamada pela DAG **`scrape_agencies`** (uma task mapeada por agência) e pela `scrape_ebc`, no Airflow próprio da VM `destaquesgovbr-airflow`, a cada 2 h das 06h às 22h (BRT).
 
 ### Arquitetura
 
 ```mermaid
 graph TB
-    subgraph Cloud Composer
-        DAG1[scrape_mec<br/>offset: 0min]
-        DAG2[scrape_saude<br/>offset: 1min]
-        DAG3[scrape_mre<br/>offset: 2min]
-        DAGN[~155 DAGs<br/>distribuídas]
-        DAGEBC[scrape_ebc<br/>offset: 0min]
+    subgraph "Airflow próprio (VM destaquesgovbr-airflow)"
+        DAG1[scrape_agencies<br/>task scrape: mec]
+        DAG2[scrape_agencies<br/>task scrape: saude]
+        DAGN[... ~147 tasks mapeadas<br/>4 ao mesmo tempo]
+        DAGEBC[scrape_ebc]
     end
     
     subgraph Cloud Run
@@ -35,7 +34,6 @@ graph TB
     
     DAG1 -->|HTTP POST<br/>IAM Auth| API
     DAG2 -->|HTTP POST<br/>IAM Auth| API
-    DAG3 -->|HTTP POST<br/>IAM Auth| API
     DAGN -->|HTTP POST<br/>IAM Auth| API
     DAGEBC -->|HTTP POST<br/>IAM Auth| API
     
@@ -179,7 +177,7 @@ Health check endpoint.
 | **Web Server** | Uvicorn |
 | **Database** | PostgreSQL 15 |
 | **Deploy** | Cloud Run |
-| **Orquestração** | Cloud Composer (Airflow) |
+| **Orquestração** | Airflow 3.1 próprio (VM `destaquesgovbr-airflow`) |
 
 ### Estrutura de Código
 
@@ -341,7 +339,7 @@ gcloud run deploy scraper-api \
 - `--no-allow-unauthenticated`: Apenas Airflow (via IAM) pode chamar
 - `timeout=600` (10 min): Scraping pode demorar para múltiplas agências
 - `memory=2Gi`: HTML parsing e markdown conversion precisam de memória
-- `min-instances=0`: Cold start aceitável (DAGs rodam a cada 10 min)
+- `min-instances=0`: Cold start aceitável (scraping a cada 2 h)
 
 ### GitHub Actions Workflow
 
@@ -390,107 +388,56 @@ jobs:
 
 ## Orquestração com Airflow
 
-### DAG Factory Pattern
+### Uma DAG com task mapeada por agência
 
-A API é chamada por **~155 DAGs dinâmicas**, uma por agência gov.br:
+A API é chamada pela DAG **`scrape_agencies`**: uma task `scrape` mapeada (dynamic task mapping) por agência ativa do `site_urls.yaml`, com a sigla como map index, e a task final `summarize`. Versão simplificada de `dags/scrape_agencies.py`:
 
 ```python
-# dags/scrape_agencies.py
+@dag(
+    dag_id="scrape_agencies",
+    schedule="0 6-22/2 * * *",  # 06h às 22h (BRT), 9 execuções por dia
+    start_date=datetime(2025, 1, 1),
+    catchup=False,
+    max_active_runs=1,
+    params={"start_date": Param(None, ...), "end_date": Param(None, ...)},  # recuperação
+    default_args={
+        "retries": 2,                          # só erro passageiro repete
+        "retry_delay": timedelta(minutes=5),   # intervalo fixo (sem backoff exponencial)
+        "execution_timeout": timedelta(minutes=10),
+    },
+)
+def scrape_agencies_dag():
+    @task(map_index_template="{{ agency_key }}", max_active_tis_per_dag=4)
+    def scrape(agency_key: str):
+        # janela: 9 h antes da execução (a das 06h cobre a madrugada), em datas de Brasília
+        min_date, max_date = _resolve_window(...)
+        token = google.oauth2.id_token.fetch_id_token(request, scraper_api_url)
+        response = httpx.post(
+            f"{scraper_api_url}/scrape/agencies",
+            json={"start_date": min_date, "end_date": max_date,
+                  "agencies": [agency_key], "allow_update": False, "sequential": True},
+            headers={"Authorization": f"Bearer {token}"},
+        )
+        # erro permanente (todos os errors[] com retryable=false): AirflowFailException, sem retry
+        # erro passageiro: AirflowException, o Airflow repete
+        _check_scrape_response(response.status_code, response.json(), agency_key)
+        return {"agency": agency_key, "articles_new": ..., "articles_saved": ...}
 
-def create_scraper_dag(agency_key: str, agency_url: str, minute_offset: int = 0):
-    """Factory que cria uma DAG de scraping para uma agência."""
-    
-    @dag(
-        dag_id=f"scrape_{agency_key}",
-        description=f"Scrape notícias de {agency_key}",
-        schedule=f"{minute_offset}/10 * * * *",  # A cada 10 min, offset distribuído
-        start_date=datetime(2025, 1, 1),
-        catchup=False,
-        max_active_runs=1,
-        tags=["scraper", "govbr", agency_key],
-        default_args={
-            "retries": 2,
-            "retry_delay": timedelta(minutes=5),
-            "execution_timeout": timedelta(minutes=10),
-        },
-    )
-    def scraper_dag():
-        
-        @task
-        def scrape(**context):
-            import httpx
-            import google.oauth2.id_token
-            from airflow.models import Variable
-            
-            scraper_api_url = Variable.get("scraper_api_url")
-            
-            # Token IAM para autenticação no Cloud Run
-            token = google.oauth2.id_token.fetch_id_token(
-                google.auth.transport.requests.Request(),
-                scraper_api_url
-            )
-            
-            logical_date = context["logical_date"]
-            
-            # Chamar API
-            response = httpx.post(
-                f"{scraper_api_url}/scrape/agencies",
-                json={
-                    "start_date": logical_date.strftime("%Y-%m-%d"),
-                    "agencies": [agency_key],
-                    "allow_update": False,
-                    "sequential": True,
-                },
-                headers={"Authorization": f"Bearer {token}"},
-                timeout=600,
-            )
-            
-            response.raise_for_status()
-            result = response.json()
-            
-            # Log métricas
-            logger.info(
-                f"Scraping {agency_key}: {result['articles_scraped']} scraped, "
-                f"{result['articles_saved']} saved"
-            )
-            
-            return result
-        
-        scrape()
-    
-    return scraper_dag()
+    @task(trigger_rule="all_done", retries=0)
+    def summarize(results, expected_agencies):
+        # só falha se nenhuma agência funcionou ou se a fração de falhas passou
+        # de scraper_max_failed_ratio (padrão 0,10)
+        ...
 
-
-# Gerar DAGs dinamicamente
-agencies = _load_agencies_config()  # Carrega de site_urls.yaml
-
-for idx, (key, url) in enumerate(agencies.items()):
-    minute_offset = idx % 10  # Distribui: offset 0-9 (minutos)
-    dag_instance = create_scraper_dag(key, url, minute_offset)
-    globals()[f"scrape_{key}"] = dag_instance
+    scraped = scrape.expand(agency_key=ACTIVE_AGENCY_KEYS)
+    summarize(scraped, ACTIVE_AGENCY_KEYS)
 ```
 
-### Distribuição Temporal
+Até nov/2026 eram ~147 DAGs `scrape_<agencia>` geradas por uma factory, cada uma a cada 10 min com offset de minuto. Elas eram 96,7% das execuções de task do Cloud Composer. A troca por uma DAG só, a cada 2 h, veio junto com a migração para o Airflow próprio.
 
-**Problema**: ~155 DAGs rodando simultaneamente podem sobrecarregar Cloud Run e sites gov.br.
+### Concorrência
 
-**Solução**: Distribuir DAGs ao longo da janela de 10 minutos usando `minute_offset`:
-
-```
-Minuto 0: scrape_mec, scrape_mds, ... (~16 DAGs)
-Minuto 1: scrape_saude, scrape_fazenda, ... (~16 DAGs)
-Minuto 2: scrape_mre, scrape_agricultura, ... (~16 DAGs)
-...
-Minuto 9: scrape_educacao, scrape_turismo, ... (~15 DAGs)
-```
-
-**Cálculo**:
-```python
-minute_offset = idx % 10  # idx é o índice da agência (0-154)
-schedule = f"{minute_offset}/10 * * * *"  # Cron: A cada 10 min, offset {minute_offset}
-```
-
-**Resultado**: ~16 DAGs por minuto, reduz pico de requisições de 155 → 16 simultâneas.
+Todas as agências estão no mesmo host (www.gov.br). A `scrape_agencies` limita a 4 as agências raspadas ao mesmo tempo (`max_active_tis_per_dag`, ajustável pelo env `SCRAPE_MAX_CONCURRENT_AGENCIES` dos containers do Airflow). Isso também espalha a rajada de eventos no pipeline downstream. Uma execução leva ~4 a 5 min.
 
 ---
 
@@ -518,7 +465,7 @@ airflow variables set scraper_api_url "https://scraper-api-xxx.a.run.app"
 
 ### IAM Permissions
 
-**Service Account da DAG** precisa:
+**Service Account do Airflow** (`destaquesgovbr-composer@inspire-7-finep.iam.gserviceaccount.com`, nome herdado do Composer; hoje é a SA da VM) precisa:
 ```yaml
 roles:
   - roles/run.invoker  # Chamar Cloud Run API
@@ -650,25 +597,19 @@ gcloud sql instances describe destaques-govbr-postgres
 
 ### Problema: DAG falha com "403 Forbidden"
 
-**Causa**: Service Account da DAG não tem `roles/run.invoker`.
+**Causa**: a Service Account do Airflow (`destaquesgovbr-composer@inspire-7-finep.iam.gserviceaccount.com`, a SA da VM) não tem `roles/run.invoker` no serviço.
 
-**Solução**:
+**Solução**: a role é gerenciada pelo Terraform (repo `infra`); corrija lá, por PR. Para conferir (somente leitura):
 ```bash
-# Identificar SA da DAG
-SA_EMAIL=$(gcloud composer environments describe destaquesgovbr-composer \
-  --location us-central1 \
-  --format="value(config.nodeConfig.serviceAccount)")
-
-# Adicionar role
-gcloud run services add-iam-policy-binding scraper-api \
-  --region=southamerica-east1 \
-  --member="serviceAccount:${SA_EMAIL}" \
-  --role="roles/run.invoker"
+gcloud run services get-iam-policy destaquesgovbr-scraper-api \
+  --region=southamerica-east1 --project=inspire-7-finep \
+  --flatten="bindings[].members" --filter="bindings.role:roles/run.invoker" \
+  --format="value(bindings.members)"
 ```
 
 ---
 
-### Problema: Múltiplas DAGs falhando simultaneamente
+### Problema: Muitas agências falhando na mesma execução
 
 **Causa**: Cloud Run atingiu `max-instances` ou sites gov.br instáveis.
 
@@ -689,17 +630,14 @@ curl -I https://www.mec.gov.br/ultimas-noticias
 
 ### Cálculo
 
-| Item | Quantidade | Custo Unitário | Custo Mensal |
-|------|-----------|---------------|--------------|
-| **Cloud Run (requests)** | ~156 DAGs × 4.320/mês (10min) | $0.40/million | $0.27 |
-| **Cloud Run (CPU time)** | 30s/request × 673k | $0.000024/GB-s | $483.84 |
-| **Cloud Run (memory)** | 2Gi × 30s × 673k | $0.0000025/GiB-s | $50.47 |
-| **Total** | - | - | **~$534.58/mês** |
+| Item | Até nov/2026 (~147 DAGs, de 10 em 10 min) | Desde nov/2026 (`scrape_agencies`, de 2 em 2 h, 06h–22h) |
+|------|-------------------------------------------|----------------------------------------------------------|
+| Chamadas à API por dia | ~21 mil | ~1,4 mil (~150 agências × 9 execuções, mais retries e EBC) |
+| Custo do scraper-api (Cloud Run) | ~US$ 34/mês | ~US$ 4/mês |
 
-**Assumptions**:
-- 156 DAGs × 6 runs/hora × 24h × 30 dias = ~673k requests/mês
-- Scraping duration ~30s/agência
-- 2GiB memory allocation
+**Premissas**:
+- Medição de nov/2026 (`billable_instance_time` do Cloud Run, plano de migração do Composer no repo `infra`)
+- Cobrança só durante as requisições (CPU não alocada fora delas)
 
 **Otimizações**:
 - Reduzir para 1GiB se scraping for otimizado

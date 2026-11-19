@@ -9,15 +9,15 @@
 
 O pipeline é baseado em **arquitetura event-driven** com Cloud Pub/Sub:
 
-1. **Scraping** (repo `scraper`): Via Airflow DAGs, a cada 15 minutos → publica eventos
+1. **Scraping** (repo `scraper`): Via Airflow (DAG `scrape_agencies`), a cada 2 horas das 06h às 22h → publica eventos
 2. **Enrichment** (repo `data-science`): Via Enrichment Worker (Cloud Run) → event-driven
 3. **Embeddings** (repo `embeddings`): Via Embeddings Worker (Cloud Run) → event-driven
 4. **Indexação**: Via Typesense Sync Worker (Cloud Run) → event-driven
 
 ```mermaid
 flowchart LR
-    subgraph "Scraping (Airflow, a cada 15min)"
-        DAG[~158 DAGs] -->|HTTP POST| API[Scraper API<br/>Cloud Run]
+    subgraph "Scraping (Airflow, a cada 2 h, 06h–22h)"
+        DAG[scrape_agencies<br/>1 task por agência] -->|HTTP POST| API[Scraper API<br/>Cloud Run]
         API -->|INSERT + publish| PG[(PostgreSQL)]
         API -->|publish| PS1{{dgb.news.scraped}}
     end
@@ -50,17 +50,19 @@ flowchart LR
 
 ### Como funciona
 
-- ~158 DAGs dinâmicas (1 por agência gov.br) + 1 DAG EBC
-- Cada DAG roda a cada **15 minutos**
-- A DAG faz HTTP POST para a Scraper API no Cloud Run
+- Uma DAG, `scrape_agencies`, com uma task mapeada por agência gov.br ativa (~147, a sigla é o map index), mais a DAG `scrape_ebc`
+- As duas rodam a cada **2 horas, das 06h às 22h** (BRT, 9 execuções por dia), no Airflow próprio da VM `destaquesgovbr-airflow`
+- Cada task faz HTTP POST para a Scraper API no Cloud Run, com no máximo 4 agências ao mesmo tempo
 - A API raspa o site, parseia HTML → Markdown, e insere no PostgreSQL
+- Até nov/2026 eram ~147 DAGs `scrape_<agencia>`, cada uma a cada 10 min, no Cloud Composer
 
 ### DAGs
 
-| DAG | Schedule | Descrição |
+| DAG | Schedule (BRT) | Descrição |
 |-----|----------|-----------|
-| `scrape_{agency_key}` (~158) | `*/15 * * * *` | Raspa 1 agência gov.br |
-| `scrape_ebc` | `*/15 * * * *` | Raspa sites EBC |
+| `scrape_agencies` | `0 6-22/2 * * *` | Raspa as agências gov.br ativas (task `scrape` mapeada por agência + `summarize`) |
+| `scrape_ebc` | `0 6-22/2 * * *` | Raspa sites EBC |
+| `monitor_scraping_health` | `30 6-22/2 * * *` | Alerta agências sem execução, com falhas consecutivas ou sem notícias novas |
 
 ### API Endpoints
 
@@ -75,7 +77,7 @@ flowchart LR
 | Componente | Destino | Workflow |
 |-----------|---------|----------|
 | API | Cloud Run | `scraper-api-deploy.yaml` |
-| DAGs | Composer bucket `{bucket}/scraper/` | `composer-deploy-dags.yaml` |
+| DAGs | `gs://destaquesgovbr-airflow/dags/scraper/` (reusable `airflow-deploy-dags.yml@v3`) | `composer-deploy-dags.yaml` |
 
 ### Config Sync: site_urls.yaml (Dual YAML)
 
@@ -146,7 +148,7 @@ agencies:
 
 **Campos**:
 - `url` (obrigatório): URL da página de notícias
-- `active` (opcional, default: `true`): Se `false`, não gera DAG no Airflow
+- `active` (opcional, default: `true`): Se `false`, a agência não ganha task na `scrape_agencies`
 - `disabled_reason` (opcional): Motivo da desativação
 - `disabled_date` (opcional): Data da desativação
 
@@ -196,7 +198,7 @@ sequenceDiagram
     participant TSW as Typesense Sync Worker
     participant TS as Typesense
 
-    Note over AF: A cada 15 min
+    Note over AF: A cada 2 h (06h–22h)
 
     AF->>API: POST /scrape/agencies
     API->>GOV: Fetch sites
@@ -267,7 +269,7 @@ sequenceDiagram
 | `DATABASE_URL` | Connection string PostgreSQL |
 | `GCP_PROJECT_ID` | Projeto GCP para Pub/Sub |
 | `PUBSUB_TOPIC_SCRAPED` | Nome do topic scraped |
-| GCP SA credentials | Para deploy no Cloud Run e Composer |
+| GCP SA credentials | Para deploy no Cloud Run e no bucket do Airflow |
 
 ---
 
@@ -275,12 +277,16 @@ sequenceDiagram
 
 ### Scraping (Airflow)
 
-```bash
-# Acessar Web UI do Airflow
-gcloud composer environments describe destaquesgovbr-composer \
-    --location us-central1 \
-    --format="value(config.airflowUri)"
+UI do Airflow: [https://airflow.dgb.app.gov.br](https://airflow.dgb.app.gov.br) (via IAP), DAG `scrape_agencies` → task `scrape` → aba **Mapped Tasks** (uma linha por agência).
+
+```sql
+-- Saúde por agência nas últimas 24 h (somente leitura)
+SELECT agency_key, count(*) FILTER (WHERE status = 'error') AS erros, max(scraped_at) AS ultima
+FROM scrape_runs WHERE scraped_at > now() - interval '24 hours'
+GROUP BY 1 ORDER BY 2 DESC LIMIT 10;
 ```
+
+Para diagnóstico e recuperação (CLI do Airflow na VM via SSH IAP, logs das tasks no GCS), veja o [runbook do scraper](https://github.com/destaquesgovbr/scraper/blob/main/docs/runbook.md) e [Airflow DAGs](./airflow-dags.md#monitoramento).
 
 ### Workers Event-Driven (Cloud Run + Pub/Sub)
 
@@ -307,7 +313,7 @@ gcloud pubsub subscriptions pull dgb.news.embedded-dlq --limit=10
 
 ## Sync HuggingFace (Separado)
 
-O sync para o HuggingFace é feito via DAG no Cloud Composer (repo `data-platform`), não faz parte dos pipelines acima.
+O sync para o HuggingFace é feito pela DAG `sync_postgres_to_huggingface` no Airflow próprio (repo `data-publishing`), não faz parte dos pipelines acima.
 
 → Veja [Airflow DAGs](./airflow-dags.md) para detalhes.
 

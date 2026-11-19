@@ -116,7 +116,7 @@ flowchart TB
 | PostgresManager | Insert no PostgreSQL + publicação de eventos Pub/Sub |
 | EventPublisher | Publica evento `dgb.news.scraped` após INSERT |
 
-**Trigger**: DAGs Airflow (cron 15 min) chamam `POST /scrape` por agência
+**Trigger**: DAG Airflow `scrape_agencies` (a cada 2 h, 06h–22h BRT) chama `POST /scrape/agencies` numa task mapeada por agência
 
 **Dados extraídos por notícia:**
 
@@ -271,7 +271,7 @@ Configurado para:
 **Dataset principal**: [nitaibezerra/govbrnews](https://huggingface.co/datasets/nitaibezerra/govbrnews)
 
 - ~300.000+ documentos
-- Sincronização diária via DAG Airflow `sync_postgres_to_huggingface` (6 AM UTC)
+- Sincronização diária via DAG Airflow `sync_postgres_to_huggingface` (06h BRT, 09h UTC)
 - Abordagem incremental (parquet shards)
 - Versionamento automático pelo HuggingFace
 
@@ -351,7 +351,7 @@ flowchart LR
 
 ```mermaid
 sequenceDiagram
-    participant Airflow as Airflow DAG (cron 15min)
+    participant Airflow as Airflow DAG (a cada 2 h)
     participant Scraper as Scraper API
     participant PG as PostgreSQL
     participant PS1 as Pub/Sub: scraped
@@ -364,7 +364,7 @@ sequenceDiagram
     participant TS as Typesense
     participant Portal as Portal Next.js
 
-    Note over Airflow: Trigger 15 min
+    Note over Airflow: Trigger a cada 2 h (06h–22h)
 
     Airflow->>Scraper: POST /scrape (agency)
     Scraper->>Scraper: scrape gov.br site
@@ -401,7 +401,7 @@ Alguns processos ainda rodam em batch (DAGs Airflow) por natureza não-crítica:
 
 ```mermaid
 sequenceDiagram
-    participant Airflow as Cloud Composer
+    participant Airflow as Airflow próprio (VM)
     participant PG as PostgreSQL
     participant GCS as GCS (Bronze)
     participant BQ as BigQuery (Gold)
@@ -415,7 +415,7 @@ sequenceDiagram
     Airflow->>PG: query news_features
     Airflow->>BQ: insert analytics
 
-    Note over Airflow: DAG sync_postgres_to_huggingface (diário 6 AM)
+    Note over Airflow: DAG sync_postgres_to_huggingface (diário 06h BRT)
     Airflow->>PG: query novos registros
     Airflow->>HF: upload parquet shard
 
@@ -433,7 +433,7 @@ sequenceDiagram
 - **FastAPI** para workers Cloud Run
 - **BeautifulSoup4** para parsing HTML
 - **datasets** + **huggingface_hub** para sync HF
-- **Apache Airflow 3** (Cloud Composer)
+- **Apache Airflow 3.1** (próprio, em docker compose na VM `destaquesgovbr-airflow`)
 
 ### Frontend (Portal)
 
@@ -446,7 +446,7 @@ sequenceDiagram
 
 ### Infraestrutura
 
-- **GCP** - Cloud Run (8 services), Compute Engine (Typesense), Cloud SQL, Cloud Composer, Cloud Pub/Sub, GCS, BigQuery
+- **GCP** - Cloud Run (8 services), Compute Engine (Typesense e Airflow), Cloud SQL, Cloud Pub/Sub, GCS, BigQuery
 - **AWS** - Bedrock (Claude 3 Haiku)
 - **Terraform** - IaC (infra repo)
 - **Docker** - Containerização
@@ -460,7 +460,7 @@ sequenceDiagram
 | Cloud SQL (PostgreSQL) | ~$48 | - |
 | Compute Engine (Typesense) | ~$64 | - |
 | Cloud Run (8 services) | ~$25 | +$10 (workers) |
-| Cloud Composer (Airflow) | ~$100-150 | - |
+| Airflow próprio (VM + LB) | ~$106-113 | Substituiu o Cloud Composer em 18/11/2026 |
 | Cloud Pub/Sub | ~$2 | +$2 (novo) |
 | GCS (Bronze layer) | ~$2 | +$2 (novo) |
 | BigQuery (Gold layer) | ~$2 | +$2 (novo) |

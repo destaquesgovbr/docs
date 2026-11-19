@@ -22,7 +22,7 @@ O **data-platform** é responsável por armazenamento, workers de processamento 
 graph TB
     subgraph "Coleta (repo scraper)"
         S[Scraper API<br/>Cloud Run]
-        DAG_S[DAGs Airflow<br/>~158 agências + EBC]
+        DAG_S[DAG scrape_agencies<br/>~147 agências + EBC]
     end
 
     subgraph "Event Mesh (Pub/Sub)"

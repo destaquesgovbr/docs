@@ -9,10 +9,10 @@
 
 O **scraper** é um repositório standalone que coleta notícias de ~155 agências governamentais (gov.br) e da EBC (Agência Brasil, TV Brasil, etc.).
 
-A coleta é orquestrada por **DAGs Airflow** (Cloud Composer) que chamam uma **API FastAPI** hospedada no Cloud Run. Os dados são inseridos diretamente no PostgreSQL (insert-only).
+A coleta é orquestrada por **DAGs Airflow** (Airflow próprio na VM `destaquesgovbr-airflow`) que chamam uma **API FastAPI** hospedada no Cloud Run. Os dados são inseridos diretamente no PostgreSQL (insert-only).
 
 ```
-DAGs Airflow (a cada 15min)
+DAG scrape_agencies (a cada 2 h, 06h–22h BRT; 1 task por agência)
     → HTTP POST para Cloud Run API
         → Scraper faz fetch do site gov.br
             → Parse HTML → Markdown
@@ -23,8 +23,8 @@ DAGs Airflow (a cada 15min)
 
 ```mermaid
 graph TB
-    subgraph "Cloud Composer"
-        DAG1[~158 DAGs scrape_agency]
+    subgraph "Airflow próprio (VM)"
+        DAG1[scrape_agencies<br/>~147 tasks mapeadas]
         DAG2[scrape_ebc]
     end
 
@@ -67,14 +67,15 @@ scraper/
 │   └── models/
 │       └── news.py               # Modelos Pydantic
 ├── dags/                          # DAGs Airflow
-│   ├── scrape_agencies.py         # ~158 DAGs dinâmicas
+│   ├── scrape_agencies.py         # 1 DAG, 1 task mapeada por agência
 │   ├── scrape_ebc.py              # 1 DAG EBC
+│   ├── monitor_scraping_health.py # alertas (Pub/Sub dgb.ops.alerts → Telegram)
 │   └── config/
 │       └── site_urls.yaml
 ├── docker/Dockerfile
 └── .github/workflows/
     ├── scraper-api-deploy.yaml
-    ├── composer-deploy-dags.yaml
+    ├── composer-deploy-dags.yaml  # deploy das DAGs no Airflow (nome antigo)
     └── tests.yaml
 ```
 
@@ -102,16 +103,21 @@ A API roda no Cloud Run e é chamada pelas DAGs Airflow.
 
 ## DAGs Airflow
 
-| DAG | Quantidade | Schedule | Descrição |
-|-----|-----------|----------|-----------|
-| `scrape_{agency_key}` | ~158 | A cada 15min | 1 DAG por agência gov.br |
-| `scrape_ebc` | 1 | A cada 15min | Sites EBC |
+| DAG | Schedule (BRT) | Descrição |
+|-----|----------------|-----------|
+| `scrape_agencies` | `0 6-22/2 * * *` (06h–22h, 9x/dia) | 1 task `scrape` mapeada por agência gov.br ativa (~147, sigla no map index) + `summarize` |
+| `scrape_ebc` | `0 6-22/2 * * *` | Sites EBC |
+| `monitor_scraping_health` | `30 6-22/2 * * *` | Agências sem execução, falhas consecutivas e sem notícias novas |
+| `cleanup_old_scrape_runs` | `0 3 * * *` | Retenção do `scrape_runs` (90 dias) |
+| `scraper_coverage_report` | `0 8 * * *` | Cobertura das últimas 24 h |
 
-Cada DAG:
+Cada task de scraping:
 
-- Chama a API no Cloud Run via HTTP POST
-- Retry: 2x com backoff de 5min
-- Timeout: 15min por execução
+- Chama a API no Cloud Run via HTTP POST (ID token IAM), no máximo 4 agências ao mesmo tempo
+- Retry: 2x a cada 5 min, só para erro passageiro (erro permanente falha sem retry)
+- Timeout: 10 min por agência (30 min na EBC)
+
+Até nov/2026 eram ~147 DAGs `scrape_<agencia>`, cada uma a cada 10 min, no Cloud Composer.
 
 → Veja [Airflow DAGs](../workflows/airflow-dags.md) para detalhes de deploy e configuração.
 
@@ -128,7 +134,7 @@ LOG_LEVEL=INFO                  # Loguru level
 | Componente | Destino | Workflow |
 |-----------|---------|----------|
 | **API** | Cloud Run | `scraper-api-deploy.yaml` |
-| **DAGs** | Cloud Composer (`{bucket}/scraper/`) | `composer-deploy-dags.yaml` |
+| **DAGs** | Airflow próprio (`gs://destaquesgovbr-airflow/dags/scraper/`) | `composer-deploy-dags.yaml` (reusable `airflow-deploy-dags.yml@v3`) |
 
 → Veja [Docker Builds](../workflows/docker-builds.md) para detalhes de build da imagem.
 

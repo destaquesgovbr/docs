@@ -229,7 +229,7 @@ O dataset no HuggingFace é a **camada de distribuição** de dados abertos, sin
 | Característica | Valor |
 |----------------|-------|
 | Documentos | ~300.000+ |
-| Sincronização | Diária (6AM UTC via Airflow) |
+| Sincronização | Diária (06h BRT, 09h UTC, via Airflow) |
 | Formato | Parquet (shards incrementais) |
 | Versionamento | Automático pelo HF |
 
@@ -359,7 +359,7 @@ graph TB
 ### Dados (Automatizado)
 ```
 Scraper → PostgreSQL → Typesense (sync diário)
-                     → HuggingFace (DAG Airflow 6AM UTC)
+                     → HuggingFace (DAG Airflow 06h BRT)
 ```
 
 ### Componentes Estruturantes (Manual)
