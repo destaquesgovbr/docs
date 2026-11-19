@@ -89,10 +89,8 @@ gs://destaquesgovbr-airflow/
 
 Os crons usam o fuso padrão do Airflow, `America/Sao_Paulo` (BRT).
 
-!!! warning "Pendência da virada: 5 DAGs ainda pausadas na VM"
-    Em 18/11/2026, `sync_pg_to_bigquery`, `sync_umami_to_bigquery`, `canonicalize_backfill`, `ner_backfill` e `enrichment_backfill` ficaram **pausadas** na VM e ainda não rodaram lá. Não foi decisão: no Composer as cinco rodaram até 18/11, e a virada despausou as demais DAGs, mas não estas. Enquanto estiverem pausadas, o `fato_noticias` do BigQuery não recebe as notícias novas (o `compute_trending` lê dele), o Umami não chega ao BigQuery e os backfills param.
-
-    Para despausar (muda estado, com confirmação de quem opera): `sudo docker exec airflow-airflow-scheduler-1 airflow dags unpause <dag_id>` na VM. Despausadas, apague este aviso e a marca "pausada" da tabela.
+!!! info "Virada concluída em 19/11/2026"
+    As 5 DAGs não idempotentes (`sync_pg_to_bigquery`, `sync_umami_to_bigquery`, `canonicalize_backfill`, `ner_backfill` e `enrichment_backfill`) foram despausadas na VM logo depois do próprio slot, para que cada intervalo rodasse uma vez só. Desde então todas as DAGs dos repos rodam no Airflow próprio.
 
 | Repo | DAG | Schedule (BRT) | O que faz |
 |------|-----|----------------|-----------|
@@ -110,11 +108,11 @@ Os crons usam o fuso padrão do Airflow, `America/Sao_Paulo` (BRT).
 | `data-platform` | `generate_video_thumbnails` | `0 */4 * * *` | Thumbnails de notícias de vídeo |
 | `data-platform` | `compute_clusters` | `30 7 * * *` | Notícias similares (pgvector) |
 | `data-platform` | `aggregate_engagement` | `0 8 * * *` | Pageviews do portal → `news_features` |
-| `data-platform` | `sync_pg_to_bigquery` | `0 7 * * *` (**pausada**, ver aviso) | PostgreSQL → BigQuery (`fato_noticias` e dimensões) |
-| `data-platform` | `sync_umami_to_bigquery` | `0 9 * * *` (**pausada**, ver aviso) | Umami → BigQuery |
-| `data-platform` | `canonicalize_backfill` | `0 */6 * * *` (**pausada**, ver aviso) | Backfill da canonicalização de entidades via Cloud Run Job, sob governador de cota |
-| `data-platform` | `ner_backfill` | `0 2-23/6 * * *` (**pausada**, ver aviso) | Backfill do NER histórico via Cloud Run Job, sob governador de cota |
-| `data-platform` | `enrichment_backfill` | `30 1,4,22 * * *` (**pausada**, ver aviso) | Backfills de enriquecimento (tema, resumo, sentimento) via Cloud Run Job |
+| `data-platform` | `sync_pg_to_bigquery` | `0 7 * * *` | PostgreSQL → BigQuery (`fato_noticias` e dimensões) |
+| `data-platform` | `sync_umami_to_bigquery` | `0 9 * * *` | Umami → BigQuery |
+| `data-platform` | `canonicalize_backfill` | `0 */6 * * *` | Backfill da canonicalização de entidades via Cloud Run Job, sob governador de cota |
+| `data-platform` | `ner_backfill` | `0 2-23/6 * * *` | Backfill do NER histórico via Cloud Run Job, sob governador de cota |
+| `data-platform` | `enrichment_backfill` | `30 1,4,22 * * *` | Backfills de enriquecimento (tema, resumo, sentimento) via Cloud Run Job |
 | `infra` | `airflow_heartbeat` | `*/15 * * * *` | Grava um heartbeat no Cloud Logging. Sem heartbeat por 45 min, o alerta "Airflow sem heartbeat" vai para o Telegram |
 
 ### DAGs do Scraper (repo `scraper`)
